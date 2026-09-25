@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+venv/
+.venv/
+env/
+
+# Dados do usuário (gerados em tempo de execução)
+progresso.json
+reviews.json
+chatochat.json
+perfis.json
+assets/perfis/
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
