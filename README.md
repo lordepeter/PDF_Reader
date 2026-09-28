@@ -9,16 +9,6 @@
 
 ---
 
-## 📸 Screenshots
-
-> *Substitua pelos seus prints reais. Sugestão: 3 imagens — tela inicial, catálogo com barra de progresso, leitor aberto.*
-
-| Tela Inicial | Catálogo | Leitor |
-|---|---|---|
-| ![Tela Inicial](docs/screenshots/inicio.png) | ![Catálogo](docs/screenshots/catalogo.png) | ![Leitor](docs/screenshots/leitor.png) |
-
----
-
 ## 🎯 Sobre o Projeto
 
 **MangaReader 2000** é uma aplicação desktop desenvolvida em **Python** como projeto de estudo e portfólio de Engenharia de Software. O objetivo é oferecer um leitor de mangás/PDFs completo, com interface retrô, gerenciamento de biblioteca, catálogo de obras para download e funcionalidades sociais simuladas (perfis, reviews e chat).
