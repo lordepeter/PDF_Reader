@@ -43,11 +43,16 @@ class PerfisRepositoryProtocol(Protocol):
     def atualizar(self, perfil: Perfil) -> None: ...
     def definir_ativo(self, nome: str) -> None: ...
     def ativo(self) -> Optional[Perfil]: ...
+    def eh_favorito(self, perfil_id: str, obra_id: str) -> bool: ...
+    def alternar_favorito(self, perfil_id: str, obra_id: str) -> tuple[bool, str]: ...
+    def definir_favoritos(self, perfil_id: str, obra_ids: List[str]) -> None: ...
 
 
 @runtime_checkable
 class ReviewsRepositoryProtocol(Protocol):
     def listar_por_perfil(self, perfil: str) -> List[Review]: ...
+    def listar_por_obra(self, obra: str, obra_id: Optional[str] = None) -> List[Review]: ...
+    def media_da_obra(self, obra: str, obra_id: Optional[str] = None) -> tuple[float, int]: ...
     def obter(self, review_id: str) -> Optional[Review]: ...
     def adicionar(self, review: Review) -> None: ...
     def atualizar(self, review: Review) -> None: ...
@@ -66,6 +71,7 @@ class ChatRepositoryProtocol(Protocol):
 class CatalogoRepositoryProtocol(Protocol):
     def listar(self) -> List[CatalogoItem]: ...
     def obter(self, item_id: str) -> Optional[CatalogoItem]: ...
+    def obter_por_nome(self, nome: str) -> Optional[CatalogoItem]: ...
 
 # ============================================================
 # UTILITÁRIOS
@@ -147,6 +153,7 @@ class RepositorioProgresso:
 # ============================================================
 class RepositorioPerfis:
     PERFIL_PADRAO = "Leitor"
+    LIMITE_FAVORITOS = 5 
 
     def __init__(self, caminho_arquivo: str):
         self.caminho = caminho_arquivo
@@ -213,6 +220,59 @@ class RepositorioPerfis:
 
     def ativo(self) -> Optional[Perfil]:
         return self.obter(self.perfil_ativo)
+    
+    def _obter_por_id(self, perfil_id: str) -> Optional[Perfil]:
+        return next((p for p in self.perfis if p.id == perfil_id), None)
+
+    def eh_favorito(self, perfil_id: str, obra_id: str) -> bool:
+        perfil = self._obter_por_id(perfil_id)
+        if perfil is None:
+            return False
+        return obra_id in perfil.favoritos
+
+    def alternar_favorito(self, perfil_id: str, obra_id: str) -> tuple[bool, str]:
+        """Adiciona/remove dos favoritos. Retorna (sucesso, mensagem)."""
+        perfil = self._obter_por_id(perfil_id)
+        if perfil is None:
+            return (False, "Perfil não encontrado.")
+
+        # Já é favorito → remove
+        if obra_id in perfil.favoritos:
+            perfil.favoritos.remove(obra_id)
+            self.atualizar(perfil)
+            return (True, "Removido dos favoritos.")
+
+        # Vai adicionar → checa o limite
+        if len(perfil.favoritos) >= self.LIMITE_FAVORITOS:
+            return (
+                False,
+                f"Você já tem {self.LIMITE_FAVORITOS} favoritos. "
+                f"Desmarque um antes de adicionar outro.",
+            )
+
+        perfil.favoritos.append(obra_id)
+        self.atualizar(perfil)
+        return (True, "Adicionado aos favoritos.")
+
+    def definir_favoritos(self, perfil_id: str, obra_ids: List[str]) -> None:
+        """Substitui a lista inteira de favoritos (usado pelo seletor)."""
+        perfil = self._obter_por_id(perfil_id)
+        if perfil is None:
+            return
+
+        # Remove duplicatas mantendo ordem, e trunca no limite
+        vistos = set()
+        limpos: List[str] = []
+        for oid in obra_ids:
+            if oid in vistos:
+                continue
+            vistos.add(oid)
+            limpos.append(oid)
+            if len(limpos) >= self.LIMITE_FAVORITOS:
+                break
+
+        perfil.favoritos = limpos
+        self.atualizar(perfil)
 
 
 # ============================================================
@@ -258,6 +318,38 @@ class RepositorioReviews:
     def remover(self, review_id: str) -> None:
         self.reviews = [r for r in self.reviews if r.id != review_id]
         self.salvar()
+
+        # ---------- agregação por obra ----------
+    def _review_pertence_a_obra(self, review: Review, obra: str,
+                                 obra_id: Optional[str]) -> bool:
+        """Regra de match:
+        - Se obra_id foi passado e a review tem obra_id → compara por id
+        - Se a review NÃO tem obra_id → compara por nome (retrocompatibilidade)
+        """
+        if obra_id and review.obra_id:
+            return review.obra_id == obra_id
+        if not review.obra_id:
+            return review.obra.casefold() == obra.casefold()
+        return False
+
+    def listar_por_obra(self, obra: str,
+                        obra_id: Optional[str] = None) -> List[Review]:
+        return [
+            r for r in self.reviews
+            if self._review_pertence_a_obra(r, obra, obra_id)
+        ]
+
+    def media_da_obra(self, obra: str,
+                      obra_id: Optional[str] = None) -> tuple[float, int]:
+        """Retorna (média arredondada a 2 casas, quantidade).
+        Se não há reviews, retorna (0.0, 0)."""
+        notas = [
+            r.nota for r in self.reviews
+            if self._review_pertence_a_obra(r, obra, obra_id)
+        ]
+        if not notas:
+            return (0.0, 0)
+        return (round(sum(notas) / len(notas), 2), len(notas))
 
 
 # ============================================================
@@ -354,3 +446,10 @@ class RepositorioCatalogo:
 
     def obter(self, item_id: str) -> Optional[CatalogoItem]:
         return next((i for i in self.itens if i.id == item_id), None)
+
+    def obter_por_nome(self, nome: str) -> Optional[CatalogoItem]:
+        alvo = nome.strip().casefold()
+        return next(
+            (i for i in self.itens if i.nome.strip().casefold() == alvo),
+            None,
+        )
