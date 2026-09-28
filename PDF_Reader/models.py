@@ -20,9 +20,11 @@ class Review:
     texto: str
     data: str
     editada_em: Optional[str] = None
+    obra_id: Optional[str] = None
 
     @classmethod
-    def nova(cls, perfil: str, obra: str, nota: int, texto: str) -> "Review":
+    def nova(cls, perfil: str, obra: str, nota: int, texto: str,
+             obra_id: Optional[str] = None) -> "Review":
         return cls(
             id=uuid.uuid4().hex,
             perfil=perfil,
@@ -30,6 +32,7 @@ class Review:
             nota=nota,
             texto=texto,
             data=datetime.datetime.now().strftime("%d/%m/%Y %H:%M"),
+            obra_id=obra_id,
         )
 
     @classmethod
@@ -38,6 +41,9 @@ class Review:
             nota = int(d.get("nota", 5))
         except (TypeError, ValueError):
             nota = 5
+        obra_id = d.get("obra_id")
+        if obra_id is not None:
+            obra_id = str(obra_id) or None      # "" vira None
         return cls(
             id=str(d.get("id") or uuid.uuid4().hex),
             perfil=str(d.get("perfil", "Leitor")),
@@ -46,6 +52,7 @@ class Review:
             texto=str(d.get("texto", "")),
             data=str(d.get("data", "")),
             editada_em=d.get("editada_em"),
+            obra_id=obra_id,
         )
 
     def to_dict(self) -> dict:

@@ -1,3 +1,4 @@
+gitignore
 # Python
 __pycache__/
 *.pyc
@@ -7,6 +8,9 @@ __pycache__/
 venv/
 .venv/
 env/
+
+pdf_padrao/pdf_teste/
+
 
 # Dados do usuário (gerados em tempo de execução)
 progresso.json
