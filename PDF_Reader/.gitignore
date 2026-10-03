@@ -26,3 +26,12 @@ Thumbs.db
 # IDE
 .vscode/
 .idea/
+
+# Dados de runtime (gerados ao usar o app)
+progresso.json
+reviews.json
+reviews_api.json
+perfis.json
+perfis_api.json
+chatochat.json
+

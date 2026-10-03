@@ -2183,17 +2183,31 @@ if __name__ == "__main__":
         RepositorioPerfis,
         RepositorioCatalogo,
     )
+    from repositories_api import RepositorioReviewsAPI
 
     base_dir = os.path.dirname(os.path.abspath(__file__))
 
+    # ==========================================================
+    # MODO DE OPERAÇÃO — troque aqui para alternar
+    # ==========================================================
+    # "local"  → usa JSON local (não precisa da API rodando)
+    # "api"    → usa a API REST (precisa do uvicorn rodando em outro terminal)
+    MODO = "api"
+
     repo_progresso = RepositorioProgresso(os.path.join(base_dir, "progresso.json"))
-    repo_reviews = RepositorioReviews(os.path.join(base_dir, "reviews.json"))
     repo_chat = RepositorioChat(
         os.path.join(base_dir, "chatochat.json"),
         modo_demo=True,
     )
     repo_perfis = RepositorioPerfis(os.path.join(base_dir, "perfis.json"))
     repo_catalogo = RepositorioCatalogo(os.path.join(base_dir, "catalogo.json"))
+
+    if MODO == "api":
+        print(f"[MangaReader] Modo API — falando com http://127.0.0.1:8000")
+        repo_reviews = RepositorioReviewsAPI("http://127.0.0.1:8000")
+    else:
+        print(f"[MangaReader] Modo local — usando JSON")
+        repo_reviews = RepositorioReviews(os.path.join(base_dir, "reviews.json"))
 
     root = tk.Tk()
     app = MangaReaderRetro(
