@@ -49,13 +49,10 @@ O projeto foi construído com foco em **arquitetura limpa**, **separação de re
 
 ## 📸 Screenshots
 
-
-| Tela Inicial | Catálogo | Detalhes da Obra |
+| Tela Inicial | Catálogo | Perfil |
 |---|---|---|
-| ![Tela Inicial](<img width="1030" height="700" alt="image" src="https://github.com/user-attachments/assets/fa147696-cf2e-42c8-9711-acc8e19b9f93" />
-) | ![Catálogo](<img width="1028" height="701" alt="image" src="https://github.com/user-attachments/assets/b29e67d2-ae91-4907-8205-5fb0a1b2aa0f" />
-) | ![Perfil](<img width="1030" height="701" alt="image" src="https://github.com/user-attachments/assets/1e30c140-fdee-4fe7-aa63-3e201857b775" />
-) |
+| ![Tela Inicial](https://github.com/user-attachments/assets/fa147696-cf2e-42c8-9711-acc8e19b9f93) | ![Catálogo](https://github.com/user-attachments/assets/b29e67d2-ae91-4907-8205-5fb0a1b2aa0f) | ![Perfil](https://github.com/user-attachments/assets/1e30c140-fdee-4fe7-aa63-3e201857b775) |
+
 ---
 
 ## 🏗️ Arquitetura
@@ -85,11 +82,11 @@ graph LR
     REPO_API --> MODELS
     GD -.-> UI
 
-    style UI fill:#D0E3F7,stroke:#003366,stroke-width:2px
-    style GD fill:#FFF4D0,stroke:#B77900,stroke-width:2px
-    style REPO fill:#E0F5E0,stroke:#008000,stroke-width:2px
-    style REPO_API fill:#E0F5E0,stroke:#008000,stroke-width:2px
-    style MODELS fill:#F5E0F5,stroke:#8A2BE2,stroke-width:2px
+    style UI fill:#D0E3F7,stroke:#003366,stroke-width:2px,color:#1a1a1a
+    style GD fill:#FFF4D0,stroke:#B77900,stroke-width:2px,color:#1a1a1a
+    style REPO fill:#E0F5E0,stroke:#008000,stroke-width:2px,color:#1a1a1a
+    style REPO_API fill:#E0F5E0,stroke:#008000,stroke-width:2px,color:#1a1a1a
+    style MODELS fill:#F5E0F5,stroke:#8A2BE2,stroke-width:2px,color:#1a1a1a
 ```
 
 ### Modos de operação
@@ -105,11 +102,11 @@ graph TB
         API --> JSON2[(reviews_api.json<br/>perfis_api.json<br/>catalogo.json)]
     end
 
-    style APP1 fill:#D0E3F7,stroke:#003366,stroke-width:2px
-    style APP2 fill:#D0E3F7,stroke:#003366,stroke-width:2px
-    style API fill:#D0F5F0,stroke:#009688,stroke-width:2px
-    style JSON1 fill:#FFF4D0,stroke:#B77900
-    style JSON2 fill:#FFF4D0,stroke:#B77900
+    style APP1 fill:#D0E3F7,stroke:#003366,stroke-width:2px,color:#1a1a1a
+    style APP2 fill:#D0E3F7,stroke:#003366,stroke-width:2px,color:#1a1a1a
+    style API fill:#D0F5F0,stroke:#009688,stroke-width:2px,color:#1a1a1a
+    style JSON1 fill:#FFF4D0,stroke:#B77900,stroke-width:2px,color:#1a1a1a
+    style JSON2 fill:#FFF4D0,stroke:#B77900,stroke-width:2px,color:#1a1a1a
 ```
 
 A escolha do modo é feita em **1 linha** no composition root (`main.py`):
@@ -148,8 +145,8 @@ PDF_Reader/
 
 ```mermaid
 graph LR
-    Leitor((👤 Leitor))
-    Admin((⚙️ Admin<br/>do catálogo))
+    Leitor((Leitor))
+    Admin((Admin<br/>do catálogo))
 
     subgraph MangaReader 2000
         UC1[Ler PDF]
@@ -178,13 +175,24 @@ graph LR
 
     Admin --> UC11
 
-    UC5 -.->|<<include>>| UC6
+    UC5 -.->|include| UC6
     UC7 -.->|requer| UC3
     UC4 -.->|requer| UC3
     UC2 -.->|alimenta| UC1
 
-    style Leitor fill:#D0E3F7,stroke:#003366,stroke-width:2px
-    style Admin fill:#FFE5EC,stroke:#C2185B,stroke-width:2px
+    style Leitor fill:#D0E3F7,stroke:#003366,stroke-width:2px,color:#1a1a1a
+    style Admin fill:#FFE5EC,stroke:#C2185B,stroke-width:2px,color:#1a1a1a
+    style UC1 fill:#FFFFFF,stroke:#666666,color:#1a1a1a
+    style UC2 fill:#FFFFFF,stroke:#666666,color:#1a1a1a
+    style UC3 fill:#FFFFFF,stroke:#666666,color:#1a1a1a
+    style UC4 fill:#FFFFFF,stroke:#666666,color:#1a1a1a
+    style UC5 fill:#FFFFFF,stroke:#666666,color:#1a1a1a
+    style UC6 fill:#FFFFFF,stroke:#666666,color:#1a1a1a
+    style UC7 fill:#FFFFFF,stroke:#666666,color:#1a1a1a
+    style UC8 fill:#FFFFFF,stroke:#666666,color:#1a1a1a
+    style UC9 fill:#FFFFFF,stroke:#666666,color:#1a1a1a
+    style UC10 fill:#FFFFFF,stroke:#666666,color:#1a1a1a
+    style UC11 fill:#FFFFFF,stroke:#666666,color:#1a1a1a
 ```
 
 **Atores:**
@@ -254,26 +262,26 @@ graph LR
     F4C --> F5C
     F4D --> F5D
 
-    style F1A fill:#E0F5E0,stroke:#008000
-    style F1B fill:#E0F5E0,stroke:#008000
-    style F1C fill:#E0F5E0,stroke:#008000
-    style F1D fill:#E0F5E0,stroke:#008000
-    style F2A fill:#E0F5E0,stroke:#008000
-    style F2B fill:#E0F5E0,stroke:#008000
-    style F2C fill:#E0F5E0,stroke:#008000
-    style F2D fill:#E0F5E0,stroke:#008000
-    style F3A fill:#E0F5E0,stroke:#008000
-    style F3B fill:#E0F5E0,stroke:#008000
-    style F3C fill:#E0F5E0,stroke:#008000
-    style F3D fill:#E0F5E0,stroke:#008000
-    style F4A fill:#E0F5E0,stroke:#008000
-    style F4B fill:#E0F5E0,stroke:#008000
-    style F4C fill:#E0F5E0,stroke:#008000
-    style F4D fill:#E0F5E0,stroke:#008000
-    style F5A fill:#FFF4D0,stroke:#B77900
-    style F5B fill:#FFF4D0,stroke:#B77900
-    style F5C fill:#FFF4D0,stroke:#B77900
-    style F5D fill:#FFF4D0,stroke:#B77900
+    style F1A fill:#E0F5E0,stroke:#008000,color:#1a1a1a
+    style F1B fill:#E0F5E0,stroke:#008000,color:#1a1a1a
+    style F1C fill:#E0F5E0,stroke:#008000,color:#1a1a1a
+    style F1D fill:#E0F5E0,stroke:#008000,color:#1a1a1a
+    style F2A fill:#E0F5E0,stroke:#008000,color:#1a1a1a
+    style F2B fill:#E0F5E0,stroke:#008000,color:#1a1a1a
+    style F2C fill:#E0F5E0,stroke:#008000,color:#1a1a1a
+    style F2D fill:#E0F5E0,stroke:#008000,color:#1a1a1a
+    style F3A fill:#E0F5E0,stroke:#008000,color:#1a1a1a
+    style F3B fill:#E0F5E0,stroke:#008000,color:#1a1a1a
+    style F3C fill:#E0F5E0,stroke:#008000,color:#1a1a1a
+    style F3D fill:#E0F5E0,stroke:#008000,color:#1a1a1a
+    style F4A fill:#E0F5E0,stroke:#008000,color:#1a1a1a
+    style F4B fill:#E0F5E0,stroke:#008000,color:#1a1a1a
+    style F4C fill:#E0F5E0,stroke:#008000,color:#1a1a1a
+    style F4D fill:#E0F5E0,stroke:#008000,color:#1a1a1a
+    style F5A fill:#FFF4D0,stroke:#B77900,color:#1a1a1a
+    style F5B fill:#FFF4D0,stroke:#B77900,color:#1a1a1a
+    style F5C fill:#FFF4D0,stroke:#B77900,color:#1a1a1a
+    style F5D fill:#FFF4D0,stroke:#B77900,color:#1a1a1a
 ```
 
 ### Escopo do MVP entregue
