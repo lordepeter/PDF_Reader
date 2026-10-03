@@ -49,16 +49,13 @@ O projeto foi construído com foco em **arquitetura limpa**, **separação de re
 
 ## 📸 Screenshots
 
-> *Substitua pelos seus prints reais. Sugestão: 3 imagens — tela inicial, catálogo com barra de progresso, tela de detalhes da obra.*
 
 | Tela Inicial | Catálogo | Detalhes da Obra |
 |---|---|---|
-| ![Tela Inicial](docs/screenshots/inicio.png) | ![Catálogo](docs/screenshots/catalogo.png) | ![Detalhes](docs/screenshots/detalhes.png) |
-
-| API — Swagger UI | Modo API no app |
-|---|---|
-| ![Docs](docs/screenshots/api_docs.png) | ![Modo API](docs/screenshots/modo_api.png) |
-
+| ![Tela Inicial](<img width="1030" height="700" alt="image" src="https://github.com/user-attachments/assets/fa147696-cf2e-42c8-9711-acc8e19b9f93" />
+) | ![Catálogo](<img width="1028" height="701" alt="image" src="https://github.com/user-attachments/assets/b29e67d2-ae91-4907-8205-5fb0a1b2aa0f" />
+) | ![Perfil](<img width="1030" height="701" alt="image" src="https://github.com/user-attachments/assets/1e30c140-fdee-4fe7-aa63-3e201857b775" />
+) |
 ---
 
 ## 🏗️ Arquitetura
@@ -430,7 +427,7 @@ Os PDFs distribuídos devem ser de **domínio público** ou de **autoria própri
 
 ## 👤 Autor
 
-**Chumbinho**
+**Pedro V.**
 
 Projeto desenvolvido como trabalho de Engenharia de Software e portfólio pessoal.
 
