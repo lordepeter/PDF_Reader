@@ -1,4 +1,3 @@
-gitignore
 # Python
 __pycache__/
 *.pyc
@@ -9,14 +8,23 @@ venv/
 .venv/
 env/
 
-pdf_padrao/pdf_teste/
-
-
-# Dados do usuário (gerados em tempo de execução)
+# Dados de runtime (gerados ao usar o app)
 progresso.json
 reviews.json
-chatochat.json
+reviews_api.json
 perfis.json
+perfis_api.json
+chatochat.json
+usuarios.json
+sessoes.json
+amizades.json
+comentarios.json
+chat.json
+session.json
+session_test.json
+
+# Conteúdo do usuário
+pdf_padrao/pdf_teste/
 assets/perfis/
 
 # Sistema operacional
@@ -26,12 +34,3 @@ Thumbs.db
 # IDE
 .vscode/
 .idea/
-
-# Dados de runtime (gerados ao usar o app)
-progresso.json
-reviews.json
-reviews_api.json
-perfis.json
-perfis_api.json
-chatochat.json
-
