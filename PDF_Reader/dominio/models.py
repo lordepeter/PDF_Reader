@@ -220,3 +220,206 @@ class CatalogoItem:
         # volumes são dataclasses — precisam ser convertidos manualmente
         d["volumes"] = [v.to_dict() for v in self.volumes]
         return d
+
+@dataclass
+class Usuario:
+    """Um usuário da API.
+
+    A senha NUNCA é armazenada em texto puro — só o hash bcrypt.
+    Mesmo que o arquivo `usuarios.json` vaze, ninguém recupera a senha.
+    """
+    id: str
+    nome: str
+    senha_hash: str
+    criado_em: str
+
+    @classmethod
+    def novo(cls, nome: str, senha: str) -> "Usuario":
+        import bcrypt
+        senha_bytes = senha.encode("utf-8")
+        hash_bytes = bcrypt.hashpw(senha_bytes, bcrypt.gensalt())
+        return cls(
+            id=uuid.uuid4().hex,
+            nome=nome,
+            senha_hash=hash_bytes.decode("utf-8"),
+            criado_em=datetime.datetime.now().strftime("%d/%m/%Y %H:%M"),
+        )
+
+    def verificar_senha(self, senha: str) -> bool:
+        """Retorna True se a senha bate com o hash armazenado."""
+        import bcrypt
+        try:
+            senha_bytes = senha.encode("utf-8")
+            hash_bytes = self.senha_hash.encode("utf-8")
+            return bcrypt.checkpw(senha_bytes, hash_bytes)
+        except (ValueError, TypeError):
+            return False
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "Usuario":
+        return cls(
+            id=str(d.get("id") or uuid.uuid4().hex),
+            nome=str(d.get("nome", "")),
+            senha_hash=str(d.get("senha_hash", "")),
+            criado_em=str(d.get("criado_em", "")),
+        )
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+@dataclass
+class Sessao:
+    """Uma sessão ativa (token associado a um usuário).
+
+    O token é gerado no login e deve ser enviado pelo cliente em cada
+    requisição que exija autenticação. Quando o usuário faz logout (ou o
+    token expira), a sessão é removida.
+    """
+    token: str
+    usuario_id: str
+    criado_em: str
+
+    @classmethod
+    def nova(cls, usuario_id: str) -> "Sessao":
+        return cls(
+            token=uuid.uuid4().hex + uuid.uuid4().hex,   # 64 chars
+            usuario_id=usuario_id,
+            criado_em=datetime.datetime.now().strftime("%d/%m/%Y %H:%M"),
+        )
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "Sessao":
+        return cls(
+            token=str(d.get("token", "")),
+            usuario_id=str(d.get("usuario_id", "")),
+            criado_em=str(d.get("criado_em", "")),
+        )
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+@dataclass
+class Amizade:
+    """Um vínculo de amizade entre dois usuários.
+
+    Uma única linha representa a relação, não importa quem pediu.
+    O campo `solicitante_id` guarda quem iniciou — útil para mostrar
+    "X quer ser seu amigo" para o destinatário.
+    """
+    id: str
+    solicitante_id: str
+    destinatario_id: str
+    status: str                    # "pendente" | "aceita"
+    criado_em: str
+    respondido_em: Optional[str] = None
+
+    @classmethod
+    def nova(cls, solicitante_id: str, destinatario_id: str) -> "Amizade":
+        return cls(
+            id=uuid.uuid4().hex,
+            solicitante_id=solicitante_id,
+            destinatario_id=destinatario_id,
+            status="pendente",
+            criado_em=datetime.datetime.now().strftime("%d/%m/%Y %H:%M"),
+        )
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "Amizade":
+        return cls(
+            id=str(d.get("id") or uuid.uuid4().hex),
+            solicitante_id=str(d.get("solicitante_id", "")),
+            destinatario_id=str(d.get("destinatario_id", "")),
+            status=str(d.get("status", "pendente")),
+            criado_em=str(d.get("criado_em", "")),
+            respondido_em=d.get("respondido_em"),
+        )
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+@dataclass
+class Comentario:
+    """Um comentário postado no mural de um usuário.
+
+    `autor_nome` é cache do nome do autor no momento da criação —
+    evita lookup de usuário a cada leitura do mural.
+    """
+    id: str
+    autor_id: str
+    autor_nome: str
+    alvo_id: str              # em qual perfil foi postado
+    texto: str
+    criado_em: str
+
+    @classmethod
+    def novo(cls, autor_id: str, autor_nome: str,
+             alvo_id: str, texto: str) -> "Comentario":
+        return cls(
+            id=uuid.uuid4().hex,
+            autor_id=autor_id,
+            autor_nome=autor_nome,
+            alvo_id=alvo_id,
+            texto=texto,
+            criado_em=datetime.datetime.now().strftime("%d/%m/%Y %H:%M"),
+        )
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "Comentario":
+        return cls(
+            id=str(d.get("id") or uuid.uuid4().hex),
+            autor_id=str(d.get("autor_id", "")),
+            autor_nome=str(d.get("autor_nome", "")),
+            alvo_id=str(d.get("alvo_id", "")),
+            texto=str(d.get("texto", "")),
+            criado_em=str(d.get("criado_em", "")),
+        )
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+@dataclass
+class MensagemChat:
+    """Uma mensagem trocada entre dois usuários no chat privado.
+
+    Guarda `nome` do remetente e do destinatário em cache para não
+    precisar buscar usuários a cada listagem.
+    """
+    id: str
+    remetente_id: str
+    remetente_nome: str
+    destinatario_id: str
+    destinatario_nome: str
+    texto: str
+    enviado_em: str
+    lida: bool = False
+
+    @classmethod
+    def nova(cls, remetente_id: str, remetente_nome: str,
+             destinatario_id: str, destinatario_nome: str,
+             texto: str) -> "MensagemChat":
+        return cls(
+            id=uuid.uuid4().hex,
+            remetente_id=remetente_id,
+            remetente_nome=remetente_nome,
+            destinatario_id=destinatario_id,
+            destinatario_nome=destinatario_nome,
+            texto=texto,
+            enviado_em=datetime.datetime.now().strftime("%d/%m/%Y %H:%M"),
+            lida=False,
+        )
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "MensagemChat":
+        return cls(
+            id=str(d.get("id") or uuid.uuid4().hex),
+            remetente_id=str(d.get("remetente_id", "")),
+            remetente_nome=str(d.get("remetente_nome", "")),
+            destinatario_id=str(d.get("destinatario_id", "")),
+            destinatario_nome=str(d.get("destinatario_nome", "")),
+            texto=str(d.get("texto", "")),
+            enviado_em=str(d.get("enviado_em", "")),
+            lida=bool(d.get("lida", False)),
+        )
+
+    def to_dict(self) -> dict:
+        return asdict(self)

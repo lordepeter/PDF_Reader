@@ -117,6 +117,8 @@ def definir_favoritos(nome: str, dados: FavoritosEntrada):
 def deletar_perfil(nome: str):
     """Remove um perfil E todas as suas reviews (cascade delete)."""
     from dominio.state import repo_reviews   # import tardio evita ciclo
+    from dominio.state import repo_reviews, repo_amizades
+    from dominio.state import repo_reviews, repo_amizades, repo_comentarios 
 
     perfil = repo.obter(nome)
     if perfil is None:
@@ -130,11 +132,10 @@ def deletar_perfil(nome: str):
         )
 
     try:
-        # Cascata: remove as reviews do perfil PRIMEIRO
-        # (se falhar, o perfil continua — estado consistente)
         repo_reviews.remover_por_perfil(perfil.nome)
-        # Depois remove o perfil
         repo.remover(perfil.nome)
+        repo_amizades.remover_por_usuario(perfil.id)
+        repo_comentarios.remover_por_usuario(perfil.id) 
     except ErroPersistencia as e:
         raise HTTPException(status_code=500, detail=f"Erro ao remover: {e}")
 

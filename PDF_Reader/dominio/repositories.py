@@ -7,12 +7,15 @@ Nenhuma tela precisa mudar.
 """
 from __future__ import annotations
 
+import datetime
 import json
 import os
 from typing import Dict, List, Optional, Protocol, runtime_checkable
 
-from .models import Review, Mensagem, ProgressoLeitura, Perfil, CatalogoItem
-
+from .models import (
+    Review, Mensagem, ProgressoLeitura, Perfil, CatalogoItem,
+    Usuario, Sessao, Amizade, Comentario, MensagemChat,
+)
 
 # ============================================================
 # ERROS CONTROLADOS
@@ -489,3 +492,392 @@ class RepositorioCatalogo:
             (i for i in self.itens if i.nome.strip().casefold() == alvo),
             None,
         )
+
+# ============================================================
+# USUÁRIOS (autenticação)
+# ============================================================
+class RepositorioUsuarios:
+    def __init__(self, caminho_arquivo: str):
+        self.caminho = caminho_arquivo
+        self.usuarios: List[Usuario] = []
+        self.carregar()
+
+    def carregar(self) -> None:
+        d = _ler_json(self.caminho)
+        if not isinstance(d, dict):
+            return
+        brutos = d.get("usuarios", [])
+        if isinstance(brutos, list):
+            self.usuarios = [
+                Usuario.from_dict(u) for u in brutos if isinstance(u, dict)
+            ]
+
+    def salvar(self) -> None:
+        _salvar_json_atomico(self.caminho, {
+            "usuarios": [u.to_dict() for u in self.usuarios],
+        })
+
+    def obter_por_nome(self, nome: str) -> Optional[Usuario]:
+        """Busca case-insensitive (João = joão)."""
+        alvo = nome.strip().casefold()
+        return next(
+            (u for u in self.usuarios if u.nome.casefold() == alvo),
+            None,
+        )
+
+    def obter_por_id(self, usuario_id: str) -> Optional[Usuario]:
+        return next((u for u in self.usuarios if u.id == usuario_id), None)
+
+    def criar(self, nome: str, senha: str) -> Optional[Usuario]:
+        """Cria um usuário. Retorna None se o nome já existe."""
+        nome = nome.strip()
+        if not nome:
+            return None
+        if self.obter_por_nome(nome) is not None:
+            return None
+
+        usuario = Usuario.novo(nome, senha)
+        self.usuarios.append(usuario)
+        self.salvar()
+        return usuario
+
+# ============================================================
+# SESSÕES (autenticação via token)
+# ============================================================
+class RepositorioSessoes:
+    def __init__(self, caminho_arquivo: str):
+        self.caminho = caminho_arquivo
+        self.sessoes: List[Sessao] = []
+        self.carregar()
+
+    def carregar(self) -> None:
+        d = _ler_json(self.caminho)
+        if not isinstance(d, dict):
+            return
+        brutos = d.get("sessoes", [])
+        if isinstance(brutos, list):
+            self.sessoes = [
+                Sessao.from_dict(s) for s in brutos if isinstance(s, dict)
+            ]
+
+    def salvar(self) -> None:
+        _salvar_json_atomico(self.caminho, {
+            "sessoes": [s.to_dict() for s in self.sessoes],
+        })
+
+    def criar(self, usuario_id: str) -> Sessao:
+        sessao = Sessao.nova(usuario_id)
+        self.sessoes.append(sessao)
+        self.salvar()
+        return sessao
+
+    def obter(self, token: str) -> Optional[Sessao]:
+        return next((s for s in self.sessoes if s.token == token), None)
+
+    def remover(self, token: str) -> bool:
+        antes = len(self.sessoes)
+        self.sessoes = [s for s in self.sessoes if s.token != token]
+        if len(self.sessoes) < antes:
+            self.salvar()
+            return True
+        return False
+
+    def remover_por_usuario(self, usuario_id: str) -> int:
+        """Remove todas as sessões de um usuário (útil no cascade delete)."""
+        antes = len(self.sessoes)
+        self.sessoes = [s for s in self.sessoes if s.usuario_id != usuario_id]
+        removidas = antes - len(self.sessoes)
+        if removidas > 0:
+            self.salvar()
+        return removidas
+
+# ============================================================
+# AMIZADES
+# ============================================================
+class RepositorioAmizades:
+    def __init__(self, caminho_arquivo: str):
+        self.caminho = caminho_arquivo
+        self.amizades: List[Amizade] = []
+        self.carregar()
+
+    def carregar(self) -> None:
+        d = _ler_json(self.caminho)
+        if not isinstance(d, dict):
+            return
+        brutos = d.get("amizades", [])
+        if isinstance(brutos, list):
+            self.amizades = [
+                Amizade.from_dict(a) for a in brutos if isinstance(a, dict)
+            ]
+
+    def salvar(self) -> None:
+        _salvar_json_atomico(self.caminho, {
+            "amizades": [a.to_dict() for a in self.amizades],
+        })
+
+    def obter(self, amizade_id: str) -> Optional[Amizade]:
+        return next((a for a in self.amizades if a.id == amizade_id), None)
+
+    def _existe_entre(self, u1: str, u2: str) -> Optional[Amizade]:
+        """Retorna a amizade existente entre dois usuários, se houver."""
+        for a in self.amizades:
+            par = {a.solicitante_id, a.destinatario_id}
+            if par == {u1, u2}:
+                return a
+        return None
+
+    def enviar_pedido(self, solicitante_id: str,
+                      destinatario_id: str) -> Optional[Amizade]:
+        """Cria um pedido pendente. Retorna None se:
+        - solicitante == destinatário (não dá pra ser amigo de si mesmo)
+        - já existe amizade ou pedido entre os dois
+        """
+        if solicitante_id == destinatario_id:
+            return None
+        if self._existe_entre(solicitante_id, destinatario_id) is not None:
+            return None
+
+        nova = Amizade.nova(solicitante_id, destinatario_id)
+        self.amizades.append(nova)
+        self.salvar()
+        return nova
+
+    def aceitar(self, amizade_id: str, usuario_id: str) -> Optional[Amizade]:
+        """Aceita um pedido. Só o destinatário pode aceitar."""
+        a = self.obter(amizade_id)
+        if a is None or a.status != "pendente":
+            return None
+        if a.destinatario_id != usuario_id:
+            return None
+
+        a.status = "aceita"
+        a.respondido_em = datetime.datetime.now().strftime("%d/%m/%Y %H:%M")
+        self.salvar()
+        return a
+
+    def recusar(self, amizade_id: str, usuario_id: str) -> bool:
+        """Recusa e apaga. Só o destinatário pode recusar."""
+        a = self.obter(amizade_id)
+        if a is None or a.status != "pendente":
+            return False
+        if a.destinatario_id != usuario_id:
+            return False
+        self.amizades = [x for x in self.amizades if x.id != amizade_id]
+        self.salvar()
+        return True
+
+    def desfazer(self, amizade_id: str, usuario_id: str) -> bool:
+        """Desfaz amizade. Qualquer um dos dois pode."""
+        a = self.obter(amizade_id)
+        if a is None:
+            return False
+        if usuario_id not in (a.solicitante_id, a.destinatario_id):
+            return False
+        self.amizades = [x for x in self.amizades if x.id != amizade_id]
+        self.salvar()
+        return True
+
+    def listar_amigos(self, usuario_id: str) -> List[Amizade]:
+        """Todas as amizades aceitas onde o usuário participa."""
+        return [
+            a for a in self.amizades
+            if a.status == "aceita"
+            and usuario_id in (a.solicitante_id, a.destinatario_id)
+        ]
+
+    def listar_pendentes_recebidos(self, usuario_id: str) -> List[Amizade]:
+        """Pedidos pendentes que EU recebi (para aceitar/recusar)."""
+        return [
+            a for a in self.amizades
+            if a.status == "pendente" and a.destinatario_id == usuario_id
+        ]
+
+    def listar_pendentes_enviados(self, usuario_id: str) -> List[Amizade]:
+        """Pedidos que EU enviei e ainda não foram respondidos."""
+        return [
+            a for a in self.amizades
+            if a.status == "pendente" and a.solicitante_id == usuario_id
+        ]
+
+    def sao_amigos(self, u1: str, u2: str) -> bool:
+        a = self._existe_entre(u1, u2)
+        return a is not None and a.status == "aceita"
+
+    def remover_por_usuario(self, usuario_id: str) -> int:
+        """Remove todas as amizades de um usuário (cascade delete)."""
+        antes = len(self.amizades)
+        self.amizades = [
+            a for a in self.amizades
+            if usuario_id not in (a.solicitante_id, a.destinatario_id)
+        ]
+        removidas = antes - len(self.amizades)
+        if removidas > 0:
+            self.salvar()
+        return removidas
+
+# ============================================================
+# COMENTÁRIOS (mural de recados)
+# ============================================================
+class RepositorioComentarios:
+    def __init__(self, caminho_arquivo: str):
+        self.caminho = caminho_arquivo
+        self.comentarios: List[Comentario] = []
+        self.carregar()
+
+    def carregar(self) -> None:
+        d = _ler_json(self.caminho)
+        if not isinstance(d, dict):
+            return
+        brutos = d.get("comentarios", [])
+        if isinstance(brutos, list):
+            self.comentarios = [
+                Comentario.from_dict(c) for c in brutos if isinstance(c, dict)
+            ]
+
+    def salvar(self) -> None:
+        _salvar_json_atomico(self.caminho, {
+            "comentarios": [c.to_dict() for c in self.comentarios],
+        })
+
+    def obter(self, comentario_id: str) -> Optional[Comentario]:
+        return next((c for c in self.comentarios if c.id == comentario_id), None)
+
+    def criar(self, autor_id: str, autor_nome: str,
+              alvo_id: str, texto: str) -> Comentario:
+        comentario = Comentario.novo(autor_id, autor_nome, alvo_id, texto)
+        self.comentarios.append(comentario)
+        self.salvar()
+        return comentario
+
+    def listar_do_mural(self, alvo_id: str) -> List[Comentario]:
+        """Todos os comentários em um perfil, mais recentes primeiro."""
+        filtrados = [c for c in self.comentarios if c.alvo_id == alvo_id]
+        filtrados.sort(key=lambda c: c.criado_em, reverse=True)
+        return filtrados
+
+    def remover(self, comentario_id: str, solicitante_id: str) -> bool:
+        """Remove se o solicitante for o autor OU o dono do mural.
+
+        Retorna False se não encontrou ou se não tem permissão.
+        """
+        c = self.obter(comentario_id)
+        if c is None:
+            return False
+
+        # Permissão: autor ou dono do mural
+        if solicitante_id not in (c.autor_id, c.alvo_id):
+            return False
+
+        self.comentarios = [x for x in self.comentarios if x.id != comentario_id]
+        self.salvar()
+        return True
+
+    def remover_por_usuario(self, usuario_id: str) -> int:
+        """Remove todos os comentários onde o usuário é autor OU alvo.
+        Usado no cascade delete.
+        """
+        antes = len(self.comentarios)
+        self.comentarios = [
+            c for c in self.comentarios
+            if usuario_id not in (c.autor_id, c.alvo_id)
+        ]
+        removidos = antes - len(self.comentarios)
+        if removidos > 0:
+            self.salvar()
+        return removidos
+
+# ============================================================
+# CHAT PRIVADO (mensagens entre dois usuários)
+# ============================================================
+class RepositorioMensagensChat:
+    def __init__(self, caminho_arquivo: str):
+        self.caminho = caminho_arquivo
+        self.mensagens: List[MensagemChat] = []
+        self.carregar()
+
+    def carregar(self) -> None:
+        d = _ler_json(self.caminho)
+        if not isinstance(d, dict):
+            return
+        brutos = d.get("mensagens", [])
+        if isinstance(brutos, list):
+            self.mensagens = [
+                MensagemChat.from_dict(m) for m in brutos if isinstance(m, dict)
+            ]
+
+    def salvar(self) -> None:
+        _salvar_json_atomico(self.caminho, {
+            "mensagens": [m.to_dict() for m in self.mensagens],
+        })
+
+    def enviar(self, remetente_id: str, remetente_nome: str,
+               destinatario_id: str, destinatario_nome: str,
+               texto: str) -> MensagemChat:
+        msg = MensagemChat.nova(remetente_id, remetente_nome,
+                                 destinatario_id, destinatario_nome, texto)
+        self.mensagens.append(msg)
+        self.salvar()
+        return msg
+
+    def conversa_entre(self, u1: str, u2: str) -> List[MensagemChat]:
+        """Todas as mensagens trocadas entre dois usuários, cronológico."""
+        resultado = [
+            m for m in self.mensagens
+            if {m.remetente_id, m.destinatario_id} == {u1, u2}
+        ]
+        resultado.sort(key=lambda m: m.enviado_em)
+        return resultado
+
+    def novas_desde(self, u1: str, u2: str, desde: str) -> List[MensagemChat]:
+        """Mensagens da conversa enviadas depois de `desde` (para polling)."""
+        resultado = [
+            m for m in self.conversa_entre(u1, u2)
+            if m.enviado_em > desde
+        ]
+        return resultado
+
+    def marcar_lidas(self, destinatario_id: str, remetente_id: str) -> int:
+        """Marca como lidas todas as mensagens que o destinatário recebeu
+        do remetente. Retorna quantas foram atualizadas."""
+        alteradas = 0
+        for m in self.mensagens:
+            if (m.destinatario_id == destinatario_id
+                    and m.remetente_id == remetente_id
+                    and not m.lida):
+                m.lida = True
+                alteradas += 1
+        if alteradas > 0:
+            self.salvar()
+        return alteradas
+
+    def nao_lidas_de(self, destinatario_id: str, remetente_id: str) -> int:
+        """Quantas mensagens não lidas do remetente para o destinatário."""
+        return sum(
+            1 for m in self.mensagens
+            if m.destinatario_id == destinatario_id
+            and m.remetente_id == remetente_id
+            and not m.lida
+        )
+
+    def total_nao_lidas(self, usuario_id: str) -> int:
+        """Total de mensagens não lidas para o usuário (badge geral)."""
+        return sum(
+            1 for m in self.mensagens
+            if m.destinatario_id == usuario_id and not m.lida
+        )
+
+    def ultima_mensagem(self, u1: str, u2: str) -> Optional[MensagemChat]:
+        conversa = self.conversa_entre(u1, u2)
+        return conversa[-1] if conversa else None
+
+    def remover_por_usuario(self, usuario_id: str) -> int:
+        """Remove todas as mensagens onde o usuário é remetente OU destinatário."""
+        antes = len(self.mensagens)
+        self.mensagens = [
+            m for m in self.mensagens
+            if usuario_id not in (m.remetente_id, m.destinatario_id)
+        ]
+        removidas = antes - len(self.mensagens)
+        if removidas > 0:
+            self.salvar()
+        return removidas
