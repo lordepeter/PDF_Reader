@@ -46,3 +46,8 @@ assets/cache_capas/
 
 # Listas temporárias
 lista_r2.txt
+
+# Backups locais
+main.py.bak
+main.py.funcional_*
+verificar_catalogos.py

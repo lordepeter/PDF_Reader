@@ -60,16 +60,16 @@ class SophiaApp:
         # ---------- Clientes HTTP (só em modo API) ----------
         if self.modo == "api" and sessao is not None:
             self.amizades_api = RepositorioAmizadesAPI(
-                "http://127.0.0.1:8000", token=sessao.token,
+                "https://sophia-api-lzwc.onrender.com", token=sessao.token,
             )
             self.comentarios_api = RepositorioComentariosAPI(
-                "http://127.0.0.1:8000", token=sessao.token,
+                "https://sophia-api-lzwc.onrender.com", token=sessao.token,
             )
             self.chat_api = RepositorioChatAPI(
-                "http://127.0.0.1:8000", token=sessao.token,
+                "https://sophia-api-lzwc.onrender.com", token=sessao.token,
             )
             self.busca_api = RepositorioBuscaAPI(
-                "http://127.0.0.1:8000", token=sessao.token,
+                "https://sophia-api-lzwc.onrender.com", token=sessao.token,
             )
         else:
             self.amizades_api = None
@@ -195,11 +195,40 @@ class SophiaApp:
         try:
             img = Image.open(caminho)
             img.thumbnail((max_w, max_h), Image.Resampling.LANCZOS)
-            tk_img = ImageTk.PhotoImage(img)
+            tk_img = ImageTk.PhotoImage(img, master=self.root)
             self.icones_toolbar[chave] = tk_img
             return tk_img
         except Exception:
             return None
+
+    def _carregar_foto_perfil(self, foto_path: str, tamanho: tuple):
+        """Carrega foto de perfil que pode ser:
+        - base64 (novo formato, sincroniza entre PCs)
+        - caminho local antigo (compatibilidade)
+        - vazio (usa placeholder)
+        """
+        if not foto_path:
+            return None
+
+        # Caso 1: base64 (novo formato)
+        if foto_path.startswith("data:image/"):
+            try:
+                import base64
+                from io import BytesIO
+                _, b64 = foto_path.split(",", 1)
+                dados = base64.b64decode(b64)
+                img = Image.open(BytesIO(dados))
+                img.thumbnail(tamanho, Image.Resampling.LANCZOS)
+                tk_img = ImageTk.PhotoImage(img, master=self.root)
+                self.icones_toolbar[f"foto_{id(tk_img)}"] = tk_img
+                return tk_img
+            except Exception as e:
+                print(f"[foto] erro base64: {e}")
+                return None
+
+        # Caso 2: caminho local (formato antigo)
+        return self.carregar_imagem(foto_path, tamanho)
+
 
     def _aplicar_capa(self, label: tk.Label, caminho: str, item_id: str) -> None:
         try:
@@ -243,7 +272,7 @@ class SophiaApp:
             return
 
         try:
-            r = requests.get("http://127.0.0.1:8000/", timeout=2)
+            r = requests.get("https://sophia-api-lzwc.onrender.com/", timeout=2)
             if r.status_code == 200:
                 self._lbl_status.config(text="●  Conectado ao servidor", fg="#008000")
             else:
@@ -560,7 +589,7 @@ class SophiaApp:
             return None
         try:
             img = Image.open(caminho).resize(tamanho, Image.Resampling.LANCZOS)
-            tk_img = ImageTk.PhotoImage(img)
+            tk_img = ImageTk.PhotoImage(img, master=self.root)
             if chave_cache:
                 self.icones_toolbar[chave_cache] = tk_img
             return tk_img
@@ -2432,7 +2461,7 @@ class SophiaApp:
             pix = page.get_pixmap(dpi=40)
             img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
             img.thumbnail((110, 150), Image.Resampling.LANCZOS)
-            tk_capa = ImageTk.PhotoImage(img)
+            tk_capa = ImageTk.PhotoImage(img, master=self.root)
             self.capas_memoria.append(tk_capa)
             doc_temp.close()
             return tk_capa
@@ -2603,7 +2632,7 @@ class SophiaApp:
             pix = page.get_pixmap(dpi=100)
 
         img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
-        self.tk_img = ImageTk.PhotoImage(img)
+        self.tk_img = ImageTk.PhotoImage(img, master=self.root)
 
         self.canvas.delete("all")
         self.canvas.create_image(largura // 2, 10, anchor="n", image=self.tk_img)
@@ -2640,13 +2669,36 @@ class SophiaApp:
         cabecalho = ttk.Frame(conteudo, relief="solid", padding=15)
         cabecalho.pack(fill="x", padx=15, pady=10)
 
+        # ---------- Carrega foto e bio do perfil ----------
+        foto_path_exibir = ""
+        bio_exibir = ""
+
         if eh_perfil_proprio:
-            img = None
-            if perfil_local and perfil_local.foto_path:
-                img = self.carregar_imagem(perfil_local.foto_path, (120, 120))
-            if img is None:
-                img = self.carregar_icone("profile1.png", (120, 120))
+            # Próprio perfil: pega do repo local
+            if perfil_local:
+                foto_path_exibir = perfil_local.foto_path
+                bio_exibir = perfil_local.bio.strip()
         else:
+            # Perfil de outra pessoa: busca da API
+            try:
+                from perfis_api import RepositorioPerfisAPI
+                api = RepositorioPerfisAPI(
+                    os.environ.get("SOPHIA_API_URL",
+                                    "https://sophia-api-lzwc.onrender.com"),
+                    token=self.sessao.token if self.sessao else None,
+                )
+                p_remoto = api.obter(alvo_nome)
+                if p_remoto:
+                    foto_path_exibir = p_remoto.foto_path
+                    bio_exibir = p_remoto.bio.strip()
+            except Exception as e:
+                print(f"[perfil] erro ao buscar {alvo_nome}: {e}")
+
+        # Renderiza a foto
+        img = None
+        if foto_path_exibir:
+            img = self._carregar_foto_perfil(foto_path_exibir, (120, 120))
+        if img is None:
             img = self.carregar_icone("profile1.png", (120, 120))
 
         if img:
@@ -2673,9 +2725,13 @@ class SophiaApp:
                        command=self.abrir_dialogo_editar_perfil).pack(
                 side="right", anchor="n")
         else:
-            ttk.Label(textos, text="Perfil público (bio e foto ainda não sincronizam).",
-                      font=("Segoe UI", 9, "italic"),
-                      foreground="#888888").pack(anchor="w", pady=(0, 10))
+            if bio_exibir:
+                ttk.Label(textos, text=bio_exibir, wraplength=500,
+                          justify="left").pack(anchor="w", pady=(0, 10))
+            else:
+                ttk.Label(textos, text="Sem bio ainda.",
+                          font=("Segoe UI", 9, "italic"),
+                          foreground="#888888").pack(anchor="w", pady=(0, 10))
 
             ja_amigo = False
             if self.amizades_api is not None:
@@ -3007,9 +3063,7 @@ class SophiaApp:
         lbl_foto.pack(side="left", padx=(0, 12))
 
         def atualizar_preview():
-            img = None
-            if perfil.foto_path:
-                img = self.carregar_imagem(perfil.foto_path, (80, 80))
+            img = self._carregar_foto_perfil(perfil.foto_path, (80, 80))
             if img is None:
                 img = self.carregar_icone("profile1.png", (80, 80))
             foto_ref["tk"] = img
@@ -3021,6 +3075,9 @@ class SophiaApp:
         atualizar_preview()
 
         def escolher_foto():
+            import base64
+            from io import BytesIO
+
             caminho = filedialog.askopenfilename(
                 title="Escolha uma foto de perfil",
                 filetypes=[("Imagens", "*.png *.jpg *.jpeg *.gif *.webp"),
@@ -3028,23 +3085,22 @@ class SophiaApp:
                 parent=janela)
             if not caminho:
                 return
-            base = os.path.dirname(os.path.abspath(__file__))
-            pasta = os.path.join(base, "assets", "perfis")
-            os.makedirs(pasta, exist_ok=True)
-
-            ext = os.path.splitext(caminho)[1].lower()
-            if ext not in (".png", ".jpg", ".jpeg", ".gif", ".webp"):
-                ext = ".png"
-            destino = os.path.join(pasta, f"{perfil.id}{ext}")
 
             try:
-                shutil.copy2(caminho, destino)
-            except OSError as e:
+                img = Image.open(caminho).convert("RGB")
+                img.thumbnail((200, 200), Image.Resampling.LANCZOS)
+                buffer = BytesIO()
+                img.save(buffer, format="JPEG", quality=85)
+                dados = buffer.getvalue()
+                b64 = base64.b64encode(dados).decode("ascii")
+                perfil.foto_path = f"data:image/jpeg;base64,{b64}"
+                print(f"[foto] convertida pra base64: {len(b64)} chars")
+            except Exception as e:
                 messagebox.showerror("Erro",
-                                      f"Não foi possível copiar a imagem:\n{e}",
+                                      f"Nao foi possivel processar a imagem:\n{e}",
                                       parent=janela)
                 return
-            perfil.foto_path = destino
+
             atualizar_preview()
 
         ttk.Button(linha_foto, text="Escolher Foto...",
@@ -3063,6 +3119,25 @@ class SophiaApp:
                 "Erro ao salvar perfil")
             if not sucesso:
                 return
+
+            # ---------- Envia pro servidor ----------
+            if self.modo == "api" and self.sessao is not None:
+                try:
+                    from perfis_api import RepositorioPerfisAPI
+                    api = RepositorioPerfisAPI(
+                        os.environ.get("SOPHIA_API_URL",
+                                        "https://sophia-api-lzwc.onrender.com"),
+                        token=self.sessao.token,
+                    )
+                    api.atualizar(perfil.nome, perfil.bio, perfil.foto_path)
+                    print("[perfil-sync] bio/foto enviados pro servidor")
+                except Exception as e:
+                    print(f"[perfil-sync] ERRO ao enviar: {e}")
+                    messagebox.showwarning(
+                        "Aviso",
+                        f"Perfil salvo local, mas falhou enviar ao servidor:\n{e}"
+                    )
+
             janela.destroy()
             self.abrir_tela_perfil()
 
@@ -3764,64 +3839,31 @@ if __name__ == "__main__":
         RepositorioPerfis, RepositorioCatalogo,
     )
     from repositories_api import RepositorioReviewsAPI
+    from tela_splash import SplashScreen
 
     base_dir = os.path.dirname(os.path.abspath(__file__))
     MODO = "api"
+    API_URL = os.environ.get(
+        "SOPHIA_API_URL",
+        "https://sophia-api-lzwc.onrender.com",
+    )
 
-    repo_progresso = RepositorioProgresso(os.path.join(base_dir, "progresso.json"))
-    repo_chat = RepositorioChat(os.path.join(base_dir, "chatochat.json"),
-                                 modo_demo=True)
-    repo_perfis = RepositorioPerfis(os.path.join(base_dir, "perfis.json"))
+    # ---------- Repositorios ----------
+    repo_progresso = RepositorioProgresso(
+        os.path.join(base_dir, "progresso.json"))
+    repo_chat = RepositorioChat(
+        os.path.join(base_dir, "chatochat.json"), modo_demo=True)
+    repo_perfis = RepositorioPerfis(
+        os.path.join(base_dir, "perfis.json"))
     repo_catalogo = RepositorioCatalogo(
         os.path.join(base_dir, "catalogo", "catalogo.json"))
 
     if MODO == "api":
-        repo_reviews = RepositorioReviewsAPI("http://127.0.0.1:8000")
+        repo_reviews = RepositorioReviewsAPI(API_URL)
     else:
-        repo_reviews = RepositorioReviews(os.path.join(base_dir, "reviews.json"))
+        repo_reviews = RepositorioReviews(
+            os.path.join(base_dir, "reviews.json"))
 
-    root = tk.Tk()
-    root.title("Sophia")
-    root.geometry("1024x768")
-
-    def iniciar_app(sessao=None):
-        return SophiaApp(
-            root, repo_progresso, repo_reviews, repo_chat,
-            repo_perfis, repo_catalogo, modo=MODO, sessao=sessao)
-
-    if MODO == "api":
-        auth_api = RepositorioAuthAPI("http://127.0.0.1:8000")
-        sessao_mgr = GerenciadorSessao(os.path.join(base_dir, "session.json"))
-
-        sessao_salva = sessao_mgr.carregar()
-        if sessao_salva is not None:
-            try:
-                r = requests.get(
-                    "http://127.0.0.1:8000/auth/eu",
-                    headers={"Authorization": f"Bearer {sessao_salva.token}"},
-                    timeout=3)
-                if r.status_code == 200:
-                    print(f"[Sophia] Sessão válida: {sessao_salva.nome}")
-                    iniciar_app(sessao=sessao_salva)
-                else:
-                    print("[Sophia] Sessão expirada — pedindo login novamente")
-                    sessao_mgr.limpar()
-                    sessao_salva = None
-            except Exception:
-                print("[Sophia] API offline — não deu para validar a sessão")
-                sessao_salva = None
-
-        if sessao_salva is None:
-            def apos_login(sessao: SessaoLocal):
-                tela.destruir()
-                iniciar_app(sessao=sessao)
-            tela = TelaLogin(root, auth_api, sessao_mgr, apos_login)
-
-    else:
-        print("[Sophia] Modo local — usando JSON")
-        iniciar_app(sessao=None)
-
-if __name__ == "__main__":
     from tela_splash import SplashScreen
     
     # ... (imports e repositórios que já existem)
@@ -3830,7 +3872,7 @@ if __name__ == "__main__":
     MODO = "api"
     
     # ⚠️ Troca pela URL pública real quando subir pro Render
-    API_URL = os.environ.get("SOPHIA_API_URL", "http://127.0.0.1:8000")
+    API_URL = os.environ.get("SOPHIA_API_URL", "https://sophia-api-lzwc.onrender.com")
 
     root = tk.Tk()
     root.title("Sophia")
@@ -3839,6 +3881,9 @@ if __name__ == "__main__":
 
     def iniciar_app(sessao=None, modo_offline=False):
         modo_final = "local" if modo_offline else MODO
+        root.deiconify()
+        root.lift()
+        root.focus_force()
         return SophiaApp(
             root, repo_progresso, repo_reviews, repo_chat,
             repo_perfis, repo_catalogo,
@@ -3871,6 +3916,30 @@ if __name__ == "__main__":
                     headers={"Authorization": f"Bearer {sessao_salva.token}"},
                     timeout=5)
                 if r.status_code == 200:
+                    # ---------- Sincroniza perfil antes de abrir ----------
+                    try:
+                        from perfis_api import RepositorioPerfisAPI
+                        api_p = RepositorioPerfisAPI(
+                            API_URL, token=sessao_salva.token)
+                        p_remoto = api_p.obter(sessao_salva.nome)
+                        if p_remoto is None:
+                            p_remoto = api_p.criar(sessao_salva.nome)
+
+                        perfil_local = repo_perfis.obter(sessao_salva.nome)
+                        if perfil_local is None:
+                            repo_perfis.criar(sessao_salva.nome)
+                            perfil_local = repo_perfis.obter(sessao_salva.nome)
+
+                        if perfil_local and p_remoto:
+                            perfil_local.bio = p_remoto.bio
+                            perfil_local.foto_path = p_remoto.foto_path
+                            perfil_local.favoritos = list(p_remoto.favoritos)
+                            repo_perfis.atualizar(perfil_local)
+                            repo_perfis.definir_ativo(sessao_salva.nome)
+                            print(f"[perfil-sync] startup OK: {p_remoto.nome}")
+                    except Exception as e:
+                        print(f"[perfil-sync] startup erro: {e}")
+
                     root.deiconify()
                     iniciar_app(sessao=sessao_salva)
                 else:
@@ -3882,7 +3951,35 @@ if __name__ == "__main__":
         if sessao_salva is None:
             root.deiconify()
             def apos_login(sessao):
-                tela.destruir()
+                # Sincronizar perfil com o servidor
+                try:
+                    from perfis_api import RepositorioPerfisAPI
+                    api_perfis = RepositorioPerfisAPI(API_URL, token=sessao.token)
+
+                    p_remoto = api_perfis.obter(sessao.nome)
+                    if p_remoto is None:
+                        print("[perfil-sync] criando perfil no servidor")
+                        p_remoto = api_perfis.criar(sessao.nome)
+
+                    perfil_local = repo_perfis.obter(sessao.nome)
+                    if perfil_local is None:
+                        repo_perfis.criar(sessao.nome)
+                        perfil_local = repo_perfis.obter(sessao.nome)
+
+                    if perfil_local and p_remoto:
+                        perfil_local.bio = p_remoto.bio
+                        perfil_local.foto_path = p_remoto.foto_path
+                        perfil_local.favoritos = list(p_remoto.favoritos)
+                        repo_perfis.atualizar(perfil_local)
+                        print("[perfil-sync] OK: " + p_remoto.nome)
+                        repo_perfis.definir_ativo(sessao.nome)
+                except Exception as e:
+                    print("[perfil-sync] erro: " + str(e))
+
+                try:
+                    tela.destruir()
+                except Exception as e:
+                    print(f"[apos_login] tela.destruir() falhou (ignorando): {e}")
                 iniciar_app(sessao=sessao)
             tela = TelaLogin(root, auth_api, sessao_mgr, apos_login)
 
