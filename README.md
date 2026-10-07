@@ -545,7 +545,7 @@ PDFs e capas:
 
 ## 📥 Download do executável
 
-Vá até a aba [**Releases**](https://github.com/lordepeter/PDF_Reader/releases) e baixe o arquivo `Sophia-vX.Y.Z-win64.zip` da última versão.
+Vá até a aba [**Releases**](https://github.com/lordepeter/Sophia_App/releases) e baixe o arquivo `Sophia-vX.Y.Z-win64.zip` da última versão.
 
 **Como usar:**
 1. Extraia o `.zip` em qualquer pasta
@@ -642,7 +642,7 @@ O `.exe` é gerado em modo **onefolder** (não onefile) porque:
 
 ```bash
 # 1. Clone o repositório
-git clone https://github.com/lordepeter/PDF_Reader.git
+git clone https://github.com/lordepeter/Sophia_App
 cd PDF_Reader/PDF_Reader
 
 # 2. Crie um ambiente virtual
