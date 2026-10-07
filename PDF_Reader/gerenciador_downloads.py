@@ -1,199 +1,277 @@
-"""Gerenciador de downloads em background.
+"""gerenciador_downloads.py
 
-Roda downloads em threads separadas e reporta progresso para a UI via
-queue.Queue — o único mecanismo thread-safe para conversar com o Tkinter.
-
-A UI nunca é tocada de dentro das threads de trabalho.
+Baixa arquivos em background (thread), com:
+- User-Agent (o Internet Archive bloqueia requests sem)
+- Redirect follow automático
+- Validação de content-type (evita salvar HTML como PDF)
+- Mensagens específicas por tipo de erro (403, 404, content-type)
+- Cancelamento real (fecha socket)
+- Progresso em bytes
+- Limpeza garantida de arquivo .part em qualquer falha
 """
 from __future__ import annotations
 
 import os
-import queue
 import threading
-import urllib.error
-import urllib.request
-from dataclasses import dataclass, field
-from typing import Callable, Dict, Optional
+from dataclasses import dataclass
+from typing import Callable
+
+import requests
 
 
-# ============================================================
-# EVENTO — o "recado" que a thread manda para a UI
-# ============================================================
-@dataclass
-class EventoDownload:
-    tipo: str            # "progresso" | "concluido" | "erro" | "cancelado"
-    chave: str           # id único do download (ex: "ob-001:vol1")
-    baixado: int = 0     # bytes já baixados
-    total: int = 0       # bytes totais (0 se desconhecido)
-    mensagem: str = ""   # texto de erro, se houver
+USER_AGENT = "MangaReader2000/1.0 (leitor-de-mangas; +https://github.com/)"
+
+# Tempo máximo sem receber nenhum byte antes de desistir (segundos).
+# Aplicado por leitura de chunk, não ao download inteiro — PDFs grandes
+# continuam baixando normalmente.
+TIMEOUT_LEITURA = 30
+
+# Tamanho do chunk de download (bytes). 64 KiB é o sweet spot entre
+# throughput e responsividade do progresso.
+CHUNK_SIZE = 64 * 1024
 
 
-# ============================================================
-# CALLBACKS — o que a UI quer que aconteça a cada evento
-# ============================================================
 @dataclass
 class Callbacks:
-    on_progresso: Callable[[int, int], None]
+    """Callbacks disparados no thread da UI (via root.after)."""
+    on_progresso: Callable[[int, int], None]   # (bytes_baixados, bytes_total)
     on_concluido: Callable[[], None]
     on_erro: Callable[[str], None]
-    on_cancelado: Callable[[], None] = field(default=lambda: None)
+    on_cancelado: Callable[[], None]
 
 
-# ============================================================
-# GERENCIADOR
-# ============================================================
 class GerenciadorDownloads:
-    """Gerencia downloads assíncronos com progresso.
+    """Gerencia downloads concorrentes, cada um em sua própria thread.
 
-    Uso típico:
+    Uso:
         gerenciador.baixar(
-            chave="ob-001:vol1",
-            url="https://.../vol1.pdf",
-            destino="C:/.../pdf_padrao/Obra/vol1.pdf",
-            callbacks=Callbacks(on_progresso=..., on_concluido=..., on_erro=...),
+            chave="liv-001:vol1",
+            url="https://archive.org/download/.../arquivo.pdf",
+            destino="pdf_padrao/Dom Casmurro/Volume 01.pdf",
+            callbacks=Callbacks(...),
         )
+        gerenciador.cancelar("liv-001:vol1")
     """
 
-    TAMANHO_CHUNK = 64 * 1024  # 64 KB por chunk — bom equilíbrio
-    INTERVALO_POLL_MS = 100     # UI checa a fila 10x por segundo
-    TIMEOUT_SEGUNDOS = 60       # se travar por 60s, aborta
-
-    def __init__(self, root, pasta_destino_base: str):
+    def __init__(self, root, pasta_base: str):
         self.root = root
-        self.pasta_destino_base = pasta_destino_base
-        self._fila: "queue.Queue[EventoDownload]" = queue.Queue()
-        self._callbacks: Dict[str, Callbacks] = {}
-        self._threads_ativas: Dict[str, threading.Thread] = {}
-        self._para_cancelar: set[str] = set()
-        self._iniciar_poll()
+        self.pasta_base = pasta_base
+        # chave -> {"cancelar": bool, "sessao": requests.Session | None}
+        self._ativos: dict[str, dict] = {}
 
-    # ---------- API pública ----------
-    def baixar(
-        self,
-        chave: str,
-        url: str,
-        destino: str,
-        callbacks: Callbacks,
-    ) -> bool:
-        """Inicia um download. Retorna False se já houver um com a mesma chave."""
-        if chave in self._threads_ativas:
-            return False
+    # ==========================================================
+    # API PÚBLICA
+    # ==========================================================
+    def baixar(self, chave: str, url: str, destino: str,
+               callbacks: Callbacks) -> None:
+        if chave in self._ativos:
+            # Já existe — ignora silenciosamente (evita duplicar cliques)
+            return
 
-        self._callbacks[chave] = callbacks
-        thread = threading.Thread(
+        ref = {"cancelar": False, "sessao": None}
+        self._ativos[chave] = ref
+
+        threading.Thread(
             target=self._worker,
-            args=(chave, url, destino),
-            daemon=True,  # morre quando o app fechar
-            name=f"download-{chave}",
-        )
-        self._threads_ativas[chave] = thread
-        thread.start()
-        return True
+            args=(chave, url, destino, callbacks, ref),
+            daemon=True,
+        ).start()
 
     def cancelar(self, chave: str) -> None:
-        """Pede o cancelamento (a thread verifica antes de cada chunk)."""
-        self._para_cancelar.add(chave)
+        ref = self._ativos.get(chave)
+        if ref is None:
+            return
+        ref["cancelar"] = True
+        # Fechar a sessão interrompe o socket imediatamente
+        sessao = ref.get("sessao")
+        if sessao is not None:
+            try:
+                sessao.close()
+            except Exception:
+                pass
 
-    def ativo(self, chave: str) -> bool:
-        return chave in self._threads_ativas
+    def esta_ativo(self, chave: str) -> bool:
+        return chave in self._ativos
 
-    # ---------- Thread de trabalho ----------
-    def _worker(self, chave: str, url: str, destino: str) -> None:
-        """Roda em thread separada. NUNCA toca em widgets."""
-        parcial = destino + ".parcial"
+    # ==========================================================
+    # WORKER (roda em thread separada)
+    # ==========================================================
+    def _worker(self, chave, url, destino, callbacks: Callbacks, ref) -> None:
+        tmp = destino + ".part"
+        sessao = None
+
         try:
+            # Garante a pasta de destino
             os.makedirs(os.path.dirname(destino), exist_ok=True)
 
-            # User-Agent evita bloqueio de alguns servidores
-            req = urllib.request.Request(
+            sessao = requests.Session()
+            ref["sessao"] = sessao
+
+            with sessao.get(
                 url,
-                headers={"User-Agent": "MangaReader2000/1.0 (+python-urllib)"},
-            )
+                headers={"User-Agent": USER_AGENT},
+                stream=True,
+                timeout=TIMEOUT_LEITURA,
+                allow_redirects=True,
+            ) as r:
 
-            with urllib.request.urlopen(req, timeout=self.TIMEOUT_SEGUNDOS) as resp:
-                total = int(resp.headers.get("Content-Length") or 0)
+                # ---------- TRATAMENTO POR STATUS ----------
+                if r.status_code == 403:
+                    self._limpar_tmp(tmp)
+                    self._erro(callbacks, self._msg_403(url))
+                    return
+
+                if r.status_code == 404:
+                    self._limpar_tmp(tmp)
+                    self._erro(callbacks,
+                               "❌ Arquivo não encontrado no servidor (404).\n\n"
+                               "O Internet Archive pode ter renomeado o arquivo.\n"
+                               "Tente rodar 'python corrigir_catalogo.py' de novo.")
+                    return
+
+                if r.status_code != 200:
+                    self._limpar_tmp(tmp)
+                    self._erro(callbacks,
+                               f"❌ Servidor respondeu HTTP {r.status_code}.\n\n"
+                               f"Se o erro persistir, verifique se o link ainda está "
+                               f"válido:\n{url}")
+                    return
+
+                # ---------- VALIDAÇÃO DE CONTENT-TYPE ----------
+                ct = r.headers.get("content-type", "").lower()
+
+                if "html" in ct:
+                    self._limpar_tmp(tmp)
+                    self._erro(callbacks,
+                               "❌ O link retornou uma PÁGINA HTML, não um PDF.\n\n"
+                               "Isso geralmente significa que a obra só está "
+                               "disponível para empréstimo no Internet Archive.\n\n"
+                               "Link para ler online:\n"
+                               f"{self._link_detalhes(url)}")
+                    return
+
+                if "pdf" not in ct and "octet-stream" not in ct and ct:
+                    # Alguns CDNs mandam application/force-download ou vazio.
+                    # Se tem um content-length grande e não é HTML, deixa passar.
+                    try:
+                        tamanho_prev = int(r.headers.get("content-length", 0))
+                    except (TypeError, ValueError):
+                        tamanho_prev = 0
+
+                    if tamanho_prev < 100_000:
+                        # Menos de 100 KB e content-type estranho = suspeito
+                        self._limpar_tmp(tmp)
+                        self._erro(callbacks,
+                                   f"❌ O servidor retornou um arquivo suspeito "
+                                   f"(content-type: {ct}).\n\n"
+                                   f"Provavelmente não é o PDF esperado.")
+                        return
+
+                # ---------- TAMANHO TOTAL ----------
+                try:
+                    total = int(r.headers.get("content-length", 0))
+                except (TypeError, ValueError):
+                    total = 0
+
+                # ---------- LOOP DE DOWNLOAD ----------
                 baixado = 0
-
-                with open(parcial, "wb") as f:
-                    while True:
-                        if chave in self._para_cancelar:
+                with open(tmp, "wb") as f:
+                    for chunk in r.iter_content(chunk_size=CHUNK_SIZE):
+                        if ref["cancelar"]:
                             f.close()
-                            self._remover_silencioso(parcial)
-                            self._fila.put(EventoDownload("cancelado", chave))
+                            self._limpar_tmp(tmp)
+                            self._cancelado(callbacks)
                             return
 
-                        chunk = resp.read(self.TAMANHO_CHUNK)
-                        if not chunk:
-                            break
+                        if chunk:
+                            f.write(chunk)
+                            baixado += len(chunk)
+                            self._progresso(callbacks, baixado, total)
 
-                        f.write(chunk)
-                        baixado += len(chunk)
-                        self._fila.put(
-                            EventoDownload("progresso", chave, baixado, total)
-                        )
-
-            # Arquivo 100% baixado — agora sim vira o definitivo
-            os.replace(parcial, destino)
-            self._fila.put(EventoDownload("concluido", chave))
-
-        except urllib.error.HTTPError as e:
-            self._remover_silencioso(parcial)
-            self._fila.put(EventoDownload(
-                "erro", chave, mensagem=f"Servidor respondeu {e.code}: {e.reason}"
-            ))
-        except urllib.error.URLError as e:
-            self._remover_silencioso(parcial)
-            self._fila.put(EventoDownload(
-                "erro", chave, mensagem=f"Erro de conexão: {e.reason}"
-            ))
-        except Exception as e:
-            self._remover_silencioso(parcial)
-            self._fila.put(EventoDownload(
-                "erro", chave, mensagem=f"{type(e).__name__}: {e}"
-            ))
-        finally:
-            self._threads_ativas.pop(chave, None)
-            self._para_cancelar.discard(chave)
-
-    # ---------- Loop na thread principal ----------
-    def _iniciar_poll(self) -> None:
-        """Roda na thread do Tkinter. Lê a fila e dispara callbacks."""
-        self._processar_fila()
-        # Reagenda a si mesmo (padrão de loop com root.after)
-        self.root.after(self.INTERVALO_POLL_MS, self._iniciar_poll)
-
-    def _processar_fila(self) -> None:
-        """Roda na thread do Tkinter. Aqui SIM pode tocar em widgets."""
-        while True:
-            try:
-                evento = self._fila.get_nowait()
-            except queue.Empty:
+            # ---------- FINALIZAÇÃO ATÔMICA ----------
+            if ref["cancelar"]:
+                self._limpar_tmp(tmp)
+                self._cancelado(callbacks)
                 return
 
-            cb = self._callbacks.get(evento.chave)
-            if cb is None:
-                continue
+            # Substitui destino (se já existe) pelo tmp
+            if os.path.exists(destino):
+                try:
+                    os.remove(destino)
+                except OSError:
+                    pass
+            os.replace(tmp, destino)
 
-            try:
-                if evento.tipo == "progresso":
-                    cb.on_progresso(evento.baixado, evento.total)
-                elif evento.tipo == "concluido":
-                    cb.on_concluido()
-                    self._callbacks.pop(evento.chave, None)
-                elif evento.tipo == "erro":
-                    cb.on_erro(evento.mensagem)
-                    self._callbacks.pop(evento.chave, None)
-                elif evento.tipo == "cancelado":
-                    cb.on_cancelado()
-                    self._callbacks.pop(evento.chave, None)
-            except Exception as e:
-                # Se a UI falhar, não deixa o loop morrer
-                print(f"[download] erro em callback: {e}")
+            self._concluido(callbacks)
 
-    # ---------- Utilitário ----------
+        except requests.exceptions.Timeout:
+            self._limpar_tmp(tmp)
+            self._erro(callbacks,
+                       "❌ O servidor demorou demais para responder.\n\n"
+                       "Verifique sua conexão e tente de novo.")
+        except requests.exceptions.ConnectionError:
+            self._limpar_tmp(tmp)
+            self._erro(callbacks,
+                       "❌ Não foi possível conectar ao servidor.\n\n"
+                       "Verifique se você está online.")
+        except requests.exceptions.RequestException as e:
+            self._limpar_tmp(tmp)
+            self._erro(callbacks, f"❌ Erro de rede: {e}")
+        except OSError as e:
+            self._limpar_tmp(tmp)
+            self._erro(callbacks, f"❌ Erro de disco: {e}")
+        except Exception as e:
+            self._limpar_tmp(tmp)
+            self._erro(callbacks, f"❌ Erro inesperado: {e}")
+        finally:
+            self._ativos.pop(chave, None)
+
+    # ==========================================================
+    # HELPERS
+    # ==========================================================
     @staticmethod
-    def _remover_silencioso(caminho: str) -> None:
+    def _limpar_tmp(caminho: str) -> None:
+        """Remove o arquivo temporário, engolindo qualquer erro."""
         try:
-            os.remove(caminho)
+            if os.path.exists(caminho):
+                os.remove(caminho)
         except OSError:
             pass
+
+    @staticmethod
+    def _link_detalhes(url: str) -> str:
+        """Converte URL de download do IA em link da página de detalhes."""
+        # https://archive.org/download/{identifier}/{arquivo}
+        #   → https://archive.org/details/{identifier}
+        try:
+            partes = url.split("/")
+            if "archive.org" in partes[2] and "download" in partes:
+                idx = partes.index("download")
+                if idx + 1 < len(partes):
+                    return f"https://archive.org/details/{partes[idx + 1]}"
+        except (IndexError, ValueError):
+            pass
+        return url
+
+    @staticmethod
+    def _msg_403(url: str) -> str:
+        return (
+            "❌ Acesso negado (HTTP 403).\n\n"
+            "Esta obra está disponível apenas para EMPRÉSTIMO no Internet "
+            "Archive — não é possível baixar o PDF diretamente.\n\n"
+            "Você pode ler online em:\n"
+            f"{GerenciadorDownloads._link_detalhes(url)}"
+        )
+
+    # ---------- callbacks no thread da UI ----------
+    def _progresso(self, cb: Callbacks, b: int, t: int) -> None:
+        self.root.after(0, lambda: cb.on_progresso(b, t))
+
+    def _concluido(self, cb: Callbacks) -> None:
+        self.root.after(0, cb.on_concluido)
+
+    def _erro(self, cb: Callbacks, msg: str) -> None:
+        self.root.after(0, lambda: cb.on_erro(msg))
+
+    def _cancelado(self, cb: Callbacks) -> None:
+        self.root.after(0, cb.on_cancelado)

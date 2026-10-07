@@ -34,3 +34,15 @@ Thumbs.db
 # IDE
 .vscode/
 .idea/
+# Segredos (NUNCA subir)
+.env
+*.env
+
+# PDFs baixados pelo usuário (não sobem)
+pdf_padrao/
+
+# Cache de capas (gerado em runtime)
+assets/cache_capas/
+
+# Listas temporárias
+lista_r2.txt

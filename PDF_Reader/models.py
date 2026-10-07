@@ -155,14 +155,12 @@ class Perfil:
 
 @dataclass
 class VolumeCatalogo:
-    """Um volume (PDF) disponível no catálogo remoto.
-
-    `url` aponta para o arquivo PDF. `tamanho_mb` é informativo (0 = desconhecido).
-    """
     numero: int
     titulo: str
     url: str
     tamanho_mb: float = 0.0
+    fonte: str = ""                    # ← NOVO
+    licenca: str = ""                  # ← NOVO
 
     @classmethod
     def from_dict(cls, d: dict) -> "VolumeCatalogo":
@@ -179,6 +177,8 @@ class VolumeCatalogo:
             titulo=str(d.get("titulo", f"Vol. {numero}")),
             url=str(d.get("url", "")),
             tamanho_mb=max(0.0, tamanho),
+            fonte=str(d.get("fonte", "")),           # ← NOVO
+            licenca=str(d.get("licenca", "")),       # ← NOVO
         )
 
     def to_dict(self) -> dict:
@@ -187,36 +187,38 @@ class VolumeCatalogo:
 
 @dataclass
 class CatalogoItem:
-    """Uma obra disponível para download no catálogo remoto.
-
-    Não confundir com obra local (que é uma pasta em pdf_padrao/).
-    Uma vira a outra quando o usuário baixa todos os volumes.
-    """
     id: str
     nome: str
     autor: str = ""
     descricao: str = ""
     capa_url: str = ""
+    ano: int = 0                       # ← NOVO
+    tema: str = "outros"               # ← NOVO ("livros", "mangas", etc)
+    categoria: str = "Outros"          # ← NOVO ("Literatura russa", etc)
     volumes: List[VolumeCatalogo] = field(default_factory=list)
 
     @classmethod
     def from_dict(cls, d: dict) -> "CatalogoItem":
         volumes_brutos = d.get("volumes", [])
-        volumes = [
-            VolumeCatalogo.from_dict(v)
-            for v in volumes_brutos if isinstance(v, dict)
-        ]
+        volumes = [VolumeCatalogo.from_dict(v)
+                   for v in volumes_brutos if isinstance(v, dict)]
+        try:
+            ano = int(d.get("ano", 0))
+        except (TypeError, ValueError):
+            ano = 0
         return cls(
             id=str(d.get("id") or uuid.uuid4().hex),
             nome=str(d.get("nome", "")),
             autor=str(d.get("autor", "")),
             descricao=str(d.get("descricao", "")),
             capa_url=str(d.get("capa_url", "")),
+            ano=ano,                                       # ← NOVO
+            tema=str(d.get("tema", "outros")),             # ← NOVO
+            categoria=str(d.get("categoria", "Outros")),   # ← NOVO
             volumes=volumes,
         )
 
     def to_dict(self) -> dict:
         d = asdict(self)
-        # volumes são dataclasses — precisam ser convertidos manualmente
         d["volumes"] = [v.to_dict() for v in self.volumes]
         return d

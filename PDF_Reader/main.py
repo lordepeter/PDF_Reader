@@ -1,4 +1,4 @@
-"""MangaReader 2000 — Retro Edition.
+"""Sophia — Leitor e Rede Social de Mangás.
 
 Ponto de entrada da aplicação. Toda a lógica de UI e navegação vive aqui.
 A persistência é delegada a repositórios recebidos por injeção de dependência
@@ -19,12 +19,16 @@ from tkinter import ttk, filedialog, messagebox, simpledialog
 import pymupdf as fitz
 from PIL import Image, ImageTk
 
+from notificacoes import GerenciadorNotificacoes
+from sons import GerenciadorSons
 from auth_api import RepositorioAuthAPI, GerenciadorSessao, SessaoLocal, ErroAuth
+from busca_api import RepositorioBuscaAPI, UsuarioBusca, ErroBusca
 from chat_api import RepositorioChatAPI, MensagemChat as MensagemChatAPI, ErroChat
 from amizades_api import RepositorioAmizadesAPI, Amigo, ErroAmizade
 from comentarios_api import RepositorioComentariosAPI, ErroComentario
 from tela_login import TelaLogin
 from gerenciador_downloads import GerenciadorDownloads, Callbacks
+from capa_remota import GerenciadorCapas
 
 from models import Review, Mensagem, Perfil, CatalogoItem
 from repositories import (
@@ -37,7 +41,7 @@ from repositories import (
 )
 
 
-class MangaReaderRetro:
+class SophiaApp:
     def __init__(
         self,
         root: tk.Tk,
@@ -64,20 +68,22 @@ class MangaReaderRetro:
             self.chat_api = RepositorioChatAPI(
                 "http://127.0.0.1:8000", token=sessao.token,
             )
+            self.busca_api = RepositorioBuscaAPI(
+                "http://127.0.0.1:8000", token=sessao.token,
+            )
         else:
             self.amizades_api = None
             self.comentarios_api = None
             self.chat_api = None
+            self.busca_api = None
 
-        # ---------- Estado do perfil ----------
         self._perfil_alvo_nome: str | None = None
 
-        self.root.title("MangaReader 2000")
+        self.root.title("Sophia")
         self.root.geometry("1024x768")
         self.root.configure(bg="#F0F4F8")
 
         self._fav_frames: dict[str, ttk.Frame] = {}
-
         self.icones_toolbar = {}
         self.capas_memoria = []
 
@@ -89,7 +95,22 @@ class MangaReaderRetro:
 
         self._chat_msgs_renderizadas: set[str] = set()
 
-        # ---------- ESTILO ----------
+        self._chat_nao_lidas_por_amigo: dict[str, int] = {}
+        self._amizades_notificadas: set[str] = set()
+        self._comentarios_vistos: set[str] = set()
+        self._polling_inicializado = False
+
+        self._mangas_desbloqueados: bool = False
+        self._manga_selecionado: CatalogoItem | None = None
+        self._volumes_ui: dict[str, dict] = {}
+        self._fila_download_manga: list = []
+
+        pasta_sons = os.path.join(os.path.dirname(__file__), "assets", "audio")
+        self.sons = GerenciadorSons(pasta_sons, ativo=True)
+
+        self.notificacoes = GerenciadorNotificacoes(self.root)
+        self.notificacoes.on_click_global = self._on_notificacao_click
+
         self.style = ttk.Style()
         temas = self.style.theme_names()
         if "vista" in temas:
@@ -104,18 +125,18 @@ class MangaReaderRetro:
                              font=("Segoe UI", 9, "bold"), foreground="#003366")
         self.style.configure("Banner.TFrame", background="#003366")
 
-        # ---------- REPOSITÓRIOS ----------
         self.repo_progresso = repo_progresso
         self.repo_reviews = repo_reviews
         self.repo_chat = repo_chat
         self.repo_perfis = repo_perfis
         self.repo_catalogo = repo_catalogo
 
-        self.pasta_pdf = os.path.join(os.path.dirname(__file__), "pdf_padrao")
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        self.pasta_pdf = os.path.join(base_dir, "pdf_padrao")
         self.gerenciador = GerenciadorDownloads(self.root, self.pasta_pdf)
+        self.capas = GerenciadorCapas(os.path.join(base_dir, "assets", "cache_capas"))
         self._cards_catalogo: dict[str, dict] = {}
 
-        # ---------- ESTADO ----------
         self.doc = None
         self.caminho_pdf_atual: str | None = None
         self.obra_selecionada: str | None = None
@@ -130,7 +151,6 @@ class MangaReaderRetro:
         self.root.bind_all("<Button-4>", self._scroll_linux_cima)
         self.root.bind_all("<Button-5>", self._scroll_linux_baixo)
 
-        # ---------- MENU / TOOLBAR / CONTAINER ----------
         self._criar_menu()
         self.criar_toolbar_icones()
 
@@ -146,6 +166,7 @@ class MangaReaderRetro:
         self.frame_chatochat = ttk.Frame(self.container_principal)
         self.frame_catalogo = ttk.Frame(self.container_principal)
         self.frame_detalhes_obra = ttk.Frame(self.container_principal)
+        self.frame_volumes_manga = ttk.Frame(self.container_principal)
 
         self.montar_tela_leitor()
         self.mostrar_tela_inicio()
@@ -156,7 +177,65 @@ class MangaReaderRetro:
         self.root.bind("<Right>", lambda e: self.proxima_pagina())
 
     # ==========================================================
-    # VERIFICAÇÃO DE CONEXÃO + POLLING DO CHAT
+    # HELPERS
+    # ==========================================================
+    def _obra_tem_pdfs_local(self, nome_obra: str) -> bool:
+        caminho = os.path.join(self.pasta_pdf, nome_obra)
+        if not os.path.isdir(caminho):
+            return False
+        try:
+            return any(f.lower().endswith(".pdf") for f in os.listdir(caminho))
+        except OSError:
+            return False
+
+    def _carregar_capa_ajustada(self, caminho: str, max_w: int, max_h: int,
+                                  chave: str):
+        if not caminho or not os.path.exists(caminho):
+            return None
+        try:
+            img = Image.open(caminho)
+            img.thumbnail((max_w, max_h), Image.Resampling.LANCZOS)
+            tk_img = ImageTk.PhotoImage(img)
+            self.icones_toolbar[chave] = tk_img
+            return tk_img
+        except Exception:
+            return None
+
+    def _aplicar_capa(self, label: tk.Label, caminho: str, item_id: str) -> None:
+        try:
+            img = self._carregar_capa_ajustada(caminho, 180, 260,
+                                                f"capa_{item_id}")
+            if img:
+                label.config(image=img, text="")
+                label.image = img
+        except Exception:
+            pass
+
+    def _aplicar_capa_detalhe(self, label: tk.Label, caminho: str,
+                                item_id: str) -> None:
+        """Aplica capa na tela de detalhes (tamanho maior)."""
+        try:
+            img = self._carregar_capa_ajustada(caminho, 200, 280,
+                                                f"capa_det_{item_id}")
+            if img:
+                label.config(image=img, text="")
+                label.image = img
+        except Exception:
+            pass
+
+    def _contar_volumes_baixados(self, item: CatalogoItem) -> int:
+        pasta = os.path.join(self.pasta_pdf, item.nome)
+        if not os.path.isdir(pasta):
+            return 0
+        n = 0
+        for vol in item.volumes:
+            caminho = os.path.join(pasta, f"{vol.titulo}.pdf")
+            if os.path.exists(caminho):
+                n += 1
+        return n
+
+    # ==========================================================
+    # CONEXÃO + POLLING
     # ==========================================================
     def _verificar_conexao(self):
         if self.modo != "api":
@@ -181,13 +260,17 @@ class MangaReaderRetro:
 
     def _loop_polling_chat(self):
         try:
-            self._atualizar_chat_se_aberto()
+            if not self._polling_inicializado:
+                self._inicializar_estado_polling()
+                self._polling_inicializado = True
+            else:
+                self._atualizar_chat_se_aberto()
+                self._verificar_notificacoes_globais()
         except Exception as e:
             print(f"[chat] erro no polling: {e}")
         self.root.after(3_000, self._loop_polling_chat)
 
     def _atualizar_chat_se_aberto(self):
-        """Polling: busca mensagens novas e SÓ ADICIONA as que faltam."""
         if self.chat_api is None:
             return
         if not self.frame_chatochat.winfo_ismapped():
@@ -200,11 +283,9 @@ class MangaReaderRetro:
         except ErroChat:
             return
 
-        # Lista vazia: não faz nada (evita sumir o chat)
         if not mensagens:
             return
 
-        # Frame vazio (transição): renderiza tudo
         if not self.chat_mensagens_frame.winfo_children():
             self._chat_msgs_renderizadas.clear()
             for m in mensagens:
@@ -215,7 +296,6 @@ class MangaReaderRetro:
             self.chat_mensagens_canvas.yview_moveto(1.0)
             return
 
-        # Só as novas
         novas = [m for m in mensagens if m.id not in self._chat_msgs_renderizadas]
         if not novas:
             return
@@ -225,6 +305,11 @@ class MangaReaderRetro:
             estava_no_fim = pos[1] >= 0.98
         except Exception:
             estava_no_fim = True
+
+        meu_nome = self.sessao.nome if self.sessao else ""
+        novas_recebidas = [m for m in novas if m.remetente_nome != meu_nome]
+        if novas_recebidas:
+            self.sons.tocar("receber")
 
         for m in novas:
             self._render_mensagem(m)
@@ -236,8 +321,139 @@ class MangaReaderRetro:
             self.chat_mensagens_canvas.update_idletasks()
             self.chat_mensagens_canvas.yview_moveto(1.0)
 
+    def _inicializar_estado_polling(self):
+        if self.chat_api is None or self.sessao is None:
+            return
+
+        try:
+            conversas = self.chat_api.listar_conversas()
+            for c in conversas:
+                self._chat_nao_lidas_por_amigo[c.amigo_nome] = c.nao_lidas
+        except ErroChat:
+            pass
+
+        try:
+            pendentes = self.amizades_api.listar_pendentes()
+            for p in pendentes:
+                self._amizades_notificadas.add(p.amizade_id)
+        except ErroAmizade:
+            pass
+
+        try:
+            comentarios = self.comentarios_api.listar(self.sessao.nome)
+            for c in comentarios:
+                self._comentarios_vistos.add(c.id)
+        except ErroComentario:
+            pass
+
+    def _verificar_notificacoes_globais(self):
+        if self.chat_api is None or self.sessao is None:
+            return
+
+        try:
+            conversas = self.chat_api.listar_conversas()
+        except ErroChat:
+            conversas = []
+
+        for c in conversas:
+            anterior = self._chat_nao_lidas_por_amigo.get(c.amigo_nome, 0)
+            if c.nao_lidas > anterior:
+                estou_nessa_conversa = (
+                    self.frame_chatochat.winfo_ismapped()
+                    and self.amigo_chat_ativo == c.amigo_nome
+                )
+                if not estou_nessa_conversa:
+                    preview = c.ultima_mensagem or "(sem texto)"
+                    if len(preview) > 60:
+                        preview = preview[:57] + "..."
+                    self._notificar(
+                        titulo=f"Nova mensagem de {c.amigo_nome}",
+                        mensagem=preview,
+                        icone="💬",
+                        tipo="chat",
+                        dado={"amigo": c.amigo_nome},
+                    )
+            self._chat_nao_lidas_por_amigo[c.amigo_nome] = c.nao_lidas
+
+        try:
+            pendentes = self.amizades_api.listar_pendentes()
+        except ErroAmizade:
+            pendentes = []
+
+        for p in pendentes:
+            if p.amizade_id not in self._amizades_notificadas:
+                self._amizades_notificadas.add(p.amizade_id)
+                self._notificar(
+                    titulo="Novo pedido de amizade",
+                    mensagem=f"{p.nome} quer ser seu amigo",
+                    icone="👤",
+                    tipo="amizade",
+                    dado={"amizade_id": p.amizade_id, "nome": p.nome},
+                )
+
+        try:
+            comentarios = self.comentarios_api.listar(self.sessao.nome)
+        except ErroComentario:
+            comentarios = []
+
+        for c in comentarios:
+            if c.id not in self._comentarios_vistos:
+                self._comentarios_vistos.add(c.id)
+                if c.autor_nome != self.sessao.nome:
+                    texto = c.texto
+                    if len(texto) > 60:
+                        texto = texto[:57] + "..."
+                    self._notificar(
+                        titulo=f"Novo comentário de {c.autor_nome}",
+                        mensagem=texto,
+                        icone="💬",
+                        tipo="comentario",
+                        dado={"alvo": self.sessao.nome},
+                    )
+
     # ==========================================================
-    # PERSISTÊNCIA — helper
+    # NOTIFICAÇÕES
+    # ==========================================================
+    def _notificar(self, titulo: str, mensagem: str,
+                    icone: str = "💬", tipo: str = "geral",
+                    dado: dict | None = None, som: str = "notificacao"):
+        self.sons.tocar(som)
+        self.notificacoes.notificar(
+            titulo=titulo,
+            mensagem=mensagem,
+            icone=icone,
+            tipo=tipo,
+            dado=dado or {},
+        )
+
+    def _on_notificacao_click(self, tipo: str, dado: dict):
+        try:
+            self.root.deiconify()
+            self.root.lift()
+            self.root.focus_force()
+        except tk.TclError:
+            pass
+
+        if tipo == "chat":
+            self._esconder_todas(self.frame_chatochat)
+            self.frame_chatochat.pack(expand=True, fill="both")
+            self.montar_tela_chatochat()
+            amigo = dado.get("amigo")
+            if amigo:
+                self.abrir_conversa_chat(amigo)
+        elif tipo == "amizade":
+            self.abrir_tela_amigos()
+        elif tipo == "comentario":
+            alvo = dado.get("alvo")
+            if alvo:
+                self._abrir_perfil_de(alvo)
+        elif tipo == "download":
+            nome = dado.get("nome")
+            if nome:
+                self.mostrar_tela_volumes(nome)
+
+    # ==========================================================
+    # PERSISTÊNCIA
     # ==========================================================
     def _executar_persistencia(self, acao, mensagem_erro: str) -> bool:
         try:
@@ -271,6 +487,13 @@ class MangaReaderRetro:
                                  command=self.mostrar_tela_obras)
         barra.add_cascade(label="Biblioteca", menu=m_biblioteca)
 
+        m_sobre = tk.Menu(barra, tearoff=0)
+        m_sobre.add_command(label="Sobre a Sophia",
+                            command=self.abrir_janela_sobre)
+        m_sobre.add_command(label="Comunidade",
+                            command=self.abrir_tela_comunidade)
+        barra.add_cascade(label="Ajuda", menu=m_sobre)
+
         m_exibir = tk.Menu(barra, tearoff=0)
         m_exibir.add_command(label="Página Inicial", command=self.mostrar_tela_inicio)
         barra.add_cascade(label="Exibir", menu=m_exibir)
@@ -295,14 +518,20 @@ class MangaReaderRetro:
         canvas = self._canvas_sob_mouse(event)
         if canvas is None:
             return
+
         delta = getattr(event, "delta", 0)
         if not delta:
             return
+
         unidades = int(-delta / 120)
         if unidades == 0:
             unidades = -1 if delta > 0 else 1
+
         try:
-            canvas.yview_scroll(unidades, "units")
+            if getattr(canvas, "_scroll_horizontal", False):
+                canvas.xview_scroll(unidades, "units")
+            else:
+                canvas.yview_scroll(unidades, "units")
             return "break"
         except tk.TclError:
             return
@@ -367,6 +596,20 @@ class MangaReaderRetro:
         )
         self._lbl_status.pack(side="right", padx=12)
 
+        if self.modo == "api":
+            busca_frame = ttk.Frame(frame)
+            busca_frame.pack(side="right", padx=(0, 8))
+
+            tk.Label(busca_frame, text="🔍 Busque um usuário:",
+                     bg="#F0F4F8", fg="#003366",
+                     font=("Segoe UI", 9, "bold")).pack(side="left", padx=(0, 4))
+
+            self.var_busca = tk.StringVar()
+            self.entrada_busca = ttk.Entry(busca_frame, textvariable=self.var_busca,
+                                            width=22, font=("Segoe UI", 9))
+            self.entrada_busca.pack(side="left", padx=4)
+            self.entrada_busca.bind("<Return>", lambda e: self._buscar_usuario())
+
     # ==========================================================
     # NAVEGAÇÃO
     # ==========================================================
@@ -374,7 +617,7 @@ class MangaReaderRetro:
         for tela in (self.frame_inicio, self.frame_obras, self.frame_volumes,
                      self.frame_leitor, self.frame_perfil, self.frame_reviews,
                      self.frame_chatochat, self.frame_catalogo,
-                     self.frame_detalhes_obra):
+                     self.frame_detalhes_obra, self.frame_volumes_manga):
             if tela is not manter:
                 tela.pack_forget()
 
@@ -410,74 +653,374 @@ class MangaReaderRetro:
         self._montar_conteudo_perfil(alvo_nome=None)
 
     # ==========================================================
-    # TELA: INÍCIO
+    # TELA: FEED (home)
     # ==========================================================
     def _montar_conteudo_inicio(self):
         for w in self.frame_inicio.winfo_children():
             w.destroy()
 
+        banner = tk.Frame(self.frame_inicio, bg="#003366", height=60)
+        banner.pack(fill="x")
+        banner.pack_propagate(False)
+        tk.Label(banner, text="🏠 Feed",
+                 font=("Segoe UI", 16, "bold"), fg="white",
+                 bg="#003366").pack(side="left", padx=20, pady=10)
+        tk.Button(banner, text="👥 Ver Comunidade",
+                  command=self.abrir_tela_comunidade,
+                  bg="#DCEBFA", fg="#003366",
+                  relief="raised").pack(side="right", padx=20, pady=10)
+
+        canvas = tk.Canvas(self.frame_inicio, bg="#F0F4F8", highlightthickness=0)
+        scroll = ttk.Scrollbar(self.frame_inicio, orient="vertical", command=canvas.yview)
+        conteudo = ttk.Frame(canvas)
+        conteudo.bind("<Configure>",
+                      lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+        canvas.create_window((0, 0), window=conteudo, anchor="nw", width=1000,
+                             tags="feed_conteudo")
+        canvas.configure(yscrollcommand=scroll.set)
+        canvas.pack(side="left", fill="both", expand=True)
+        scroll.pack(side="right", fill="y")
+        canvas.bind("<Configure>",
+                    lambda e: canvas.itemconfig("feed_conteudo", width=e.width))
+
+        self._montar_secao_destaques(conteudo)
+        self._montar_secao_reviews_recentes(conteudo)
+
+    def _montar_secao_destaques(self, parent):
+        box = ttk.LabelFrame(parent, text=" 🔥 Obras em Destaque ", padding=15)
+        box.pack(fill="x", padx=20, pady=(15, 10))
+
+        NOMES_DESTAQUE = ["Naruto", "O Cortiço", "O Alienista", "Hunter x Hunter"]
+
+        itens_destaque = []
+        for nome in NOMES_DESTAQUE:
+            item = self.repo_catalogo.obter_por_nome(nome)
+            if item is not None:
+                itens_destaque.append(item)
+
+        if not itens_destaque:
+            ttk.Label(box, text="Nenhuma obra em destaque configurada.",
+                      font=("Segoe UI", 10, "italic"),
+                      foreground="#888888").pack(pady=30)
+            return
+
+        grid = ttk.Frame(box)
+        grid.pack(fill="x", pady=10)
+
+        for idx, item in enumerate(itens_destaque):
+            col = ttk.Frame(grid)
+            col.pack(side="left", expand=True, padx=8)
+
+            tk_capa = None
+            if self._obra_tem_pdfs_local(item.nome):
+                caminho_local = os.path.join(self.pasta_pdf, item.nome)
+                try:
+                    arquivos = [f for f in os.listdir(caminho_local)
+                                if f.lower().endswith(".pdf")]
+                    if arquivos:
+                        tk_capa = self.gerar_capa_miniatura(
+                            os.path.join(caminho_local, sorted(arquivos)[0]))
+                except OSError:
+                    pass
+
+            if tk_capa:
+                btn = tk.Button(col, image=tk_capa, relief="flat", bd=1,
+                                bg="#FFFFFF", cursor="hand2",
+                                command=lambda it=item: self._abrir_detalhes(it))
+                btn.pack()
+            else:
+                capa_frame = tk.Frame(col, bg="#D0E3F7", width=140, height=200)
+                capa_frame.pack()
+                capa_frame.pack_propagate(False)
+                placeholder = tk.Button(
+                    capa_frame, text="📖", bg="#D0E3F7", fg="#003366",
+                    font=("Segoe UI", 40), relief="flat", cursor="hand2",
+                    command=lambda it=item: self._abrir_detalhes(it))
+                placeholder.pack(expand=True, fill="both")
+
+                if item.capa_url:
+                    caminho_cache = self.capas.obter_cache(item.id)
+                    if caminho_cache:
+                        img = self._carregar_capa_ajustada(
+                            caminho_cache, 140, 200, f"capa_{item.id}")
+                        if img:
+                            placeholder.config(image=img, text="")
+                            placeholder.image = img
+                    else:
+                        def _cb(caminho, lbl=placeholder, iid=item.id):
+                            self.root.after(0, lambda: self._aplicar_capa(lbl, caminho, iid))
+                        self.capas.baixar_async(item.id, item.capa_url, _cb)
+
+            ttk.Label(col, text=item.nome[:18],
+                      font=("Segoe UI", 9, "bold"),
+                      wraplength=120, justify="center").pack(pady=(6, 2))
+
+            media, total = self.repo_reviews.media_da_obra(item.nome, item.id)
+            if total > 0:
+                estrelas = self._formatar_estrelas(media)
+                ttk.Label(col, text=f"{estrelas} {media:.1f} ({total})",
+                          font=("Segoe UI", 8),
+                          foreground="#B77900").pack()
+            else:
+                ttk.Label(col, text="Sem avaliações",
+                          font=("Segoe UI", 8, "italic"),
+                          foreground="#888888").pack()
+
+    def _montar_secao_reviews_recentes(self, parent):
+        box = ttk.LabelFrame(parent, text=" 📝 Reviews Recentes ", padding=15)
+        box.pack(fill="x", padx=20, pady=(10, 20))
+
+        todas = sorted(self.repo_reviews.reviews,
+                       key=lambda r: r.data, reverse=True)[:10]
+
+        if not todas:
+            ttk.Label(box,
+                      text="Nenhuma review publicada ainda.\n\n"
+                           "Vá em 'Minhas Reviews' e escreva a primeira!",
+                      font=("Segoe UI", 10, "italic"),
+                      foreground="#888888", justify="center").pack(pady=30)
+            return
+
+        for review in todas:
+            card = ttk.Frame(box, relief="groove", padding=12)
+            card.pack(fill="x", pady=6)
+
+            header = ttk.Frame(card)
+            header.pack(fill="x")
+
+            ttk.Label(header, text=f"👤 {review.perfil}",
+                      font=("Segoe UI", 10, "bold"),
+                      foreground="#003366").pack(side="left")
+            ttk.Label(header, text=f"  •  {review.data}",
+                      font=("Segoe UI", 8),
+                      foreground="#888888").pack(side="left")
+            ttk.Label(header, text=f"  —  {review.obra}",
+                      font=("Segoe UI", 9, "italic"),
+                      foreground="#005A9E").pack(side="left")
+
+            estrelas = "★" * review.nota + "☆" * (5 - review.nota)
+            ttk.Label(card, text=f"{estrelas}   {review.nota}/5",
+                      font=("Segoe UI", 11, "bold"),
+                      foreground="#B77900").pack(anchor="w", pady=(4, 2))
+
+            ttk.Label(card, text=review.texto, wraplength=900,
+                      justify="left", font=("Segoe UI", 9)).pack(anchor="w")
+
+    # ==========================================================
+    # TELA: COMUNIDADE
+    # ==========================================================
+    def abrir_tela_comunidade(self):
+        if self.modo != "api":
+            messagebox.showinfo("Modo local",
+                                 "A comunidade está disponível apenas em modo API.")
+            return
+
+        janela = tk.Toplevel(self.root)
+        janela.title("Comunidade Sophia")
+        janela.geometry("560x620")
+        janela.configure(bg="#F0F4F8")
+        janela.transient(self.root)
+
+        corpo = ttk.Frame(janela, padding=18)
+        corpo.pack(fill="both", expand=True)
+
+        ttk.Label(corpo, text="👥 Comunidade",
+                  font=("Segoe UI", 16, "bold"),
+                  foreground="#003366").pack(anchor="w")
+        ttk.Label(corpo,
+                  text="Clique num usuário para ver o perfil dele e enviar uma amizade.",
+                  font=("Segoe UI", 9, "italic"),
+                  foreground="#666666").pack(anchor="w", pady=(2, 14))
+
+        try:
+            todos_usuarios = self._listar_todos_usuarios()
+        except Exception as e:
+            ttk.Label(corpo, text=f"⚠ {e}",
+                      foreground="#C2185B",
+                      font=("Segoe UI", 10)).pack(pady=20)
+            ttk.Button(corpo, text="Fechar",
+                       command=janela.destroy).pack()
+            return
+
+        meu_nome = self.sessao.nome if self.sessao else ""
+        outros = [u for u in todos_usuarios if u.get("nome") != meu_nome]
+
+        ttk.Label(corpo, text=f"{len(outros)} usuário(s) na comunidade",
+                  font=("Segoe UI", 9),
+                  foreground="#555555").pack(anchor="w", pady=(0, 8))
+
+        if not outros:
+            ttk.Label(corpo,
+                      text="Nenhum outro usuário cadastrado ainda.",
+                      font=("Segoe UI", 10, "italic"),
+                      foreground="#888888").pack(pady=40)
+            ttk.Button(corpo, text="Fechar",
+                       command=janela.destroy).pack()
+            return
+
+        frame_lista = ttk.Frame(corpo, relief="sunken", borderwidth=1)
+        frame_lista.pack(fill="both", expand=True)
+
+        canvas = tk.Canvas(frame_lista, bg="#FFFFFF", highlightthickness=0)
+        scroll = ttk.Scrollbar(frame_lista, orient="vertical", command=canvas.yview)
+        interior = ttk.Frame(canvas)
+        interior.bind("<Configure>",
+                      lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+        canvas.create_window((0, 0), window=interior, anchor="nw", width=490)
+        canvas.configure(yscrollcommand=scroll.set)
+        canvas.pack(side="left", fill="both", expand=True)
+        scroll.pack(side="right", fill="y")
+
+        for u in outros:
+            linha = ttk.Frame(interior, padding=10)
+            linha.pack(fill="x", padx=4, pady=3)
+
+            btn = tk.Button(
+                linha,
+                text=f"👤  {u['nome']}",
+                anchor="w", justify="left",
+                bg="#FFFFFF", activebackground="#D0E3F7",
+                relief="flat", bd=0, cursor="hand2",
+                font=("Segoe UI", 11),
+                command=lambda n=u["nome"]: self._abrir_perfil_e_fechar(n, janela),
+            )
+            btn.pack(side="left", fill="x", expand=True)
+
+            ttk.Label(linha, text=u.get("criado_em", ""),
+                      font=("Segoe UI", 8),
+                      foreground="#888888").pack(side="right", padx=8)
+
+        ttk.Button(corpo, text="Fechar",
+                   command=janela.destroy).pack(pady=(14, 0))
+
+    def _listar_todos_usuarios(self):
+        try:
+            return [
+                {"id": u.id, "nome": u.nome, "criado_em": u.criado_em}
+                for u in self.busca_api.listar_todos()
+            ]
+        except ErroBusca as e:
+            raise e
+
+    # ==========================================================
+    # JANELA: SOBRE A SOPHIA
+    # ==========================================================
+    def abrir_janela_sobre(self):
+        janela = tk.Toplevel(self.root)
+        janela.title("Sobre a Sophia")
+        janela.geometry("820x680")
+        janela.configure(bg="#F0F4F8")
+        janela.transient(self.root)
+
+        canvas = tk.Canvas(janela, bg="#F0F4F8", highlightthickness=0)
+        scroll = ttk.Scrollbar(janela, orient="vertical", command=canvas.yview)
+        conteudo = ttk.Frame(canvas)
+        conteudo.bind("<Configure>",
+                      lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+        canvas.create_window((0, 0), window=conteudo, anchor="nw", width=780)
+        canvas.configure(yscrollcommand=scroll.set)
+        canvas.pack(side="left", fill="both", expand=True)
+        scroll.pack(side="right", fill="y")
+
         hora = datetime.datetime.now().hour
         saudacao = "Bom dia" if hora < 12 else ("Boa tarde" if hora < 18 else "Boa noite")
 
-        banner = ttk.Frame(self.frame_inicio, style="Banner.TFrame", padding=20)
+        # ---------- Banner ----------
+        banner = tk.Frame(conteudo, bg="#003366", padx=20, pady=20)
         banner.pack(fill="x", padx=15, pady=15)
-        tk.Label(banner, text=f"{saudacao}! 📖 MangaReader 2000 — Retrô Edition",
-                 font=("Segoe UI", 16, "bold"), fg="#FFFFFF",
+        tk.Label(banner, text=f"{saudacao}! 📖 Sophia — Leitura e Comunidade",
+                 font=("Segoe UI", 15, "bold"), fg="#FFFFFF",
                  bg="#003366").pack(anchor="w")
-        tk.Label(banner, text="Seu leitor de mangás, quadrinhos e PDFs",
+        tk.Label(banner,
+                 text="Do grego Σοφία: sabedoria. Um espaço para ler, avaliar e compartilhar.",
                  font=("Segoe UI", 10), fg="#D0E3F7",
                  bg="#003366").pack(anchor="w", pady=(5, 0))
 
-        rodape = (
-            '"Só existem dois dias no ano que nada pode ser feito. Um se chama ontem '
-            'e o outro se chama amanhã, portanto hoje é o dia certo para amar, '
-            'acreditar, fazer e principalmente viver." - Dalai Lama\n\n'
-            '~Programa feito por Chumbinho~'
-        )
-        ttk.Label(self.frame_inicio, text=rodape, font=("Segoe UI", 9, "italic"),
-                  justify="center", foreground="#555555",
-                  background="#F0F4F8").pack(side="bottom", pady=15)
+        main = ttk.Frame(conteudo, relief="ridge", padding=15)
+        main.pack(expand=True, fill="both", padx=15, pady=(0, 15))
 
-        main = ttk.Frame(self.frame_inicio, relief="ridge", padding=15)
-        main.pack(expand=True, fill="both", padx=15, pady=(0, 5))
-
-        box_sobre = ttk.LabelFrame(main, text=" 🎯 Sobre o Projeto ", padding=12)
+        # ---------- Sobre ----------
+        box_sobre = ttk.LabelFrame(main, text=" 🎯 Sobre a Sophia ", padding=12)
         box_sobre.pack(fill="x", expand=False, padx=5, pady=(0, 10))
         ttk.Label(box_sobre, text=(
-            "Esta aplicação foi desenvolvida em Python como um projeto de estudo e "
-            "portfólio de Engenharia de Software.\n"
-            "Combina uma interface gráfica inspirada na era Windows XP (RETRÔ) com "
-            "técnicas modernas de renderização vetorial e gerenciamento de memória "
-            "em tempo real.\n"
-            "Essa aplicação foi criada com o intuito de difundir obras e incentivar "
-            "a leitura, além de oferecer um ambiente agradável para que os usuários "
-            "possam postar suas avaliações, se expressar e, principalmente, se divertir!\n"
-        ), wraplength=850, justify="left").pack(anchor="w", fill="x", expand=True)
+            "Sophia é um leitor de mangás, livros e quadrinhos que também funciona "
+            "como uma rede social de leitura.\n\n"
+            "A ideia é simples: aqui você não só lê — você conversa sobre o que leu. "
+            "Dá para avaliar obras, favoritar as preferidas, comentar no mural dos "
+            "amigos, trocar mensagens e descobrir novas histórias pelas recomendações "
+            "da comunidade.\n\n"
+            "O nome vem do grego Σοφία, que significa sabedoria. É uma homenagem à "
+            "curiosidade de quem lê e à vontade de compartilhar o que aprendeu."
+        ), wraplength=730, justify="left").pack(anchor="w", fill="x", expand=True)
 
-        box_recursos = ttk.LabelFrame(main, text=" ✨ Principais Funcionalidades ", padding=12)
+        # ---------- O que dá para fazer ----------
+        box_recursos = ttk.LabelFrame(main, text=" ✨ O que dá para fazer ", padding=12)
         box_recursos.pack(fill="x", expand=False, padx=5, pady=5)
         box_recursos.columnconfigure(1, weight=1)
 
         recursos = [
-            (" Interface Aero / Retrô:",
-             "Design clássico com botões estilizados, sombras e paleta suave em Segoe UI."),
-            (" Coleção em 3 Níveis:",
-             "Organização automática por Obras, Seletor de Volumes e Leitor Canvas integrado."),
-            (" High Performance Matrix:",
-             "Renderização direta via PyMuPDF (fitz.Matrix), garantindo imagens ultra "
-             "nítidas sem travamentos."),
-            (" Memória de Leitura & Status:",
-             "Salva a página exata onde você parou em arquivo JSON local e permite "
-             "marcar volumes como lidos (✔)."),
-            (" Navegação por Teclado:",
-             "Passe as páginas usando as setas direcionais do teclado."),
+            (" 📚 Leitura de PDFs:",
+             "Abra mangás, livros e quadrinhos direto no app. Renderização nítida com "
+             "PyMuPDF, salvamento automático da página em que você parou e navegação "
+             "por teclado (setas esquerda/direita)."),
+            (" 🗂️ Biblioteca organizada:",
+             "Todas as suas obras separadas por tema (Livros, Mangás). Cada uma com "
+             "capa, autor, ano, sinopse e contagem de volumes."),
+            (" 📥 Catálogo com download integrado:",
+             "Baixe obras direto do Internet Archive ou direto do nosso servidor, "
+             "volume por volume, com barra de progresso e cancelamento."),
+            (" ⭐ Avaliações e notas:",
+             "Dê de 1 a 5 estrelas, escreva uma análise e veja a média das obras. "
+             "Suas reviews ficam no seu perfil e no mural do catálogo."),
+            (" 💬 Mural de recados:",
+             "Visite o perfil de outros usuários, leia o que estão lendo e deixe um "
+             "recado. Um cantinho de comunidade dentro do app."),
+            (" 👥 Amizades e busca:",
+             "Busque outros leitores, envie pedidos de amizade e acompanhe o que eles "
+             "estão lendo."),
+            (" 💌 ChatoChat:",
+             "Converse em tempo real com seus amigos. Cada conversa tem seu histórico "
+             "e notificações quando chegam mensagens novas."),
+            (" 🔥 Feed com destaques:",
+             "A tela inicial mostra obras em destaque e as reviews mais recentes da "
+             "comunidade, para você descobrir novas leituras."),
+            (" 🔒 Conteúdo exclusivo:",
+             "Alguns mangás são protegidos por código de acesso, mantendo a "
+             "distribuição controlada onde necessário."),
         ]
         for i, (titulo, desc) in enumerate(recursos):
-            ttk.Label(box_recursos, text=titulo, font=("Segoe UI", 9, "bold"),
-                      foreground="#003366").grid(row=i, column=0, sticky="w",
-                                                  padx=(0, 15), pady=6)
-            ttk.Label(box_recursos, text=desc, justify="left").grid(
-                row=i, column=1, sticky="ew", pady=6)
+            ttk.Label(box_recursos, text=titulo,
+                      font=("Segoe UI", 9, "bold"),
+                      foreground="#003366").grid(row=i, column=0, sticky="nw",
+                                                  padx=(0, 15), pady=8)
+            ttk.Label(box_recursos, text=desc, justify="left",
+                      wraplength=560).grid(row=i, column=1, sticky="ew", pady=8)
+
+        # ---------- Como usar ----------
+        box_dicas = ttk.LabelFrame(main, text=" 🧭 Como navegar ", padding=12)
+        box_dicas.pack(fill="x", expand=False, padx=5, pady=(10, 5))
+        ttk.Label(box_dicas, text=(
+            "• Início — feed com destaques e reviews recentes\n"
+            "• Perfil — edite sua bio, foto e até 5 favoritos\n"
+            "• Minhas Reviews — escreva, edite e exclua suas avaliações\n"
+            "• Amigos — busca, mural e ChatoChat\n"
+            "• Catálogo — todas as obras, divididas em Livros e Mangás\n"
+            "• Setas do teclado — passam página no leitor\n"
+            "• Clique-direito numa capa (na biblioteca) — marcar/desmarcar como lido"
+        ), wraplength=730, justify="left").pack(anchor="w", fill="x", expand=True)
+
+        # ---------- Créditos ----------
+        box_creditos = ttk.LabelFrame(main, text=" 💡 Créditos ", padding=12)
+        box_creditos.pack(fill="x", expand=False, padx=5, pady=5)
+        ttk.Label(box_creditos, text=(
+            "Projeto de estudo e portfólio de Engenharia de Software.\n"
+            "Desenvolvido em Python com Tkinter, PyMuPDF e Pillow.\n"
+            "Servidor em FastAPI + SQLite. Imagens hospedadas em Cloudflare R2.\n"
+            "Obras de domínio público vindas do Internet Archive."
+        ), wraplength=730, justify="left",
+                  foreground="#555555").pack(anchor="w", fill="x", expand=True)
+
+        ttk.Button(main, text="Fechar", command=janela.destroy).pack(pady=(15, 0))
 
     # ==========================================================
     # TELA: CATÁLOGO
@@ -487,28 +1030,222 @@ class MangaReaderRetro:
         self.frame_catalogo.pack(expand=True, fill="both")
         self._montar_grid_catalogo()
 
-    def _montar_grid_catalogo(self):
+    def _montar_grid_catalogo(self, filtro_tema: str | None = None):
         for w in self.frame_catalogo.winfo_children():
             w.destroy()
 
         topo = ttk.Frame(self.frame_catalogo, padding=8)
         topo.pack(fill="x")
-        self._lbl_titulo_catalogo = ttk.Label(
-            topo, text="Catálogo de Obras",
-            font=("Segoe UI", 12, "bold"), foreground="#003366",
-        )
-        self._lbl_titulo_catalogo.pack(side="left", padx=5)
-        ttk.Label(topo, text="(obras disponíveis para baixar)",
-                  font=("Segoe UI", 9, "italic"),
-                  foreground="#555555").pack(side="left", padx=6)
+
+        if filtro_tema:
+            titulo_mapa = {"livros": "📚 Livros", "mangas": "📕 Mangás"}
+            titulo = titulo_mapa.get(filtro_tema, filtro_tema.capitalize())
+
+            tk.Button(topo, text="◄ Voltar ao Catálogo",
+                      command=lambda: self._montar_grid_catalogo(None),
+                      bg="#DCEBFA", fg="#003366",
+                      relief="raised", padx=10, pady=2,
+                      cursor="hand2").pack(side="left", padx=5)
+
+            self._lbl_titulo_catalogo = ttk.Label(
+                topo, text=titulo,
+                font=("Segoe UI", 12, "bold"),
+                foreground="#003366",
+            )
+            self._lbl_titulo_catalogo.pack(side="left", padx=15)
+        else:
+            self._lbl_titulo_catalogo = ttk.Label(
+                topo, text="Catálogo de Obras",
+                font=("Segoe UI", 12, "bold"),
+                foreground="#003366",
+            )
+            self._lbl_titulo_catalogo.pack(side="left", padx=5)
+            ttk.Label(topo, text="(explore por categoria)",
+                      font=("Segoe UI", 9, "italic"),
+                      foreground="#555555").pack(side="left", padx=6)
 
         self._atualizar_contador_downloads()
+
+        if filtro_tema:
+            self._montar_grid_filtrado(filtro_tema)
+        else:
+            self._montar_catalogo_secoes()
+
+    def _atualizar_contador_downloads(self):
+        if not hasattr(self, "_lbl_titulo_catalogo"):
+            return
+        n = len(self._downloads_ativos)
+        if n == 0:
+            self._lbl_titulo_catalogo.config(text="Catálogo de Obras")
+        else:
+            self._lbl_titulo_catalogo.config(
+                text=f"Catálogo de Obras  —  {n} download(s) ativo(s)")
+
+    # ==========================================================
+    # CATÁLOGO — VIEW POR SEÇÕES
+    # ==========================================================
+    def _montar_catalogo_secoes(self):
+        itens = self.repo_catalogo.listar()
+
+        if not itens:
+            ttk.Label(self.frame_catalogo,
+                      text="O catálogo está vazio.",
+                      justify="center", font=("Segoe UI", 10),
+                      foreground="#555555").pack(pady=40, padx=30)
+            return
+
+        frame_scroll = ttk.Frame(self.frame_catalogo)
+        frame_scroll.pack(expand=True, fill="both", padx=10, pady=5)
+
+        canvas_v = tk.Canvas(frame_scroll, bg="#E9EEF4", highlightthickness=0)
+        scroll_v = ttk.Scrollbar(frame_scroll, orient="vertical",
+                                  command=canvas_v.yview)
+        conteudo = ttk.Frame(canvas_v)
+
+        conteudo.bind("<Configure>",
+                      lambda e: canvas_v.configure(
+                          scrollregion=canvas_v.bbox("all")))
+        canvas_v.create_window((0, 0), window=conteudo, anchor="nw",
+                                tags="catalogo_conteudo")
+        canvas_v.configure(yscrollcommand=scroll_v.set)
+        canvas_v.bind("<Configure>",
+                      lambda e: canvas_v.itemconfigure(
+                          "catalogo_conteudo", width=e.width))
+        canvas_v.pack(side="left", expand=True, fill="both")
+        scroll_v.pack(side="right", fill="y")
+
+        por_tema: dict[str, list] = {}
+        for item in itens:
+            por_tema.setdefault(item.tema, []).append(item)
+
+        if "livros" in por_tema:
+            self._criar_secao_horizontal(
+                conteudo, "📚 Livros", por_tema["livros"], "livros",
+            )
+
+        if "mangas" in por_tema:
+            self._criar_secao_horizontal(
+                conteudo, "📕 Mangás", por_tema["mangas"], "mangas",
+            )
+
+        for tema in sorted(set(por_tema) - {"livros", "mangas"}):
+            self._criar_secao_horizontal(
+                conteudo, tema.capitalize(), por_tema[tema], tema,
+            )
+
+    def _criar_secao_horizontal(self, parent, titulo: str, itens: list, tema: str):
+        box = ttk.LabelFrame(parent, text=f" {titulo} ", padding=10)
+        box.pack(fill="x", padx=10, pady=10)
+
+        header = ttk.Frame(box)
+        header.pack(fill="x", pady=(0, 8))
+
+        ttk.Label(header, text=f"{len(itens)} obra(s) disponível(is)",
+                  font=("Segoe UI", 9, "italic"),
+                  foreground="#666666").pack(side="left", padx=4)
+
+        tk.Button(header, text="Ver todos  →",
+                  command=lambda t=tema: self._montar_grid_catalogo(t),
+                  bg="#DCEBFA", fg="#003366",
+                  relief="flat", bd=1, padx=12, pady=3,
+                  cursor="hand2",
+                  font=("Segoe UI", 9, "bold")).pack(side="right", padx=4)
+
+        scroll_area = ttk.Frame(box)
+        scroll_area.pack(fill="x")
+
+        canvas = tk.Canvas(scroll_area, bg="#E9EEF4", height=300, highlightthickness=0)
+        canvas._scroll_horizontal = True
+
+        btn_left = tk.Button(scroll_area, text="◄", width=3,
+                              command=lambda c=canvas: c.xview_scroll(-3, "units"),
+                              bg="#DCEBFA", fg="#003366",
+                              relief="flat",
+                              font=("Segoe UI", 12, "bold"),
+                              cursor="hand2")
+        btn_left.pack(side="left", fill="y", padx=(0, 4))
+
+        btn_right = tk.Button(scroll_area, text="►", width=3,
+                               command=lambda c=canvas: c.xview_scroll(3, "units"),
+                               bg="#DCEBFA", fg="#003366",
+                               relief="flat",
+                               font=("Segoe UI", 12, "bold"),
+                               cursor="hand2")
+        btn_right.pack(side="right", fill="y", padx=(4, 0))
+
+        canvas.pack(side="left", fill="both", expand=True)
+
+        inner = ttk.Frame(canvas)
+        canvas.create_window((0, 0), window=inner, anchor="nw", tags="inner")
+        inner.bind("<Configure>",
+                   lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+
+        for item in itens[:10]:
+            self._criar_card_horizontal(inner, item)
+
+    def _criar_card_horizontal(self, parent, item):
+        card = ttk.Frame(parent, padding=8, relief="solid")
+        card.pack(side="left", padx=8, pady=8)
+
+        capa_frame = tk.Frame(card, bg="#D0E3F7", width=150, height=210)
+        capa_frame.pack()
+        capa_frame.pack_propagate(False)
+
+        capa_label = tk.Label(capa_frame, text="📖", bg="#D0E3F7",
+                               fg="#003366", font=("Segoe UI", 40),
+                               cursor="hand2")
+        capa_label.pack(expand=True, fill="both")
+        capa_label.bind("<Button-1>", lambda e, it=item: self._abrir_detalhes(it))
+
+        if item.capa_url:
+            caminho_cache = self.capas.obter_cache(item.id)
+            if caminho_cache:
+                img = self._carregar_capa_ajustada(caminho_cache, 150, 210,
+                                                    f"capa_{item.id}")
+                if img:
+                    capa_label.config(image=img, text="")
+                    capa_label.image = img
+            else:
+                def _cb(caminho, lbl=capa_label, iid=item.id):
+                    self.root.after(0, lambda: self._aplicar_capa(lbl, caminho, iid))
+                self.capas.baixar_async(item.id, item.capa_url, _cb)
+
+        nome_curto = item.nome if len(item.nome) <= 22 else item.nome[:20] + "…"
+        nome_lbl = ttk.Label(card, text=nome_curto,
+                              font=("Segoe UI", 9, "bold"),
+                              wraplength=150, justify="center",
+                              cursor="hand2")
+        nome_lbl.pack(pady=(6, 2), fill="x")
+        nome_lbl.bind("<Button-1>", lambda e, it=item: self._abrir_detalhes(it))
+
+        if item.autor:
+            autor_curto = item.autor if len(item.autor) <= 22 else item.autor[:20] + "…"
+            ttk.Label(card, text=autor_curto,
+                      font=("Segoe UI", 7, "italic"),
+                      foreground="#666666",
+                      wraplength=150, justify="center").pack(fill="x")
+
+        ttk.Label(card, text=f"{len(item.volumes)} vol",
+                  font=("Segoe UI", 8),
+                  foreground="#888888").pack(pady=(2, 0))
+
+    def _montar_grid_filtrado(self, filtro_tema: str):
+        todos = self.repo_catalogo.listar()
+        itens = [i for i in todos if i.tema == filtro_tema]
+
+        if not itens:
+            ttk.Label(self.frame_catalogo,
+                      text="Nenhuma obra nesta categoria.",
+                      font=("Segoe UI", 11, "italic"),
+                      foreground="#888888").pack(pady=40)
+            return
 
         frame_scroll = ttk.Frame(self.frame_catalogo, relief="ridge")
         frame_scroll.pack(expand=True, fill="both", padx=15, pady=5)
 
         canvas = tk.Canvas(frame_scroll, bg="#E9EEF4", highlightthickness=0)
-        scrollbar = ttk.Scrollbar(frame_scroll, orient="vertical", command=canvas.yview)
+        scrollbar = ttk.Scrollbar(frame_scroll, orient="vertical",
+                                    command=canvas.yview)
         conteudo = ttk.Frame(canvas)
 
         conteudo.bind("<Configure>",
@@ -517,50 +1254,64 @@ class MangaReaderRetro:
                              tags="catalogo_conteudo")
         canvas.configure(yscrollcommand=scrollbar.set)
         canvas.bind("<Configure>",
-                    lambda e: canvas.itemconfigure("catalogo_conteudo", width=e.width))
+                    lambda e: canvas.itemconfigure("catalogo_conteudo",
+                                                     width=e.width))
         canvas.pack(side="left", expand=True, fill="both")
         scrollbar.pack(side="right", fill="y")
 
-        itens = self.repo_catalogo.listar()
-        if not itens:
-            ttk.Label(conteudo,
-                      text="O catálogo está vazio.",
-                      justify="center", font=("Segoe UI", 10),
-                      foreground="#555555").pack(pady=40, padx=30)
-            return
-
         grid = ttk.Frame(conteudo)
-        grid.pack(expand=True, fill="both", pady=15)
+        grid.pack(expand=True, fill="both", pady=15, padx=15)
+
+        colunas = 3
+        for c in range(colunas):
+            grid.grid_columnconfigure(c, weight=1, uniform="catalogo")
 
         self._cards_catalogo.clear()
         self._fav_frames.clear()
 
-        colunas = 3
         for i, item in enumerate(itens):
             linha, coluna = divmod(i, colunas)
-            card = ttk.Frame(grid, padding=12, relief="solid", width=200)
-            card.grid(row=linha, column=coluna, padx=15, pady=15, sticky="n")
-            card.grid_propagate(False)
 
-            capa_label = tk.Label(card, text="📖", bg="#D0E3F7", fg="#003366",
-                                   font=("Segoe UI", 32), width=10, height=4,
+            card = ttk.Frame(grid, padding=12, relief="solid")
+            card.grid(row=linha, column=coluna, padx=10, pady=10, sticky="nsew")
+
+            capa_container = tk.Frame(card, bg="#D0E3F7", height=260)
+            capa_container.pack(fill="x", pady=(0, 8))
+            capa_container.pack_propagate(False)
+
+            capa_label = tk.Label(capa_container, text="📖", bg="#D0E3F7",
+                                   fg="#003366", font=("Segoe UI", 56),
                                    cursor="hand2")
-            capa_label.pack(fill="x")
+            capa_label.pack(expand=True, fill="both")
             capa_label.bind("<Button-1>",
                             lambda e, it=item: self._abrir_detalhes(it))
 
+            if item.capa_url:
+                caminho_cache = self.capas.obter_cache(item.id)
+                if caminho_cache:
+                    img = self._carregar_capa_ajustada(caminho_cache, 180, 260,
+                                                        f"capa_{item.id}")
+                    if img:
+                        capa_label.config(image=img, text="")
+                        capa_label.image = img
+                else:
+                    def _cb(caminho, lbl=capa_label, iid=item.id):
+                        self.root.after(0, lambda: self._aplicar_capa(lbl, caminho, iid))
+                    self.capas.baixar_async(item.id, item.capa_url, _cb)
+
             nome_label = ttk.Label(card, text=item.nome,
                                     font=("Segoe UI", 10, "bold"),
-                                    wraplength=170, justify="center",
+                                    wraplength=180, justify="center",
                                     cursor="hand2")
-            nome_label.pack(pady=(8, 2))
+            nome_label.pack(pady=(4, 2), fill="x")
             nome_label.bind("<Button-1>",
                             lambda e, it=item: self._abrir_detalhes(it))
 
             if item.autor:
                 ttk.Label(card, text=f"por {item.autor}",
                           font=("Segoe UI", 8, "italic"),
-                          foreground="#666666").pack()
+                          foreground="#666666",
+                          wraplength=180, justify="center").pack(fill="x")
 
             qtd_vol = len(item.volumes)
             total_mb = sum(v.tamanho_mb for v in item.volumes)
@@ -575,7 +1326,7 @@ class MangaReaderRetro:
 
             ttk.Label(card, text=texto_meta,
                       font=("Segoe UI", 8),
-                      foreground="#555555").pack(pady=(4, 6))
+                      foreground="#555555").pack(pady=(6, 8))
 
             area_fav = ttk.Frame(card)
             area_fav.pack(fill="x", pady=(0, 6))
@@ -591,21 +1342,14 @@ class MangaReaderRetro:
 
             self._atualizar_botao_favorito(item.id)
 
-            ja_local = os.path.isdir(os.path.join(self.pasta_pdf, item.nome))
-            if ja_local:
-                self._mostrar_estado_baixado(item.id)
+            if item.tema == "mangas":
+                self._mostrar_estado_manga(item.id)
             else:
-                self._mostrar_estado_disponivel(item.id)
-
-    def _atualizar_contador_downloads(self):
-        if not hasattr(self, "_lbl_titulo_catalogo"):
-            return
-        n = len(self._downloads_ativos)
-        if n == 0:
-            self._lbl_titulo_catalogo.config(text="Catálogo de Obras")
-        else:
-            self._lbl_titulo_catalogo.config(
-                text=f"Catálogo de Obras  —  {n} download(s) ativo(s)")
+                ja_local = self._obra_tem_pdfs_local(item.nome)
+                if ja_local:
+                    self._mostrar_estado_baixado(item.id)
+                else:
+                    self._mostrar_estado_disponivel(item.id)
 
     # ==========================================================
     # DOWNLOADS
@@ -622,6 +1366,33 @@ class MangaReaderRetro:
                   command=lambda: self._baixar_item_catalogo(item),
                   bg="#003366", fg="white",
                   relief="raised", padx=10, pady=4).pack(fill="x")
+
+    def _mostrar_estado_manga(self, item_id: str):
+        ref = self._cards_catalogo.get(item_id)
+        if ref is None:
+            return
+        area = ref["area_acao"]
+        for w in area.winfo_children():
+            w.destroy()
+        item = ref["item"]
+
+        n_baixados = self._contar_volumes_baixados(item)
+        n_total = len(item.volumes)
+
+        if n_baixados > 0:
+            ttk.Label(area, text=f"📚 {n_baixados}/{n_total} baixados",
+                      font=("Segoe UI", 8, "bold"),
+                      foreground="#008000").pack()
+        else:
+            ttk.Label(area, text="📚 Mangá",
+                      font=("Segoe UI", 8, "italic"),
+                      foreground="#6A1B9A").pack()
+
+        texto_btn = "🔓 Ver Volumes" if not self._mangas_desbloqueados else "📚 Ver Volumes"
+        tk.Button(area, text=texto_btn,
+                  command=lambda: self._baixar_item_catalogo(item),
+                  bg="#6A1B9A", fg="white",
+                  relief="raised", padx=10, pady=4).pack(fill="x", pady=(4, 0))
 
     def _mostrar_estado_baixando(self, item_id: str):
         ref = self._cards_catalogo.get(item_id)
@@ -672,6 +1443,13 @@ class MangaReaderRetro:
             messagebox.showwarning("Catálogo",
                                     f"'{item.nome}' não tem volumes para baixar.")
             return
+
+        if item.tema == "mangas":
+            if not self._verificar_desbloqueio_manga():
+                return
+            self._abrir_tela_volumes_manga(item)
+            return
+
         self._downloads_cancelados.discard(item.id)
         self._mostrar_estado_baixando(item.id)
         self._baixar_proximo_volume(item, 0)
@@ -699,6 +1477,14 @@ class MangaReaderRetro:
             self._downloads_ativos.pop(item.id, None)
             self._mostrar_estado_baixado(item.id)
             self._atualizar_contador_downloads()
+            self._notificar(
+                titulo="Download concluído",
+                mensagem=f"'{item.nome}' está pronto para ler!",
+                icone="📚",
+                tipo="download",
+                dado={"nome": item.nome},
+                som="download",
+            )
             return
 
         volume = item.volumes[indice]
@@ -772,6 +1558,303 @@ class MangaReaderRetro:
                 on_progresso=on_progresso, on_concluido=on_concluido,
                 on_erro=on_erro, on_cancelado=on_cancelado,
             ),
+        )
+
+    # ==========================================================
+    # MANGÁS — CÓDIGO + TELA DE VOLUMES
+    # ==========================================================
+    def _verificar_desbloqueio_manga(self) -> bool:
+        if self._mangas_desbloqueados:
+            return True
+
+        codigo_esperado = self.repo_catalogo.codigo_acesso_mangas()
+        if not codigo_esperado:
+            self._mangas_desbloqueados = True
+            return True
+
+        codigo = simpledialog.askstring(
+            "🔒 Código de acesso — Mangás",
+            "Os mangás são protegidos por um código de acesso.\n\n"
+            "Digite o código para desbloquear (fica liberado durante "
+            "esta sessão do app):",
+            show="*",
+            parent=self.root,
+        )
+        if codigo is None:
+            return False
+
+        if codigo.strip() != codigo_esperado:
+            messagebox.showerror(
+                "Código incorreto",
+                "❌ Código de acesso inválido.\n\n"
+                "Os mangás permanecem bloqueados.",
+                parent=self.root,
+            )
+            return False
+
+        self._mangas_desbloqueados = True
+        self._notificar(
+            titulo="Mangás desbloqueados!",
+            mensagem="Você pode baixar volumes durante esta sessão.",
+            icone="🔓",
+            tipo="geral",
+            som="notificacao",
+        )
+        if self.frame_catalogo.winfo_ismapped():
+            self._montar_grid_catalogo()
+        return True
+
+    def _abrir_tela_volumes_manga(self, item: CatalogoItem):
+        self._manga_selecionado = item
+        self._esconder_todas(self.frame_volumes_manga)
+        self.frame_volumes_manga.pack(expand=True, fill="both")
+        self._montar_tela_volumes_manga(item)
+
+    def _montar_tela_volumes_manga(self, item: CatalogoItem):
+        for w in self.frame_volumes_manga.winfo_children():
+            w.destroy()
+        self._volumes_ui.clear()
+
+        topo = tk.Frame(self.frame_volumes_manga, bg="#6A1B9A", height=70)
+        topo.pack(fill="x")
+        topo.pack_propagate(False)
+
+        tk.Button(topo, text="◄ Voltar ao Catálogo",
+                  command=self.abrir_tela_catalogo,
+                  bg="#DCEBFA", fg="#4A148C",
+                  relief="raised").pack(side="left", padx=15, pady=15)
+
+        tk.Label(topo, text=f"📚 {item.nome}",
+                 font=("Segoe UI", 15, "bold"),
+                 fg="white", bg="#6A1B9A").pack(side="left", padx=10)
+
+        n_baixados = self._contar_volumes_baixados(item)
+        tk.Label(topo, text=f"{n_baixados}/{len(item.volumes)} baixados",
+                 font=("Segoe UI", 9, "italic"),
+                 fg="#E1BEE7", bg="#6A1B9A").pack(side="left", padx=6)
+
+        tk.Button(topo, text="⬇ Baixar Todos os Pendentes",
+                  command=lambda: self._baixar_todos_manga(item),
+                  bg="#DCEBFA", fg="#4A148C",
+                  relief="raised").pack(side="right", padx=15, pady=15)
+
+        info_box = ttk.LabelFrame(self.frame_volumes_manga,
+                                    text=" Sobre o mangá ", padding=10)
+        info_box.pack(fill="x", padx=15, pady=(10, 4))
+
+        ttk.Label(info_box, text=f"por {item.autor} • {item.categoria} • {item.ano}",
+                  font=("Segoe UI", 9, "italic"),
+                  foreground="#555555").pack(anchor="w")
+        ttk.Label(info_box, text=item.descricao, wraplength=950,
+                  justify="left").pack(anchor="w", pady=(4, 0))
+
+        frame_scroll = ttk.Frame(self.frame_volumes_manga, relief="ridge")
+        frame_scroll.pack(expand=True, fill="both", padx=15, pady=8)
+
+        canvas = tk.Canvas(frame_scroll, bg="#E9EEF4", highlightthickness=0)
+        scrollbar = ttk.Scrollbar(frame_scroll, orient="vertical", command=canvas.yview)
+        conteudo = ttk.Frame(canvas)
+        conteudo.bind("<Configure>",
+                      lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+        canvas.create_window((0, 0), window=conteudo, anchor="nw",
+                             tags="vols_manga_conteudo")
+        canvas.configure(yscrollcommand=scrollbar.set)
+        canvas.bind("<Configure>",
+                    lambda e: canvas.itemconfigure("vols_manga_conteudo", width=e.width))
+        canvas.pack(side="left", expand=True, fill="both")
+        scrollbar.pack(side="right", fill="y")
+
+        for vol in item.volumes:
+            self._render_item_volume(conteudo, item, vol)
+
+    def _render_item_volume(self, parent, item: CatalogoItem, vol):
+        linha = ttk.Frame(parent, padding=10, relief="groove")
+        linha.pack(fill="x", padx=10, pady=4)
+
+        info = ttk.Frame(linha)
+        info.pack(side="left", fill="x", expand=True)
+
+        ttk.Label(info, text=f"Vol. {vol.numero:02d} — {vol.titulo}",
+                  font=("Segoe UI", 10, "bold"),
+                  foreground="#003366").pack(anchor="w")
+
+        meta = f"{vol.tamanho_mb:.1f} MB"
+        if vol.fonte:
+            meta += f" • {vol.fonte}"
+        ttk.Label(info, text=meta,
+                  font=("Segoe UI", 8),
+                  foreground="#666666").pack(anchor="w", pady=(2, 0))
+
+        area_acao = ttk.Frame(linha)
+        area_acao.pack(side="right")
+
+        chave = f"{item.id}:vol{vol.numero}"
+        self._volumes_ui[chave] = {
+            "item": item,
+            "vol": vol,
+            "linha": linha,
+            "area_acao": area_acao,
+        }
+        self._atualizar_volume_ui(chave)
+
+    def _atualizar_volume_ui(self, chave: str):
+        ref = self._volumes_ui.get(chave)
+        if ref is None:
+            return
+        item = ref["item"]
+        vol = ref["vol"]
+        area = ref["area_acao"]
+
+        for w in area.winfo_children():
+            w.destroy()
+        ref.pop("progressbar", None)
+        ref.pop("label_pct", None)
+
+        caminho = os.path.join(self.pasta_pdf, item.nome, f"{vol.titulo}.pdf")
+
+        if self.gerenciador.esta_ativo(chave):
+            prog = ttk.Progressbar(area, mode="determinate", maximum=100, length=120)
+            prog.pack(side="left", padx=4)
+            lbl = ttk.Label(area, text="0%", font=("Segoe UI", 8), width=4)
+            lbl.pack(side="left")
+            tk.Button(area, text="✖",
+                      command=lambda c=chave: self.gerenciador.cancelar(c),
+                      bg="#F0F4F8", fg="#C2185B",
+                      relief="flat", bd=1, padx=6).pack(side="left", padx=4)
+            ref["progressbar"] = prog
+            ref["label_pct"] = lbl
+            return
+
+        if os.path.exists(caminho):
+            ttk.Label(area, text="✔ Baixado",
+                      font=("Segoe UI", 9, "bold"),
+                      foreground="#008000").pack(side="left", padx=6)
+            tk.Button(area, text="Abrir",
+                      command=lambda p=caminho: self.abrir_manga_da_biblioteca(p),
+                      bg="#003366", fg="white", relief="raised",
+                      padx=10, pady=3).pack(side="left")
+            return
+
+        tk.Button(area, text="⬇ Baixar",
+                  command=lambda: self._baixar_volume_manga(item, vol),
+                  bg="#003366", fg="white", relief="raised",
+                  padx=10, pady=3).pack(side="left")
+
+    def _baixar_volume_manga(self, item: CatalogoItem, vol, on_fim=None):
+        chave = f"{item.id}:vol{vol.numero}"
+
+        if self.gerenciador.esta_ativo(chave):
+            return
+
+        destino = os.path.join(self.pasta_pdf, item.nome, f"{vol.titulo}.pdf")
+
+        if os.path.exists(destino):
+            if not messagebox.askyesno(
+                "Arquivo existe",
+                f"'{vol.titulo}.pdf' já existe. Substituir?",
+            ):
+                if on_fim:
+                    self.root.after(0, on_fim)
+                return
+
+        self._atualizar_volume_ui(chave)
+
+        def on_progresso(baixado: int, total: int) -> None:
+            ref = self._volumes_ui.get(chave)
+            if ref is None:
+                return
+            prog = ref.get("progressbar")
+            lbl = ref.get("label_pct")
+            if total > 0 and prog is not None and lbl is not None:
+                pct = int(baixado * 100 / total)
+                try:
+                    prog["value"] = pct
+                    lbl.config(text=f"{pct}%")
+                except tk.TclError:
+                    pass
+
+        def on_concluido() -> None:
+            self._atualizar_volume_ui(chave)
+            self._notificar(
+                titulo="Volume baixado",
+                mensagem=f"{item.nome} — Vol. {vol.numero:02d}",
+                icone="📚",
+                tipo="geral",
+                som="download",
+            )
+            if on_fim:
+                self.root.after(100, on_fim)
+
+        def on_erro(msg: str) -> None:
+            self._atualizar_volume_ui(chave)
+            messagebox.showerror(
+                "Erro no download",
+                f"Falha ao baixar '{vol.titulo}':\n\n{msg}",
+            )
+            if on_fim:
+                self.root.after(100, on_fim)
+
+        def on_cancelado() -> None:
+            self._atualizar_volume_ui(chave)
+            if on_fim:
+                self.root.after(100, on_fim)
+
+        self.gerenciador.baixar(
+            chave=chave, url=vol.url, destino=destino,
+            callbacks=Callbacks(
+                on_progresso=on_progresso,
+                on_concluido=on_concluido,
+                on_erro=on_erro,
+                on_cancelado=on_cancelado,
+            ),
+        )
+        self._atualizar_volume_ui(chave)
+
+    def _baixar_todos_manga(self, item: CatalogoItem):
+        pendentes = []
+        for vol in item.volumes:
+            chave = f"{item.id}:vol{vol.numero}"
+            if self.gerenciador.esta_ativo(chave):
+                continue
+            caminho = os.path.join(self.pasta_pdf, item.nome, f"{vol.titulo}.pdf")
+            if os.path.exists(caminho):
+                continue
+            pendentes.append(vol)
+
+        if not pendentes:
+            messagebox.showinfo("Tudo em dia",
+                                 "Todos os volumes já estão baixados ou em download.")
+            return
+
+        total_mb = sum(v.tamanho_mb for v in pendentes)
+        if not messagebox.askyesno(
+            "Baixar todos os pendentes",
+            f"Baixar {len(pendentes)} volume(s) de '{item.nome}'?\n\n"
+            f"Tamanho estimado: ~{total_mb:.0f} MB"
+        ):
+            return
+
+        self._fila_download_manga = list(pendentes)
+        self._processar_fila_manga(item)
+
+    def _processar_fila_manga(self, item: CatalogoItem):
+        if not self._fila_download_manga:
+            self._notificar(
+                titulo="Download em lote concluído",
+                mensagem=f"'{item.nome}' está completo!",
+                icone="📚",
+                tipo="geral",
+                som="download",
+            )
+            if (self._manga_selecionado
+                    and self._manga_selecionado.id == item.id):
+                self._montar_tela_volumes_manga(item)
+            return
+
+        vol = self._fila_download_manga.pop(0)
+        self._baixar_volume_manga(
+            item, vol,
+            on_fim=lambda: self._processar_fila_manga(item),
         )
 
     # ==========================================================
@@ -918,7 +2001,7 @@ class MangaReaderRetro:
                    command=salvar).pack(side="right")
 
     # ==========================================================
-    # TELA: DETALHES DA OBRA
+    # DETALHES DA OBRA — COM CAPA DINÂMICA
     # ==========================================================
     def _abrir_detalhes(self, item: CatalogoItem, origem: str = "catalogo"):
         self._detalhes_item_atual = item
@@ -969,10 +2052,49 @@ class MangaReaderRetro:
         cab = ttk.Frame(conteudo, relief="solid", padding=15)
         cab.pack(fill="x", padx=10, pady=10)
 
-        tk.Label(cab, text="📖", bg="#D0E3F7", fg="#003366",
-                 font=("Segoe UI", 56), width=7, height=4).pack(
-            side="left", padx=(0, 18))
+        # ---------- CAPA DINÂMICA ----------
+        capa_frame = tk.Frame(cab, bg="#D0E3F7", width=200, height=280)
+        capa_frame.pack(side="left", padx=(0, 18))
+        capa_frame.pack_propagate(False)
 
+        capa_lbl = tk.Label(capa_frame, text="📖", bg="#D0E3F7",
+                            fg="#003366", font=("Segoe UI", 56))
+        capa_lbl.pack(expand=True, fill="both")
+
+        # Tenta 1) capa local do PDF; 2) cache remoto; 3) dispara download
+        carregou = False
+
+        if self._obra_tem_pdfs_local(item.nome):
+            caminho_local = os.path.join(self.pasta_pdf, item.nome)
+            try:
+                arquivos = [f for f in os.listdir(caminho_local)
+                            if f.lower().endswith(".pdf")]
+                if arquivos:
+                    img = self.gerar_capa_miniatura(
+                        os.path.join(caminho_local, sorted(arquivos)[0]))
+                    if img:
+                        capa_lbl.config(image=img, text="")
+                        capa_lbl.image = img
+                        carregou = True
+            except OSError:
+                pass
+
+        if not carregou and item.capa_url:
+            caminho_cache = self.capas.obter_cache(item.id)
+            if caminho_cache:
+                img = self._carregar_capa_ajustada(caminho_cache, 200, 280,
+                                                    f"capa_det_{item.id}")
+                if img:
+                    capa_lbl.config(image=img, text="")
+                    capa_lbl.image = img
+                    carregou = True
+            else:
+                def _cb(caminho, lbl=capa_lbl, iid=item.id):
+                    self.root.after(0, lambda: self._aplicar_capa_detalhe(
+                        lbl, caminho, iid))
+                self.capas.baixar_async(item.id, item.capa_url, _cb)
+
+        # ---------- INFO ----------
         info = ttk.Frame(cab)
         info.pack(side="left", fill="both", expand=True)
 
@@ -1012,7 +2134,7 @@ class MangaReaderRetro:
         botoes.pack(anchor="w", pady=(12, 0))
 
         perfil = self.repo_perfis.ativo()
-        ja_local = os.path.isdir(os.path.join(self.pasta_pdf, item.nome))
+        ja_local = self._obra_tem_pdfs_local(item.nome)
         favoritado = perfil is not None and self.repo_perfis.eh_favorito(perfil.id, item.id)
 
         txt_fav = "♥  Favorito" if favoritado else "♡  Favoritar"
@@ -1023,7 +2145,12 @@ class MangaReaderRetro:
                   command=lambda: self._alternar_favorito_detalhes(item)
                   ).pack(side="left", padx=(0, 6))
 
-        if ja_local:
+        if item.tema == "mangas":
+            tk.Button(botoes, text="📚 Ver Volumes", bg="#6A1B9A", fg="white",
+                      relief="raised", padx=12, pady=4,
+                      command=lambda it=item: self._baixar_item_catalogo(it)
+                      ).pack(side="left", padx=(0, 6))
+        elif ja_local:
             tk.Button(botoes, text="📖 Ler", bg="#003366", fg="white",
                       relief="raised", padx=12, pady=4,
                       command=lambda n=item.nome: self.mostrar_tela_volumes(n)
@@ -1039,6 +2166,7 @@ class MangaReaderRetro:
                        obra_nome=item.nome, obra_id=item.id)
                    ).pack(side="left")
 
+        # ---------- REVIEWS ----------
         frame_reviews = ttk.LabelFrame(conteudo, text=" 💬 Reviews da Obra ",
                                         padding=10)
         frame_reviews.pack(fill="x", padx=10, pady=(0, 10))
@@ -1090,7 +2218,7 @@ class MangaReaderRetro:
         self.frame_detalhes_obra.pack(expand=True, fill="both")
 
     # ==========================================================
-    # TELA: OBRAS (Biblioteca)
+    # OBRAS (BIBLIOTECA)
     # ==========================================================
     def _montar_grid_obras(self):
         for w in self.frame_obras.winfo_children():
@@ -1174,9 +2302,6 @@ class MangaReaderRetro:
                           foreground="#555555").pack()
             i += 1
 
-    # ==========================================================
-    # TELA: VOLUMES
-    # ==========================================================
     def _montar_grid_volumes(self, nome_obra: str):
         for w in self.frame_volumes.winfo_children():
             w.destroy()
@@ -1256,7 +2381,7 @@ class MangaReaderRetro:
             self.mostrar_tela_volumes(self.obra_selecionada)
 
     # ==========================================================
-    # TELA: LEITOR
+    # LEITOR
     # ==========================================================
     def montar_tela_leitor(self):
         controles = ttk.Frame(self.frame_leitor, padding=6, relief="groove")
@@ -1486,7 +2611,7 @@ class MangaReaderRetro:
             text=f"Página: {self.pagina_atual + 1} / {self.total_paginas}")
 
     # ==========================================================
-    # TELA: PERFIL
+    # PERFIL
     # ==========================================================
     def _montar_conteudo_perfil(self, alvo_nome: str | None = None):
         for w in self.frame_perfil.winfo_children():
@@ -1600,9 +2725,9 @@ class MangaReaderRetro:
                               foreground="#AAAAAA").pack(pady=4)
                     continue
 
-                caminho_local = os.path.join(self.pasta_pdf, item.nome)
                 tk_capa = None
-                if os.path.isdir(caminho_local):
+                if self._obra_tem_pdfs_local(item.nome):
+                    caminho_local = os.path.join(self.pasta_pdf, item.nome)
                     try:
                         arquivos = [f for f in os.listdir(caminho_local)
                                     if f.lower().endswith(".pdf")]
@@ -1618,12 +2743,24 @@ class MangaReaderRetro:
                               command=lambda n=item.nome: self.mostrar_tela_volumes(n)
                               ).pack()
                 else:
-                    tk.Button(col, text=f"📖\n{item.nome[:18]}",
-                              bg="#D0E3F7", fg="#003366",
-                              relief="flat", width=12, height=7,
-                              font=("Segoe UI", 8), wraplength=90, cursor="hand2",
-                              command=lambda n=item.nome: self.mostrar_tela_volumes(n)
-                              ).pack()
+                    capa_frame = tk.Frame(col, bg="#D0E3F7", width=120, height=170)
+                    capa_frame.pack()
+                    capa_frame.pack_propagate(False)
+                    btn = tk.Button(capa_frame, text="📖", bg="#D0E3F7", fg="#003366",
+                                     font=("Segoe UI", 32), relief="flat",
+                                     cursor="hand2",
+                                     command=lambda n=item.nome: self.mostrar_tela_volumes(n))
+                    btn.pack(expand=True, fill="both")
+
+                    if item.capa_url:
+                        caminho_cache = self.capas.obter_cache(item.id)
+                        if caminho_cache:
+                            img = self._carregar_capa_ajustada(
+                                caminho_cache, 120, 170, f"capa_{item.id}")
+                            if img:
+                                btn.config(image=img, text="")
+                                btn.image = img
+
                 ttk.Label(col, text=f"#{i}", font=("Segoe UI", 8, "bold")).pack(pady=4)
 
             ttk.Button(favoritos, text="Editar",
@@ -1757,7 +2894,7 @@ class MangaReaderRetro:
             recados = [
                 ("xX_DarkSasuke_Xx", "Que perfil daora!"),
                 ("LeitoraVoraz", "Passando pra deixar um +rep."),
-                ("ChumbinhoFan", "Esse aplicativo tá ficando muito bom!"),
+                ("SophiaFan", "Esse aplicativo tá ficando muito bom!"),
                 ("NoobMaster69", "Alguém sabe me dizer como passa de página?"),
             ]
             for autor, msg in recados:
@@ -1953,17 +3090,13 @@ class MangaReaderRetro:
 
         faixa = ttk.Frame(self.frame_reviews, padding=(12, 0, 12, 10))
         faixa.pack(fill="x")
-        ttk.Label(faixa, text="Perfil ativo:",
+        ttk.Label(faixa, text="Perfil:",
                   font=("Segoe UI", 9, "bold")).pack(side="left")
 
-        self.var_perfil_reviews = tk.StringVar(value=self.repo_perfis.perfil_ativo)
-        combo = ttk.Combobox(faixa, textvariable=self.var_perfil_reviews,
-                             values=self.repo_perfis.nomes(),
-                             state="readonly", width=24)
-        combo.pack(side="left", padx=6)
-        combo.bind("<<ComboboxSelected>>", self.trocar_perfil_reviews)
-        ttk.Button(faixa, text="+ Novo perfil",
-                   command=self.criar_perfil_review).pack(side="left", padx=5)
+        nome_perfil = self._perfil_atual()
+        ttk.Label(faixa, text=f"👤 {nome_perfil}",
+                  font=("Segoe UI", 10, "bold"),
+                  foreground="#005A9E").pack(side="left", padx=6)
 
         lista = ttk.Frame(self.frame_reviews, padding=(12, 0, 12, 12))
         lista.pack(fill="both", expand=True)
@@ -1980,10 +3113,11 @@ class MangaReaderRetro:
         canvas.bind("<Configure>",
                     lambda e: canvas.itemconfigure("interior", width=e.width))
 
-        reviews = self.repo_reviews.listar_por_perfil(self.repo_perfis.perfil_ativo)
+        reviews = self.repo_reviews.listar_por_perfil(nome_perfil)
         if not reviews:
             ttk.Label(interior,
-                      text="Este perfil ainda não publicou nenhuma review.",
+                      text="Você ainda não publicou nenhuma review.\n"
+                           "Clique em '+ Escrever Review' para começar!",
                       justify="center", font=("Segoe UI", 11),
                       foreground="#555555").pack(pady=45, padx=20)
             return
@@ -2009,24 +3143,10 @@ class MangaReaderRetro:
                        command=lambda rid=review.id: self.excluir_review(rid)
                        ).pack(side="left", padx=3)
 
-    def trocar_perfil_reviews(self, _event=None):
-        sucesso = self._executar_persistencia(
-            lambda: self.repo_perfis.definir_ativo(self.var_perfil_reviews.get()),
-            "Erro ao trocar perfil")
-        if sucesso:
-            self.atualizar_tela_reviews()
-
-    def criar_perfil_review(self):
-        nome = simpledialog.askstring("Novo perfil",
-                                       "Digite o nome do novo perfil:",
-                                       parent=self.root)
-        if not nome:
-            return
-        if not self.repo_perfis.criar(nome):
-            messagebox.showwarning("Perfil existente",
-                                    "Já existe um perfil com esse nome.")
-            return
-        self.atualizar_tela_reviews()
+    def _perfil_atual(self) -> str:
+        if self.modo == "api" and self.sessao is not None:
+            return self.sessao.nome
+        return "Leitor"
 
     def formulario_review(self, review_id: str | None = None,
                           obra_nome: str | None = None,
@@ -2097,8 +3217,12 @@ class MangaReaderRetro:
                 acao = lambda: self.repo_reviews.atualizar(existente)
             else:
                 nova = Review.nova(
-                    self.repo_perfis.perfil_ativo, nome_obra_escolhida,
-                    var_nota.get(), conteudo, obra_id=id_auto)
+                    self._perfil_atual(),
+                    nome_obra_escolhida,
+                    var_nota.get(),
+                    conteudo,
+                    obra_id=id_auto,
+                )
                 acao = lambda: self.repo_reviews.adicionar(nova)
 
             if not self._executar_persistencia(acao, "Erro ao salvar review"):
@@ -2146,6 +3270,98 @@ class MangaReaderRetro:
                 self._montar_detalhes_obra(self._detalhes_item_atual)
 
     # ==========================================================
+    # BUSCA DE USUÁRIOS
+    # ==========================================================
+    def _buscar_usuario(self):
+        termo = self.var_busca.get().strip()
+        if not termo:
+            return
+
+        if self.busca_api is None:
+            messagebox.showinfo("Modo local",
+                                 "Busca de usuários só funciona em modo API.")
+            return
+
+        try:
+            resultados = self.busca_api.buscar(termo)
+        except ErroBusca as e:
+            messagebox.showerror("Erro na busca", str(e))
+            return
+
+        self._mostrar_resultados_busca(resultados, termo)
+
+    def _mostrar_resultados_busca(self, resultados, termo):
+        janela = tk.Toplevel(self.root)
+        janela.title(f"Busca: {termo}")
+        janela.geometry("440x480")
+        janela.configure(bg="#F0F4F8")
+        janela.transient(self.root)
+        janela.grab_set()
+        janela.bind("<Escape>", lambda e: janela.destroy())
+
+        corpo = ttk.Frame(janela, padding=18)
+        corpo.pack(fill="both", expand=True)
+
+        ttk.Label(corpo, text=f"🔍 Resultados para '{termo}'",
+                  font=("Segoe UI", 14, "bold"),
+                  foreground="#003366").pack(anchor="w")
+        ttk.Label(corpo, text=f"{len(resultados)} usuário(s) encontrado(s)",
+                  font=("Segoe UI", 9, "italic"),
+                  foreground="#666666").pack(anchor="w", pady=(2, 14))
+
+        if not resultados:
+            ttk.Label(corpo,
+                      text="Nenhum usuário encontrado.\n\n"
+                           "Verifique a grafia ou tente outro termo.",
+                      justify="center", font=("Segoe UI", 10),
+                      foreground="#888888").pack(pady=40)
+            ttk.Button(corpo, text="Fechar",
+                       command=janela.destroy).pack()
+            return
+
+        frame_lista = ttk.Frame(corpo, relief="sunken", borderwidth=1)
+        frame_lista.pack(fill="both", expand=True)
+
+        canvas = tk.Canvas(frame_lista, bg="#FFFFFF", highlightthickness=0)
+        scroll = ttk.Scrollbar(frame_lista, orient="vertical", command=canvas.yview)
+        interior = ttk.Frame(canvas)
+        interior.bind("<Configure>",
+                      lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+        canvas.create_window((0, 0), window=interior, anchor="nw", width=370)
+        canvas.configure(yscrollcommand=scroll.set)
+        canvas.pack(side="left", fill="both", expand=True)
+        scroll.pack(side="right", fill="y")
+
+        for u in resultados:
+            linha = ttk.Frame(interior, padding=10)
+            linha.pack(fill="x", padx=4, pady=2)
+
+            texto = f"👤  {u.nome}"
+            if u.eu_mesmo:
+                texto += "  (você)"
+
+            btn = tk.Button(
+                linha, text=texto,
+                anchor="w", justify="left",
+                bg="#FFFFFF", activebackground="#D0E3F7",
+                relief="flat", bd=0, cursor="hand2",
+                font=("Segoe UI", 11),
+                command=lambda n=u.nome: self._abrir_perfil_e_fechar(n, janela),
+            )
+            btn.pack(side="left", fill="x", expand=True)
+
+            ttk.Label(linha, text=u.criado_em,
+                      font=("Segoe UI", 8),
+                      foreground="#888888").pack(side="right", padx=8)
+
+        ttk.Button(corpo, text="Fechar",
+                   command=janela.destroy).pack(pady=(14, 0))
+
+    def _abrir_perfil_e_fechar(self, nome, janela):
+        janela.destroy()
+        self._abrir_perfil_de(nome)
+
+    # ==========================================================
     # TELA: CHATOCHAT
     # ==========================================================
     def montar_tela_chatochat(self):
@@ -2161,10 +3377,6 @@ class MangaReaderRetro:
         if self.amizades_api is not None:
             tk.Button(cabecalho, text="📬 Pedidos",
                       command=self._abrir_pedidos_pendentes,
-                      bg="#DCEBFA", fg="#003366",
-                      relief="raised").pack(side="right", padx=(0, 6), pady=10)
-            tk.Button(cabecalho, text="+ Adicionar amigo",
-                      command=self._abrir_dialogo_adicionar_amigo,
                       bg="#DCEBFA", fg="#003366",
                       relief="raised").pack(side="right", padx=12, pady=10)
         else:
@@ -2336,17 +3548,12 @@ class MangaReaderRetro:
         self.entrada_chat.focus_set()
 
     def _render_mensagem(self, m):
-        """Renderiza UMA mensagem vinda da API (formato MensagemChatAPI)."""
         meu_nome = self.sessao.nome if self.sessao else ""
         minha = (m.remetente_nome == meu_nome)
         self._criar_bolha(m.texto, m.enviado_em, minha, msg_id=m.id)
 
     def _criar_bolha(self, texto: str, hora: str, minha: bool,
                       msg_id: str | None = None):
-        """Cria uma bolha de mensagem estilizada.
-        minha=True → lado direito, azul claro.
-        minha=False → lado esquerdo, cinza claro.
-        """
         linha = tk.Frame(self.chat_mensagens_frame, bg="#F7F9FC")
         linha.pack(fill="x", padx=10, pady=4)
         if msg_id:
@@ -2395,6 +3602,8 @@ class MangaReaderRetro:
             self._render_mensagem(msg)
             self._chat_msgs_renderizadas.add(msg.id)
             self._chat_ultimo_id = msg.id
+
+            self.sons.tocar("enviar")
 
             self.chat_mensagens_canvas.update_idletasks()
             self.chat_mensagens_canvas.yview_moveto(1.0)
@@ -2563,7 +3772,8 @@ if __name__ == "__main__":
     repo_chat = RepositorioChat(os.path.join(base_dir, "chatochat.json"),
                                  modo_demo=True)
     repo_perfis = RepositorioPerfis(os.path.join(base_dir, "perfis.json"))
-    repo_catalogo = RepositorioCatalogo(os.path.join(base_dir, "catalogo.json"))
+    repo_catalogo = RepositorioCatalogo(
+        os.path.join(base_dir, "catalogo", "catalogo.json"))
 
     if MODO == "api":
         repo_reviews = RepositorioReviewsAPI("http://127.0.0.1:8000")
@@ -2571,11 +3781,11 @@ if __name__ == "__main__":
         repo_reviews = RepositorioReviews(os.path.join(base_dir, "reviews.json"))
 
     root = tk.Tk()
-    root.title("MangaReader 2000")
+    root.title("Sophia")
     root.geometry("1024x768")
 
     def iniciar_app(sessao=None):
-        return MangaReaderRetro(
+        return SophiaApp(
             root, repo_progresso, repo_reviews, repo_chat,
             repo_perfis, repo_catalogo, modo=MODO, sessao=sessao)
 
@@ -2591,14 +3801,14 @@ if __name__ == "__main__":
                     headers={"Authorization": f"Bearer {sessao_salva.token}"},
                     timeout=3)
                 if r.status_code == 200:
-                    print(f"[MangaReader] Sessão válida: {sessao_salva.nome}")
+                    print(f"[Sophia] Sessão válida: {sessao_salva.nome}")
                     iniciar_app(sessao=sessao_salva)
                 else:
-                    print("[MangaReader] Sessão expirada — pedindo login novamente")
+                    print("[Sophia] Sessão expirada — pedindo login novamente")
                     sessao_mgr.limpar()
                     sessao_salva = None
             except Exception:
-                print("[MangaReader] API offline — não deu para validar a sessão")
+                print("[Sophia] API offline — não deu para validar a sessão")
                 sessao_salva = None
 
         if sessao_salva is None:
@@ -2608,7 +3818,72 @@ if __name__ == "__main__":
             tela = TelaLogin(root, auth_api, sessao_mgr, apos_login)
 
     else:
-        print("[MangaReader] Modo local — usando JSON")
+        print("[Sophia] Modo local — usando JSON")
         iniciar_app(sessao=None)
+
+if __name__ == "__main__":
+    from tela_splash import SplashScreen
+    
+    # ... (imports e repositórios que já existem)
+    
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    MODO = "api"
+    
+    # ⚠️ Troca pela URL pública real quando subir pro Render
+    API_URL = os.environ.get("SOPHIA_API_URL", "http://127.0.0.1:8000")
+
+    root = tk.Tk()
+    root.title("Sophia")
+    root.geometry("1024x768")
+    root.withdraw()  # ← esconde até o splash terminar
+
+    def iniciar_app(sessao=None, modo_offline=False):
+        modo_final = "local" if modo_offline else MODO
+        return SophiaApp(
+            root, repo_progresso, repo_reviews, repo_chat,
+            repo_perfis, repo_catalogo,
+            modo=modo_final, sessao=sessao,
+        )
+
+    # ---------- Splash ----------
+    splash = SplashScreen(root, api_url=API_URL)
+    resultado = splash.executar()
+
+    if resultado == "cancelado":
+        root.destroy()
+        raise SystemExit(0)
+
+    if resultado == "offline":
+        print("[Sophia] Iniciando em modo offline")
+        root.deiconify()
+        iniciar_app(sessao=None, modo_offline=True)
+
+    else:  # "online"
+        # Daqui pra baixo é o fluxo normal (login / sessão)
+        auth_api = RepositorioAuthAPI(API_URL)
+        sessao_mgr = GerenciadorSessao(os.path.join(base_dir, "session.json"))
+
+        sessao_salva = sessao_mgr.carregar()
+        if sessao_salva is not None:
+            try:
+                r = requests.get(
+                    f"{API_URL}/auth/eu",
+                    headers={"Authorization": f"Bearer {sessao_salva.token}"},
+                    timeout=5)
+                if r.status_code == 200:
+                    root.deiconify()
+                    iniciar_app(sessao=sessao_salva)
+                else:
+                    sessao_mgr.limpar()
+                    sessao_salva = None
+            except Exception:
+                sessao_salva = None
+
+        if sessao_salva is None:
+            root.deiconify()
+            def apos_login(sessao):
+                tela.destruir()
+                iniciar_app(sessao=sessao)
+            tela = TelaLogin(root, auth_api, sessao_mgr, apos_login)
 
     root.mainloop()

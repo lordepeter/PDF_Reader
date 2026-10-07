@@ -1,0 +1,3641 @@
+{
+  "obras": [
+    {
+      "id": "liv-001",
+      "nome": "Crime e Castigo",
+      "autor": "Fiódor Dostoievski",
+      "ano": 1866,
+      "tema": "livros",
+      "categoria": "Literatura Russa",
+      "descricao": "Crime, culpa e redenção acompanham Raskólnikov, um jovem que tenta justificar intelectualmente um assassinato e enfrenta as consequências morais de seu ato.",
+      "capa_url": "https://archive.org/services/img/crime-e-castigo-1",
+      "volumes": [
+        {
+          "numero": 1,
+          "titulo": "Crime e Castigo",
+          "url": "https://archive.org/download/crime-e-castigo-1/Crime-e-Castigo (1).pdf",
+          "tamanho_mb": 1.74,
+          "fonte": "Internet Archive",
+          "licenca": "Domínio Público"
+        }
+      ]
+    },
+    {
+      "id": "liv-002",
+      "nome": "Os Irmãos Karamázov",
+      "autor": "Fiódor Dostoievski",
+      "ano": 1880,
+      "tema": "livros",
+      "categoria": "Literatura Russa",
+      "descricao": "Drama familiar e filosófico centrado nos irmãos Karamázov, explorando fé, dúvida, liberdade, culpa e responsabilidade.",
+      "capa_url": "https://archive.org/services/img/dostoievski-fiodor-os-irmaos-karamazov-completo",
+      "volumes": [
+        {
+          "numero": 1,
+          "titulo": "Os Irmãos Karamázov",
+          "url": "https://archive.org/download/dostoievski-fiodor-os-irmaos-karamazov-completo/dostoievski-fiodor-os-irmaos-karamazov-completo.pdf",
+          "tamanho_mb": 3.47,
+          "fonte": "Internet Archive",
+          "licenca": "Domínio Público"
+        }
+      ]
+    },
+    {
+      "id": "liv-003",
+      "nome": "Memórias do Subsolo",
+      "autor": "Fiódor Dostoievski",
+      "ano": 1864,
+      "tema": "livros",
+      "categoria": "Literatura Russa",
+      "descricao": "Monólogo de um narrador amargurado que questiona racionalismo, sociedade e a própria natureza humana.",
+      "capa_url": "https://archive.org/services/img/memorias-do-subsolo-dostoievski",
+      "volumes": [
+        {
+          "numero": 1,
+          "titulo": "Memórias do Subsolo",
+          "url": "https://archive.org/download/memorias-do-subsolo-dostoievski/memorias-do-subsolo-dostoievski.pdf",
+          "tamanho_mb": 10.61,
+          "fonte": "Internet Archive",
+          "licenca": "Domínio Público"
+        }
+      ]
+    },
+    {
+      "id": "liv-004",
+      "nome": "O Idiota",
+      "autor": "Fiódor Dostoievski",
+      "ano": 1869,
+      "tema": "livros",
+      "categoria": "Literatura Russa",
+      "descricao": "O príncipe Michkin, de personalidade profundamente compassiva, entra em uma sociedade dominada por ambição, ciúme e interesses.",
+      "capa_url": "https://archive.org/services/img/o-idiota-fiodor-dostoievski",
+      "volumes": [
+        {
+          "numero": 1,
+          "titulo": "O Idiota",
+          "url": "https://archive.org/download/o-idiota-fiodor-dostoievski/O Idiota - Fiodor Dostoievski.pdf",
+          "tamanho_mb": 3.56,
+          "fonte": "Internet Archive",
+          "licenca": "Domínio Público"
+        }
+      ]
+    },
+    {
+      "id": "liv-005",
+      "nome": "Noites Brancas",
+      "autor": "Fiódor Dostoievski",
+      "ano": 1848,
+      "tema": "livros",
+      "categoria": "Literatura Russa",
+      "descricao": "Um sonhador solitário conhece uma jovem durante quatro noites em São Petersburgo e vive uma breve história de afeto e esperança.",
+      "capa_url": "https://archive.org/services/img/noitesbrancassri0000fiod",
+      "volumes": [
+        {
+          "numero": 1,
+          "titulo": "Noites Brancas",
+          "url": "https://archive.org/download/noitesbrancassri0000fiod/noitesbrancassri0000fiod.pdf",
+          "tamanho_mb": 3.99,
+          "fonte": "Internet Archive",
+          "licenca": "Domínio Público"
+        }
+      ]
+    },
+    {
+      "id": "liv-010",
+      "nome": "O Adolescente",
+      "autor": "Fiódor Dostoievski",
+      "ano": 1875,
+      "tema": "livros",
+      "categoria": "Literatura Russa",
+      "descricao": "Arkadi Dolgorúki tenta construir sua identidade e independência em meio a conflitos familiares e sociais.",
+      "capa_url": "https://archive.org/services/img/o-adolescente",
+      "volumes": [
+        {
+          "numero": 1,
+          "titulo": "O Adolescente",
+          "url": "https://archive.org/download/o-adolescente/O adolescente.pdf",
+          "tamanho_mb": 2.99,
+          "fonte": "Internet Archive",
+          "licenca": "Domínio Público"
+        }
+      ]
+    },
+    {
+      "id": "liv-011",
+      "nome": "Alice no País das Maravilhas",
+      "autor": "Lewis Carroll",
+      "ano": 1865,
+      "tema": "livros",
+      "categoria": "Fantasia",
+      "descricao": "Alice cai em um mundo absurdo onde lógica, linguagem e identidade são constantemente invertidas.",
+      "capa_url": "https://archive.org/services/img/alice-no-pais-das-maravilhas-autentica",
+      "volumes": [
+        {
+          "numero": 1,
+          "titulo": "Alice no País das Maravilhas",
+          "url": "https://archive.org/download/alice-no-pais-das-maravilhas-autentica/alice-no-pais-das-maravilhas autentica.pdf",
+          "tamanho_mb": 5.44,
+          "fonte": "Internet Archive",
+          "licenca": "Domínio Público"
+        }
+      ]
+    },
+    {
+      "id": "liv-012",
+      "nome": "Através do Espelho",
+      "autor": "Lewis Carroll",
+      "ano": 1871,
+      "tema": "livros",
+      "categoria": "Fantasia",
+      "descricao": "Alice atravessa um espelho e encontra um mundo estruturado como um gigantesco jogo de xadrez.",
+      "capa_url": "https://archive.org/services/img/alice-atraves-do-espelho-autentica",
+      "volumes": [
+        {
+          "numero": 1,
+          "titulo": "Através do Espelho",
+          "url": "https://archive.org/download/alice-atraves-do-espelho-autentica/alice-atraves-do-espelho autentica.pdf",
+          "tamanho_mb": 8.92,
+          "fonte": "Internet Archive",
+          "licenca": "Domínio Público"
+        }
+      ]
+    },
+    {
+      "id": "liv-021",
+      "nome": "Drácula",
+      "autor": "Bram Stoker",
+      "ano": 1897,
+      "tema": "livros",
+      "categoria": "Terror",
+      "descricao": "Jonathan Harker e seus aliados enfrentam o conde Drácula, uma figura vampírica que ameaça espalhar sua influência pela Inglaterra.",
+      "capa_url": "https://archive.org/services/img/dracula-bram-stoker-1897",
+      "volumes": [
+        {
+          "numero": 1,
+          "titulo": "Drácula",
+          "url": "https://archive.org/download/dracula-bram-stoker-1897/Drácula - Bram Stoker (1897).pdf",
+          "tamanho_mb": 139.31,
+          "fonte": "Internet Archive",
+          "licenca": "Domínio Público"
+        }
+      ]
+    },
+    {
+      "id": "liv-022",
+      "nome": "Frankenstein",
+      "autor": "Mary Shelley",
+      "ano": 1818,
+      "tema": "livros",
+      "categoria": "Terror",
+      "descricao": "Victor Frankenstein cria uma criatura artificial e precisa lidar com as consequências de sua rejeição e de sua ambição científica.",
+      "capa_url": "https://archive.org/services/img/Frankenstein_201302",
+      "volumes": [
+        {
+          "numero": 1,
+          "titulo": "Frankenstein",
+          "url": "https://archive.org/download/Frankenstein_201302/frankenstein.pdf",
+          "tamanho_mb": 0.5,
+          "fonte": "Internet Archive",
+          "licenca": "Domínio Público"
+        }
+      ]
+    },
+    {
+      "id": "liv-024",
+      "nome": "O Retrato de Dorian Gray",
+      "autor": "Oscar Wilde",
+      "ano": 1890,
+      "tema": "livros",
+      "categoria": "Terror",
+      "descricao": "Dorian permanece jovem enquanto um retrato envelhece em seu lugar, refletindo a corrupção provocada por sua busca de prazer.",
+      "capa_url": "https://archive.org/services/img/oretratodedorian0000inva",
+      "volumes": [
+        {
+          "numero": 1,
+          "titulo": "O Retrato de Dorian Gray",
+          "url": "https://archive.org/download/oretratodedorian0000inva/oretratodedorian0000inva.pdf",
+          "tamanho_mb": 11.42,
+          "fonte": "Internet Archive",
+          "licenca": "Domínio Público (verificar)"
+        }
+      ]
+    },
+    {
+      "id": "liv-027",
+      "nome": "O Castelo de Otranto",
+      "autor": "Horace Walpole",
+      "ano": 1764,
+      "tema": "livros",
+      "categoria": "Terror",
+      "descricao": "Considerado um marco do romance gótico, acompanha uma família aristocrática cercada por aparições e segredos.",
+      "capa_url": "https://archive.org/services/img/horace-walpole-o-castelo-de-otranto",
+      "volumes": [
+        {
+          "numero": 1,
+          "titulo": "O Castelo de Otranto",
+          "url": "https://archive.org/download/horace-walpole-o-castelo-de-otranto/33 Horace Walpole - O Castelo De Otranto (1978).pdf",
+          "tamanho_mb": 66.19,
+          "fonte": "Internet Archive",
+          "licenca": "Domínio Público"
+        }
+      ]
+    },
+    {
+      "id": "liv-028",
+      "nome": "Carmilla",
+      "autor": "Sheridan Le Fanu",
+      "ano": 1872,
+      "tema": "livros",
+      "categoria": "Terror",
+      "descricao": "Uma jovem estabelece amizade com a misteriosa Carmilla, enquanto acontecimentos estranhos começam a cercar sua casa.",
+      "capa_url": "https://archive.org/services/img/carmilla-j-sheridan-le-fanu",
+      "volumes": [
+        {
+          "numero": 1,
+          "titulo": "Carmilla",
+          "url": "https://archive.org/download/carmilla-j-sheridan-le-fanu/Carmilla - J Sheridan Le  Fanu.pdf",
+          "tamanho_mb": 0.57,
+          "fonte": "Internet Archive",
+          "licenca": "Domínio Público"
+        }
+      ]
+    },
+    {
+      "id": "liv-029",
+      "nome": "A Volta do Parafuso",
+      "autor": "Henry James",
+      "ano": 1898,
+      "tema": "livros",
+      "categoria": "Terror",
+      "descricao": "Uma governanta acredita que aparições sobrenaturais ameaçam duas crianças sob seus cuidados, mas a realidade permanece ambígua.",
+      "capa_url": "https://archive.org/services/img/a-volta-do-parafuso-henry-james",
+      "volumes": [
+        {
+          "numero": 1,
+          "titulo": "A Volta do Parafuso",
+          "url": "https://archive.org/download/a-volta-do-parafuso-henry-james/A Volta do Parafuso - Henry James.pdf",
+          "tamanho_mb": 0.71,
+          "fonte": "Internet Archive",
+          "licenca": "Domínio Público"
+        }
+      ]
+    },
+    {
+      "id": "liv-036",
+      "nome": "A Queda da Casa de Usher",
+      "autor": "Edgar Allan Poe",
+      "ano": 1839,
+      "tema": "livros",
+      "categoria": "Terror",
+      "descricao": "Um visitante chega à decadente mansão dos Usher e testemunha o colapso físico e psicológico de seus moradores.",
+      "capa_url": "https://archive.org/services/img/a-queda-da-casa-de-usher-poe",
+      "volumes": [
+        {
+          "numero": 1,
+          "titulo": "A Queda da Casa de Usher",
+          "url": "https://archive.org/download/a-queda-da-casa-de-usher-poe/a-queda-da-casa-de-usher-poe.pdf",
+          "tamanho_mb": 0.17,
+          "fonte": "Internet Archive",
+          "licenca": "Domínio Público"
+        }
+      ]
+    },
+    {
+      "id": "liv-043",
+      "nome": "A Carta Roubada",
+      "autor": "Edgar Allan Poe",
+      "ano": 1844,
+      "tema": "livros",
+      "categoria": "Mistério",
+      "descricao": "Dupin resolve o desaparecimento de uma carta usando raciocínio e uma estratégia que contrasta com a busca policial convencional.",
+      "capa_url": "https://archive.org/services/img/cartaroubadaenou0000poee",
+      "volumes": [
+        {
+          "numero": 1,
+          "titulo": "A Carta Roubada",
+          "url": "https://archive.org/download/cartaroubadaenou0000poee/cartaroubadaenou0000poee.pdf",
+          "tamanho_mb": 8.48,
+          "fonte": "Internet Archive",
+          "licenca": "Domínio Público (verificar)"
+        }
+      ]
+    },
+    {
+      "id": "liv-046",
+      "nome": "As Aventuras de Sherlock Holmes",
+      "autor": "Arthur Conan Doyle",
+      "ano": 1892,
+      "tema": "livros",
+      "categoria": "Mistério",
+      "descricao": "Coletânea de casos em que Sherlock Holmes aplica observação e dedução para solucionar crimes.",
+      "capa_url": "https://archive.org/services/img/AsAventurasDeSherlockHolmesArthurConanDoyle",
+      "volumes": [
+        {
+          "numero": 1,
+          "titulo": "As Aventuras de Sherlock Holmes",
+          "url": "https://archive.org/download/AsAventurasDeSherlockHolmesArthurConanDoyle/As Aventuras de Sherlock Holmes - Arthur Conan Doyle.pdf",
+          "tamanho_mb": 0.6,
+          "fonte": "Internet Archive",
+          "licenca": "Domínio Público"
+        }
+      ]
+    },
+    {
+      "id": "liv-049",
+      "nome": "O Signo dos Quatro",
+      "autor": "Arthur Conan Doyle",
+      "ano": 1890,
+      "tema": "livros",
+      "categoria": "Mistério",
+      "descricao": "Holmes e Watson investigam um tesouro perdido, um assassinato e uma conspiração ligada à Índia.",
+      "capa_url": "https://archive.org/services/img/ArthurConanDoyleOSignoDosQuatro",
+      "volumes": [
+        {
+          "numero": 1,
+          "titulo": "O Signo dos Quatro",
+          "url": "https://archive.org/download/ArthurConanDoyleOSignoDosQuatro/Arthur Conan Doyle - O signo dos quatro.pdf",
+          "tamanho_mb": 0.43,
+          "fonte": "Internet Archive",
+          "licenca": "Domínio Público"
+        }
+      ]
+    },
+    {
+      "id": "liv-050",
+      "nome": "O Mundo Perdido",
+      "autor": "Arthur Conan Doyle",
+      "ano": 1912,
+      "tema": "livros",
+      "categoria": "Aventura",
+      "descricao": "Uma expedição chega a um platô isolado onde sobrevivem criaturas pré-históricas.",
+      "capa_url": "https://archive.org/services/img/o-mundo-perdido-vol1-3",
+      "volumes": [
+        {
+          "numero": 1,
+          "titulo": "O Mundo Perdido",
+          "url": "https://archive.org/download/o-mundo-perdido-vol1-3/O Mundo Perdido - Livro 1 (2013).pdf",
+          "tamanho_mb": 5.02,
+          "fonte": "Internet Archive",
+          "licenca": "Domínio Público"
+        }
+      ]
+    },
+    {
+      "id": "liv-061",
+      "nome": "Da Terra à Lua",
+      "autor": "Jules Verne",
+      "ano": 1865,
+      "tema": "livros",
+      "categoria": "Ficção Científica",
+      "descricao": "Um grupo de entusiastas tenta enviar um projétil tripulado à Lua usando um gigantesco canhão.",
+      "capa_url": "https://archive.org/services/img/daterraalua",
+      "volumes": [
+        {
+          "numero": 1,
+          "titulo": "Da Terra à Lua",
+          "url": "https://archive.org/download/daterraalua/daterraalua.pdf",
+          "tamanho_mb": 51.27,
+          "fonte": "Internet Archive",
+          "licenca": "Domínio Público"
+        }
+      ]
+    },
+    {
+      "id": "liv-074",
+      "nome": "Orgulho e Preconceito",
+      "autor": "Jane Austen",
+      "ano": 1813,
+      "tema": "livros",
+      "categoria": "Romance",
+      "descricao": "Elizabeth Bennet e Fitzwilliam Darcy precisam superar preconceitos e julgamentos para reconhecer seus sentimentos.",
+      "capa_url": "https://archive.org/services/img/OrgulhoEPreconceito_201906",
+      "volumes": [
+        {
+          "numero": 1,
+          "titulo": "Orgulho e Preconceito",
+          "url": "https://archive.org/download/OrgulhoEPreconceito_201906/Orgulho e Preconceito.pdf",
+          "tamanho_mb": 3.05,
+          "fonte": "Internet Archive",
+          "licenca": "Domínio Público"
+        }
+      ]
+    },
+    {
+      "id": "liv-077",
+      "nome": "Mansfield Park",
+      "autor": "Jane Austen",
+      "ano": 1814,
+      "tema": "livros",
+      "categoria": "Romance",
+      "descricao": "Fanny Price cresce em uma família rica e enfrenta diferenças sociais, expectativas familiares e dilemas morais.",
+      "capa_url": "https://archive.org/services/img/mansfieldparkan01austgoog",
+      "volumes": [
+        {
+          "numero": 1,
+          "titulo": "Mansfield Park",
+          "url": "https://archive.org/download/mansfieldparkan01austgoog/mansfieldparkan01austgoog.pdf",
+          "tamanho_mb": 13.8,
+          "fonte": "Internet Archive",
+          "licenca": "Domínio Público"
+        }
+      ]
+    },
+    {
+      "id": "liv-079",
+      "nome": "Jane Eyre",
+      "autor": "Charlotte Brontë",
+      "ano": 1847,
+      "tema": "livros",
+      "categoria": "Romance",
+      "descricao": "Uma jovem órfã conquista independência e encontra amor, mas descobre um segredo sombrio na casa de Rochester.",
+      "capa_url": "https://archive.org/services/img/janeeyre0000char_w7h1",
+      "volumes": [
+        {
+          "numero": 1,
+          "titulo": "Jane Eyre",
+          "url": "https://archive.org/download/janeeyre0000char_w7h1/janeeyre0000char_w7h1.pdf",
+          "tamanho_mb": 24.72,
+          "fonte": "Internet Archive",
+          "licenca": "Domínio Público (verificar)"
+        }
+      ]
+    },
+    {
+      "id": "liv-080",
+      "nome": "O Morro dos Ventos Uivantes",
+      "autor": "Emily Brontë",
+      "ano": 1847,
+      "tema": "livros",
+      "categoria": "Romance",
+      "descricao": "A relação intensa entre Heathcliff e Catherine desencadeia uma história de paixão, ressentimento e vingança.",
+      "capa_url": "https://archive.org/services/img/o-morro-dos-ventos-uivantes-emily-bronte",
+      "volumes": [
+        {
+          "numero": 1,
+          "titulo": "O Morro dos Ventos Uivantes",
+          "url": "https://archive.org/download/o-morro-dos-ventos-uivantes-emily-bronte/livro fq 1.pdf",
+          "tamanho_mb": 16.21,
+          "fonte": "Internet Archive",
+          "licenca": "Domínio Público"
+        }
+      ]
+    },
+    {
+      "id": "liv-084",
+      "nome": "Oliver Twist",
+      "autor": "Charles Dickens",
+      "ano": 1838,
+      "tema": "livros",
+      "categoria": "Romance",
+      "descricao": "Um órfão enfrenta pobreza, exploração e criminalidade nas ruas de Londres enquanto procura uma vida melhor.",
+      "capa_url": "https://archive.org/services/img/adventuresolive04dickgoog",
+      "volumes": [
+        {
+          "numero": 1,
+          "titulo": "Oliver Twist",
+          "url": "https://archive.org/download/adventuresolive04dickgoog/adventuresolive04dickgoog.pdf",
+          "tamanho_mb": 4.65,
+          "fonte": "Internet Archive",
+          "licenca": "Domínio Público"
+        }
+      ]
+    },
+    {
+      "id": "liv-085",
+      "nome": "David Copperfield",
+      "autor": "Charles Dickens",
+      "ano": 1850,
+      "tema": "livros",
+      "categoria": "Romance",
+      "descricao": "David narra sua infância difícil, seus relacionamentos e o caminho até a maturidade.",
+      "capa_url": "https://archive.org/services/img/davidcopperfield_202004",
+      "volumes": [
+        {
+          "numero": 1,
+          "titulo": "David Copperfield",
+          "url": "https://archive.org/download/davidcopperfield_202004/DAVID COPPERFIELD.pdf",
+          "tamanho_mb": 23.88,
+          "fonte": "Internet Archive",
+          "licenca": "Domínio Público"
+        }
+      ]
+    },
+    {
+      "id": "liv-089",
+      "nome": "As Aventuras de Tom Sawyer",
+      "autor": "Mark Twain",
+      "ano": 1876,
+      "tema": "livros",
+      "categoria": "Aventura",
+      "descricao": "Tom Sawyer vive travessuras e aventuras às margens do Mississippi, misturando humor, amizade e perigos reais.",
+      "capa_url": "https://archive.org/services/img/asaventurasdetom0000twai",
+      "volumes": [
+        {
+          "numero": 1,
+          "titulo": "As Aventuras de Tom Sawyer",
+          "url": "https://archive.org/download/asaventurasdetom0000twai/asaventurasdetom0000twai.pdf",
+          "tamanho_mb": 12.06,
+          "fonte": "Internet Archive",
+          "licenca": "Domínio Público (verificar)"
+        }
+      ]
+    },
+    {
+      "id": "liv-092",
+      "nome": "O Livro da Selva",
+      "autor": "Rudyard Kipling",
+      "ano": 1894,
+      "tema": "livros",
+      "categoria": "Aventura",
+      "descricao": "Mowgli cresce entre animais na selva e aprende as regras de sobrevivência e convivência de seu mundo.",
+      "capa_url": "https://archive.org/services/img/OLivrodaSelva",
+      "volumes": [
+        {
+          "numero": 1,
+          "titulo": "O Livro da Selva",
+          "url": "https://archive.org/download/OLivrodaSelva/0001-O_livro_da_selva-Rudyard_Kipling_Mojo-DaoP.pdf",
+          "tamanho_mb": 1.84,
+          "fonte": "Internet Archive",
+          "licenca": "Domínio Público"
+        }
+      ]
+    },
+    {
+      "id": "liv-093",
+      "nome": "O Jardim Secreto",
+      "autor": "Frances Hodgson Burnett",
+      "ano": 1911,
+      "tema": "livros",
+      "categoria": "Infantil",
+      "descricao": "Mary Lennox descobre um jardim abandonado e, com novas amizades, ajuda a transformar sua própria vida e a de outras pessoas.",
+      "capa_url": "https://archive.org/services/img/ojardimsecretofranceshodgsonburnett",
+      "volumes": [
+        {
+          "numero": 1,
+          "titulo": "O Jardim Secreto",
+          "url": "https://archive.org/download/ojardimsecretofranceshodgsonburnett/O Jardim Secreto - Frances Hodgson Burnett.pdf",
+          "tamanho_mb": 1.09,
+          "fonte": "Internet Archive",
+          "licenca": "Domínio Público"
+        }
+      ]
+    },
+    {
+      "id": "liv-094",
+      "nome": "Dom Casmurro",
+      "autor": "Machado de Assis",
+      "ano": 1899,
+      "tema": "livros",
+      "categoria": "Literatura Brasileira",
+      "descricao": "Bentinho relembra sua vida, seu casamento com Capitu e as suspeitas de traição que passam a dominar sua narrativa.",
+      "capa_url": "https://archive.org/services/img/domcasmurro_1899",
+      "volumes": [
+        {
+          "numero": 1,
+          "titulo": "Dom Casmurro",
+          "url": "https://archive.org/download/domcasmurro_1899/000181844.pdf",
+          "tamanho_mb": 29.89,
+          "fonte": "Internet Archive",
+          "licenca": "Domínio Público"
+        }
+      ]
+    },
+    {
+      "id": "liv-095",
+      "nome": "Memórias Póstumas de Brás Cubas",
+      "autor": "Machado de Assis",
+      "ano": 1881,
+      "tema": "livros",
+      "categoria": "Literatura Brasileira",
+      "descricao": "Um narrador já morto revisita sua vida com ironia, criticando vaidade, relações sociais e ambições humanas.",
+      "capa_url": "https://archive.org/services/img/memoriasPostumasBrasCubas",
+      "volumes": [
+        {
+          "numero": 1,
+          "titulo": "Memórias Póstumas de Brás Cubas",
+          "url": "https://archive.org/download/memoriasPostumasBrasCubas/memoriasBras.pdf",
+          "tamanho_mb": 0.49,
+          "fonte": "Internet Archive",
+          "licenca": "Domínio Público"
+        }
+      ]
+    },
+    {
+      "id": "liv-096",
+      "nome": "O Alienista",
+      "autor": "Machado de Assis",
+      "ano": 1882,
+      "tema": "livros",
+      "categoria": "Literatura Brasileira",
+      "descricao": "O médico Simão Bacamarte funda uma instituição para estudar a loucura e acaba colocando em dúvida os limites entre normalidade e doença.",
+      "capa_url": "https://archive.org/services/img/o-alienista-machado-de-assis",
+      "volumes": [
+        {
+          "numero": 1,
+          "titulo": "O Alienista",
+          "url": "https://archive.org/download/o-alienista-machado-de-assis/O Alienista - Machado de Assis.PDF",
+          "tamanho_mb": 0.4,
+          "fonte": "Internet Archive",
+          "licenca": "Domínio Público"
+        }
+      ]
+    },
+    {
+      "id": "liv-097",
+      "nome": "Iracema",
+      "autor": "José de Alencar",
+      "ano": 1865,
+      "tema": "livros",
+      "categoria": "Literatura Brasileira",
+      "descricao": "A história de amor entre Iracema e Martim mistura identidade, natureza e conflitos culturais na formação do Brasil.",
+      "capa_url": "https://archive.org/services/img/iracema-jose-de-alencar-hqs",
+      "volumes": [
+        {
+          "numero": 1,
+          "titulo": "Iracema",
+          "url": "https://archive.org/download/iracema-jose-de-alencar-hqs/Cinco Minutos.pdf",
+          "tamanho_mb": 0.18,
+          "fonte": "Internet Archive",
+          "licenca": "Domínio Público"
+        }
+      ]
+    },
+    {
+      "id": "liv-099",
+      "nome": "O Cortiço",
+      "autor": "Aluísio Azevedo",
+      "ano": 1890,
+      "tema": "livros",
+      "categoria": "Literatura Brasileira",
+      "descricao": "A vida coletiva de um cortiço carioca revela conflitos de classe, desejo, ambição e influência do ambiente sobre os indivíduos.",
+      "capa_url": "https://archive.org/services/img/o-cortico_202503",
+      "volumes": [
+        {
+          "numero": 1,
+          "titulo": "O Cortiço",
+          "url": "https://archive.org/download/o-cortico_202503/O Cortiço.pdf",
+          "tamanho_mb": 2.11,
+          "fonte": "Internet Archive",
+          "licenca": "Domínio Público"
+        }
+      ]
+    },
+    {
+      "id": "liv-100",
+      "nome": "Triste Fim de Policarpo Quaresma",
+      "autor": "Lima Barreto",
+      "ano": 1915,
+      "tema": "livros",
+      "categoria": "Literatura Brasileira",
+      "descricao": "Policarpo Quaresma leva seu nacionalismo idealista ao extremo e entra em choque com a realidade política e social do Brasil.",
+      "capa_url": "https://archive.org/services/img/bwb_W9-DJA-447",
+      "volumes": [
+        {
+          "numero": 1,
+          "titulo": "Triste Fim de Policarpo Quaresma",
+          "url": "https://archive.org/search?query=Triste+Fim+de+Policarpo+Quaresma",
+          "tamanho_mb": 0.0,
+          "fonte": "Internet Archive (busca — verificar disponibilidade)",
+          "licenca": "Verificar"
+        }
+      ]
+    },
+    {
+      "id": "mng-001",
+      "nome": "Berserk",
+      "autor": "Kentaro Miura",
+      "ano": 1989,
+      "tema": "mangas",
+      "categoria": "Seinen",
+      "descricao": "Guts, um mercenário marcado por um destino cruel, caça demônios com uma espada gigantesca enquanto busca vingança contra seu antigo amigo Griffith.",
+      "capa_url": "",
+      "volumes": [
+        {
+          "numero": 2,
+          "titulo": "Berserk - Volume 02",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Berserk/Berserk%20-%20Volume%2002.pdf",
+          "tamanho_mb": 139.14,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 3,
+          "titulo": "Berserk - Volume 03",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Berserk/Berserk%20-%20Volume%2003.pdf",
+          "tamanho_mb": 133.08,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 4,
+          "titulo": "Berserk - Volume 04",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Berserk/Berserk%20-%20Volume%2004.pdf",
+          "tamanho_mb": 133.55,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 5,
+          "titulo": "Berserk - Volume 05",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Berserk/Berserk%20-%20Volume%2005.pdf",
+          "tamanho_mb": 132.37,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 6,
+          "titulo": "Berserk - Volume 06",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Berserk/Berserk%20-%20Volume%2006.pdf",
+          "tamanho_mb": 125.35,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 7,
+          "titulo": "Berserk - Volume 07",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Berserk/Berserk%20-%20Volume%2007.pdf",
+          "tamanho_mb": 126.87,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 8,
+          "titulo": "Berserk - Volume 08",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Berserk/Berserk%20-%20Volume%2008.pdf",
+          "tamanho_mb": 120.72,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 9,
+          "titulo": "Berserk - Volume 09",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Berserk/Berserk%20-%20Volume%2009.pdf",
+          "tamanho_mb": 127.87,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 10,
+          "titulo": "Berserk - Volume 10",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Berserk/Berserk%20-%20Volume%2010.pdf",
+          "tamanho_mb": 131.56,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 11,
+          "titulo": "Berserk - Volume 11",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Berserk/Berserk%20-%20Volume%2011.pdf",
+          "tamanho_mb": 141.46,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 12,
+          "titulo": "Berserk - Volume 12",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Berserk/Berserk%20-%20Volume%2012.pdf",
+          "tamanho_mb": 129.58,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 13,
+          "titulo": "Berserk - Volume 13",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Berserk/Berserk%20-%20Volume%2013.pdf",
+          "tamanho_mb": 138.3,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 14,
+          "titulo": "Berserk - Volume 14",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Berserk/Berserk%20-%20Volume%2014.pdf",
+          "tamanho_mb": 143.82,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 15,
+          "titulo": "Berserk - Volume 15",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Berserk/Berserk%20-%20Volume%2015.pdf",
+          "tamanho_mb": 137.85,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 16,
+          "titulo": "Berserk - Volume 16",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Berserk/Berserk%20-%20Volume%2016.pdf",
+          "tamanho_mb": 142.32,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 17,
+          "titulo": "Berserk - Volume 17",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Berserk/Berserk%20-%20Volume%2017.pdf",
+          "tamanho_mb": 135.85,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 18,
+          "titulo": "Berserk - Volume 18",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Berserk/Berserk%20-%20Volume%2018.pdf",
+          "tamanho_mb": 148.61,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 19,
+          "titulo": "Berserk - Volume 19",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Berserk/Berserk%20-%20Volume%2019.pdf",
+          "tamanho_mb": 142.2,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 20,
+          "titulo": "Berserk - Volume 20",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Berserk/Berserk%20-%20Volume%2020.pdf",
+          "tamanho_mb": 148.75,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 21,
+          "titulo": "Berserk - Volume 21",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Berserk/Berserk%20-%20Volume%2021.pdf",
+          "tamanho_mb": 154.81,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 22,
+          "titulo": "Berserk - Volume 22",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Berserk/Berserk%20-%20Volume%2022.pdf",
+          "tamanho_mb": 131.0,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 23,
+          "titulo": "Berserk - Volume 23",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Berserk/Berserk%20-%20Volume%2023.pdf",
+          "tamanho_mb": 122.14,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 24,
+          "titulo": "Berserk - Volume 24",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Berserk/Berserk%20-%20Volume%2024.pdf",
+          "tamanho_mb": 126.03,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 25,
+          "titulo": "Berserk - Volume 25",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Berserk/Berserk%20-%20Volume%2025.pdf",
+          "tamanho_mb": 143.65,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 26,
+          "titulo": "Berserk - Volume 26",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Berserk/Berserk%20-%20Volume%2026.pdf",
+          "tamanho_mb": 133.18,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 27,
+          "titulo": "Berserk - Volume 27",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Berserk/Berserk%20-%20Volume%2027.pdf",
+          "tamanho_mb": 140.17,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 28,
+          "titulo": "Berserk - Volume 28",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Berserk/Berserk%20-%20Volume%2028.pdf",
+          "tamanho_mb": 144.02,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 29,
+          "titulo": "Berserk - Volume 29",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Berserk/Berserk%20-%20Volume%2029.pdf",
+          "tamanho_mb": 131.7,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 30,
+          "titulo": "Berserk - Volume 30",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Berserk/Berserk%20-%20Volume%2030.pdf",
+          "tamanho_mb": 131.36,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 31,
+          "titulo": "Berserk - Volume 31",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Berserk/Berserk%20-%20Volume%2031.pdf",
+          "tamanho_mb": 140.18,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 32,
+          "titulo": "Berserk - Volume 32",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Berserk/Berserk%20-%20Volume%2032.pdf",
+          "tamanho_mb": 142.76,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 33,
+          "titulo": "Berserk - Volume 33",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Berserk/Berserk%20-%20Volume%2033.pdf",
+          "tamanho_mb": 149.31,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 34,
+          "titulo": "Berserk - Volume 34",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Berserk/Berserk%20-%20Volume%2034.pdf",
+          "tamanho_mb": 154.24,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 35,
+          "titulo": "Berserk - Volume 35",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Berserk/Berserk%20-%20Volume%2035.pdf",
+          "tamanho_mb": 141.2,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 36,
+          "titulo": "Berserk - Volume 36",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Berserk/Berserk%20-%20Volume%2036.pdf",
+          "tamanho_mb": 132.4,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 37,
+          "titulo": "Berserk - Volume 37",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Berserk/Berserk%20-%20Volume%2037.pdf",
+          "tamanho_mb": 157.11,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 38,
+          "titulo": "Berserk - Volume 38",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Berserk/Berserk%20-%20Volume%2038.pdf",
+          "tamanho_mb": 149.93,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 39,
+          "titulo": "Berserk - Volume 39",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Berserk/Berserk%20-%20Volume%2039.pdf",
+          "tamanho_mb": 130.32,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 40,
+          "titulo": "Berserk - Volume 40",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Berserk/Berserk%20-%20Volume%2040.pdf",
+          "tamanho_mb": 179.42,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 41,
+          "titulo": "Berserk - Volume 41",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Berserk/Berserk%20-%20Volume%2041.pdf",
+          "tamanho_mb": 116.24,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 42,
+          "titulo": "Berserk - Volume 42",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Berserk/Berserk%20-%20Volume%2042.pdf",
+          "tamanho_mb": 142.32,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 43,
+          "titulo": "Berserk - Volume 43",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Berserk/Berserk%20-%20Volume%2043.pdf",
+          "tamanho_mb": 186.41,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        }
+      ]
+    },
+    {
+      "id": "mng-002",
+      "nome": "Blade - A l├ómina imortal",
+      "autor": "Desconhecido",
+      "ano": 0,
+      "tema": "mangas",
+      "categoria": "Mangá",
+      "descricao": "Sem descrição.",
+      "capa_url": "",
+      "volumes": [
+        {
+          "numero": 1,
+          "titulo": "Blade - Volume 01",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Blade%20-%20A%20l%E2%94%9C%C3%B3mina%20imortal/Blade%20-%20Volume%2001.pdf",
+          "tamanho_mb": 241.5,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 2,
+          "titulo": "Blade - Volume 02",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Blade%20-%20A%20l%E2%94%9C%C3%B3mina%20imortal/Blade%20-%20Volume%2002.pdf",
+          "tamanho_mb": 224.44,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 3,
+          "titulo": "Blade - Volume 03",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Blade%20-%20A%20l%E2%94%9C%C3%B3mina%20imortal/Blade%20-%20Volume%2003.pdf",
+          "tamanho_mb": 222.04,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 4,
+          "titulo": "Blade - Volume 04",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Blade%20-%20A%20l%E2%94%9C%C3%B3mina%20imortal/Blade%20-%20Volume%2004.pdf",
+          "tamanho_mb": 238.6,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 5,
+          "titulo": "Blade - Volume 05",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Blade%20-%20A%20l%E2%94%9C%C3%B3mina%20imortal/Blade%20-%20Volume%2005.pdf",
+          "tamanho_mb": 219.85,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 6,
+          "titulo": "Blade - Volume 06",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Blade%20-%20A%20l%E2%94%9C%C3%B3mina%20imortal/Blade%20-%20Volume%2006.pdf",
+          "tamanho_mb": 244.08,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 7,
+          "titulo": "Blade - Volume 07",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Blade%20-%20A%20l%E2%94%9C%C3%B3mina%20imortal/Blade%20-%20Volume%2007.pdf",
+          "tamanho_mb": 238.86,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 8,
+          "titulo": "Blade - Volume 08",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Blade%20-%20A%20l%E2%94%9C%C3%B3mina%20imortal/Blade%20-%20Volume%2008.pdf",
+          "tamanho_mb": 222.92,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 9,
+          "titulo": "Blade - Volume 09",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Blade%20-%20A%20l%E2%94%9C%C3%B3mina%20imortal/Blade%20-%20Volume%2009.pdf",
+          "tamanho_mb": 245.06,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 10,
+          "titulo": "Blade - Volume 10",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Blade%20-%20A%20l%E2%94%9C%C3%B3mina%20imortal/Blade%20-%20Volume%2010.pdf",
+          "tamanho_mb": 246.61,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 11,
+          "titulo": "Blade - Volume 11",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Blade%20-%20A%20l%E2%94%9C%C3%B3mina%20imortal/Blade%20-%20Volume%2011.pdf",
+          "tamanho_mb": 222.63,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 12,
+          "titulo": "Blade - Volume 12",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Blade%20-%20A%20l%E2%94%9C%C3%B3mina%20imortal/Blade%20-%20Volume%2012.pdf",
+          "tamanho_mb": 240.27,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 13,
+          "titulo": "Blade - Volume 13",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Blade%20-%20A%20l%E2%94%9C%C3%B3mina%20imortal/Blade%20-%20Volume%2013.pdf",
+          "tamanho_mb": 248.23,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 14,
+          "titulo": "Blade - Volume 14",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Blade%20-%20A%20l%E2%94%9C%C3%B3mina%20imortal/Blade%20-%20Volume%2014.pdf",
+          "tamanho_mb": 219.31,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 15,
+          "titulo": "Blade - Volume 15",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Blade%20-%20A%20l%E2%94%9C%C3%B3mina%20imortal/Blade%20-%20Volume%2015.pdf",
+          "tamanho_mb": 268.64,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        }
+      ]
+    },
+    {
+      "id": "mng-003",
+      "nome": "Bleach",
+      "autor": "Tite Kubo",
+      "ano": 2001,
+      "tema": "mangas",
+      "categoria": "Shounen",
+      "descricao": "Ichigo Kurosaki, um adolescente que ganha poderes de Ceifador de Almas, protege os vivos dos Hollows e guia as almas para o outro lado.",
+      "capa_url": "",
+      "volumes": [
+        {
+          "numero": 1,
+          "titulo": "BLEACH (REMIX Edition) - Volume 01",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Bleach/BLEACH%20%28REMIX%20Edition%29%20-%20Volume%2001.pdf",
+          "tamanho_mb": 153.22,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 2,
+          "titulo": "BLEACH (REMIX Edition) - Volume 02",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Bleach/BLEACH%20%28REMIX%20Edition%29%20-%20Volume%2002.pdf",
+          "tamanho_mb": 144.76,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 3,
+          "titulo": "BLEACH (REMIX Edition) - Volume 03",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Bleach/BLEACH%20%28REMIX%20Edition%29%20-%20Volume%2003.pdf",
+          "tamanho_mb": 150.91,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 4,
+          "titulo": "BLEACH (REMIX Edition) - Volume 04",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Bleach/BLEACH%20%28REMIX%20Edition%29%20-%20Volume%2004.pdf",
+          "tamanho_mb": 148.28,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 5,
+          "titulo": "BLEACH (REMIX Edition) - Volume 05",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Bleach/BLEACH%20%28REMIX%20Edition%29%20-%20Volume%2005.pdf",
+          "tamanho_mb": 122.98,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 6,
+          "titulo": "BLEACH (REMIX Edition) - Volume 06",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Bleach/BLEACH%20%28REMIX%20Edition%29%20-%20Volume%2006.pdf",
+          "tamanho_mb": 182.83,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 7,
+          "titulo": "BLEACH (REMIX Edition) - Volume 07",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Bleach/BLEACH%20%28REMIX%20Edition%29%20-%20Volume%2007.pdf",
+          "tamanho_mb": 203.51,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 8,
+          "titulo": "BLEACH (REMIX Edition) - Volume 08",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Bleach/BLEACH%20%28REMIX%20Edition%29%20-%20Volume%2008.pdf",
+          "tamanho_mb": 147.25,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 9,
+          "titulo": "BLEACH (REMIX Edition) - Volume 09",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Bleach/BLEACH%20%28REMIX%20Edition%29%20-%20Volume%2009.pdf",
+          "tamanho_mb": 170.5,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 10,
+          "titulo": "BLEACH (REMIX Edition) - Volume 10",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Bleach/BLEACH%20%28REMIX%20Edition%29%20-%20Volume%2010.pdf",
+          "tamanho_mb": 160.11,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 11,
+          "titulo": "BLEACH (REMIX Edition) - Volume 11",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Bleach/BLEACH%20%28REMIX%20Edition%29%20-%20Volume%2011.pdf",
+          "tamanho_mb": 188.98,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 12,
+          "titulo": "BLEACH (REMIX Edition) - Volume 12",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Bleach/BLEACH%20%28REMIX%20Edition%29%20-%20Volume%2012.pdf",
+          "tamanho_mb": 182.53,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 13,
+          "titulo": "BLEACH (REMIX Edition) - Volume 13",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Bleach/BLEACH%20%28REMIX%20Edition%29%20-%20Volume%2013.pdf",
+          "tamanho_mb": 170.77,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 14,
+          "titulo": "BLEACH (REMIX Edition) - Volume 14",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Bleach/BLEACH%20%28REMIX%20Edition%29%20-%20Volume%2014.pdf",
+          "tamanho_mb": 173.23,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 15,
+          "titulo": "BLEACH (REMIX Edition) - Volume 15",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Bleach/BLEACH%20%28REMIX%20Edition%29%20-%20Volume%2015.pdf",
+          "tamanho_mb": 182.29,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 16,
+          "titulo": "BLEACH (REMIX Edition) - Volume 16",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Bleach/BLEACH%20%28REMIX%20Edition%29%20-%20Volume%2016.pdf",
+          "tamanho_mb": 166.09,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 17,
+          "titulo": "BLEACH (REMIX Edition) - Volume 17",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Bleach/BLEACH%20%28REMIX%20Edition%29%20-%20Volume%2017.pdf",
+          "tamanho_mb": 149.12,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 18,
+          "titulo": "BLEACH (REMIX Edition) - Volume 18",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Bleach/BLEACH%20%28REMIX%20Edition%29%20-%20Volume%2018.pdf",
+          "tamanho_mb": 165.95,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 19,
+          "titulo": "BLEACH (REMIX Edition) - Volume 19",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Bleach/BLEACH%20%28REMIX%20Edition%29%20-%20Volume%2019.pdf",
+          "tamanho_mb": 169.57,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 20,
+          "titulo": "BLEACH (REMIX Edition) - Volume 20",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Bleach/BLEACH%20%28REMIX%20Edition%29%20-%20Volume%2020.pdf",
+          "tamanho_mb": 171.43,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 21,
+          "titulo": "BLEACH (REMIX Edition) - Volume 21",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Bleach/BLEACH%20%28REMIX%20Edition%29%20-%20Volume%2021.pdf",
+          "tamanho_mb": 115.36,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 22,
+          "titulo": "BLEACH (REMIX Edition) - Volume 22",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Bleach/BLEACH%20%28REMIX%20Edition%29%20-%20Volume%2022.pdf",
+          "tamanho_mb": 220.01,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 23,
+          "titulo": "BLEACH (REMIX Edition) - Volume 23",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Bleach/BLEACH%20%28REMIX%20Edition%29%20-%20Volume%2023.pdf",
+          "tamanho_mb": 123.75,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 24,
+          "titulo": "BLEACH (REMIX Edition) - Volume 24",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Bleach/BLEACH%20%28REMIX%20Edition%29%20-%20Volume%2024.pdf",
+          "tamanho_mb": 106.21,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 25,
+          "titulo": "BLEACH (REMIX Edition) - Volume 25",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Bleach/BLEACH%20%28REMIX%20Edition%29%20-%20Volume%2025.pdf",
+          "tamanho_mb": 163.6,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 26,
+          "titulo": "BLEACH (REMIX Edition) - Volume 26",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Bleach/BLEACH%20%28REMIX%20Edition%29%20-%20Volume%2026.pdf",
+          "tamanho_mb": 196.15,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        }
+      ]
+    },
+    {
+      "id": "mng-004",
+      "nome": "Dorohedoro",
+      "autor": "Q Hayashida",
+      "ano": 2000,
+      "tema": "mangas",
+      "categoria": "Seinen",
+      "descricao": "Caiman, um homem com cabeça de réptil, caça feiticeiros para descobrir quem o transformou e por quê.",
+      "capa_url": "",
+      "volumes": [
+        {
+          "numero": 1,
+          "titulo": "Dorohedoro - Volume 1",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Dorohedoro/Dorohedoro%20-%20Volume%201.pdf",
+          "tamanho_mb": 79.13,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 2,
+          "titulo": "Dorohedoro - Volume 2",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Dorohedoro/Dorohedoro%20-%20Volume%202.pdf",
+          "tamanho_mb": 69.51,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 3,
+          "titulo": "Dorohedoro - Volume 3",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Dorohedoro/Dorohedoro%20-%20Volume%203.pdf",
+          "tamanho_mb": 70.79,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 4,
+          "titulo": "Dorohedoro - Volume 4",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Dorohedoro/Dorohedoro%20-%20Volume%204.pdf",
+          "tamanho_mb": 102.18,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 5,
+          "titulo": "Dorohedoro - Volume 5",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Dorohedoro/Dorohedoro%20-%20Volume%205.pdf",
+          "tamanho_mb": 88.55,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 6,
+          "titulo": "Dorohedoro - Volume 6",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Dorohedoro/Dorohedoro%20-%20Volume%206.pdf",
+          "tamanho_mb": 83.61,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 7,
+          "titulo": "Dorohedoro - Volume 7",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Dorohedoro/Dorohedoro%20-%20Volume%207.pdf",
+          "tamanho_mb": 92.01,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 8,
+          "titulo": "Dorohedoro - Volume 8",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Dorohedoro/Dorohedoro%20-%20Volume%208.pdf",
+          "tamanho_mb": 79.3,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 9,
+          "titulo": "Dorohedoro - Volume 9",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Dorohedoro/Dorohedoro%20-%20Volume%209.pdf",
+          "tamanho_mb": 76.97,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 10,
+          "titulo": "Dorohedoro - Volume 10",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Dorohedoro/Dorohedoro%20-%20Volume%2010.pdf",
+          "tamanho_mb": 81.14,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 11,
+          "titulo": "Dorohedoro - Volume 11",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Dorohedoro/Dorohedoro%20-%20Volume%2011.pdf",
+          "tamanho_mb": 81.84,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 12,
+          "titulo": "Dorohedoro - Volume 12",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Dorohedoro/Dorohedoro%20-%20Volume%2012.pdf",
+          "tamanho_mb": 78.96,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 13,
+          "titulo": "Dorohedoro - Volume 13",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Dorohedoro/Dorohedoro%20-%20Volume%2013.pdf",
+          "tamanho_mb": 80.16,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 14,
+          "titulo": "Dorohedoro - Volume 14",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Dorohedoro/Dorohedoro%20-%20Volume%2014.pdf",
+          "tamanho_mb": 77.33,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 15,
+          "titulo": "Dorohedoro - Volume 15",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Dorohedoro/Dorohedoro%20-%20Volume%2015.pdf",
+          "tamanho_mb": 97.57,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 16,
+          "titulo": "Dorohedoro - Volume 16",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Dorohedoro/Dorohedoro%20-%20Volume%2016.pdf",
+          "tamanho_mb": 90.45,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 17,
+          "titulo": "Dorohedoro - Volume 17",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Dorohedoro/Dorohedoro%20-%20Volume%2017.pdf",
+          "tamanho_mb": 90.93,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 18,
+          "titulo": "Dorohedoro - Volume 18",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Dorohedoro/Dorohedoro%20-%20Volume%2018.pdf",
+          "tamanho_mb": 90.51,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 19,
+          "titulo": "Dorohedoro - Volume 19",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Dorohedoro/Dorohedoro%20-%20Volume%2019.pdf",
+          "tamanho_mb": 100.76,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 20,
+          "titulo": "Dorohedoro - Volume 20",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Dorohedoro/Dorohedoro%20-%20Volume%2020.pdf",
+          "tamanho_mb": 104.67,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 21,
+          "titulo": "Dorohedoro - Volume 21",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Dorohedoro/Dorohedoro%20-%20Volume%2021.pdf",
+          "tamanho_mb": 84.39,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 22,
+          "titulo": "Dorohedoro - Volume 22",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Dorohedoro/Dorohedoro%20-%20Volume%2022.pdf",
+          "tamanho_mb": 90.03,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 23,
+          "titulo": "Dorohedoro - Volume 23",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Dorohedoro/Dorohedoro%20-%20Volume%2023.pdf",
+          "tamanho_mb": 114.86,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        }
+      ]
+    },
+    {
+      "id": "mng-005",
+      "nome": "Fairy Tail",
+      "autor": "Hiro Mashima",
+      "ano": 2006,
+      "tema": "mangas",
+      "categoria": "Shounen",
+      "descricao": "Lucy Heartfilia se junta à guilda de magos Fairy Tail e vive aventuras ao lado de Natsu, Happy e companheiros.",
+      "capa_url": "",
+      "volumes": [
+        {
+          "numero": 1,
+          "titulo": "Fairy Tail Vol. 01",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2001.pdf",
+          "tamanho_mb": 61.94,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 2,
+          "titulo": "Fairy Tail Vol. 02",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2002.pdf",
+          "tamanho_mb": 60.58,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 3,
+          "titulo": "Fairy Tail Vol. 03",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2003.pdf",
+          "tamanho_mb": 72.41,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 4,
+          "titulo": "Fairy Tail Vol. 04",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2004.pdf",
+          "tamanho_mb": 69.82,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 5,
+          "titulo": "Fairy Tail Vol. 05",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2005.pdf",
+          "tamanho_mb": 76.71,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 6,
+          "titulo": "Fairy Tail Vol. 06",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2006.pdf",
+          "tamanho_mb": 81.63,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 7,
+          "titulo": "Fairy Tail Vol. 07",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2007.pdf",
+          "tamanho_mb": 70.42,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 8,
+          "titulo": "Fairy Tail Vol. 08",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2008.pdf",
+          "tamanho_mb": 65.97,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 9,
+          "titulo": "Fairy Tail Vol. 09",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2009.pdf",
+          "tamanho_mb": 62.97,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 10,
+          "titulo": "Fairy Tail Vol. 10",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2010.pdf",
+          "tamanho_mb": 64.33,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 11,
+          "titulo": "Fairy Tail Vol. 11",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2011.pdf",
+          "tamanho_mb": 62.92,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 12,
+          "titulo": "Fairy Tail Vol. 12",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2012.pdf",
+          "tamanho_mb": 67.09,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 13,
+          "titulo": "Fairy Tail Vol. 13",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2013.pdf",
+          "tamanho_mb": 66.84,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 14,
+          "titulo": "Fairy Tail Vol. 14",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2014.pdf",
+          "tamanho_mb": 64.32,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 15,
+          "titulo": "Fairy Tail Vol. 15",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2015.pdf",
+          "tamanho_mb": 63.43,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 16,
+          "titulo": "Fairy Tail Vol. 16",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2016.pdf",
+          "tamanho_mb": 63.4,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 17,
+          "titulo": "Fairy Tail Vol. 17",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2017.pdf",
+          "tamanho_mb": 67.04,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 18,
+          "titulo": "Fairy Tail Vol. 18",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2018.pdf",
+          "tamanho_mb": 71.01,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 19,
+          "titulo": "Fairy Tail Vol. 19",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2019.pdf",
+          "tamanho_mb": 68.09,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 20,
+          "titulo": "Fairy Tail Vol. 20",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2020.pdf",
+          "tamanho_mb": 65.88,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 21,
+          "titulo": "Fairy Tail Vol. 21",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2021.pdf",
+          "tamanho_mb": 64.88,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 22,
+          "titulo": "Fairy Tail Vol. 22",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2022.pdf",
+          "tamanho_mb": 68.3,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 23,
+          "titulo": "Fairy Tail Vol. 23",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2023.pdf",
+          "tamanho_mb": 72.01,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 24,
+          "titulo": "Fairy Tail Vol. 24",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2024.pdf",
+          "tamanho_mb": 65.46,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 25,
+          "titulo": "Fairy Tail Vol. 25",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2025.pdf",
+          "tamanho_mb": 65.93,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 26,
+          "titulo": "Fairy Tail Vol. 26",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2026.pdf",
+          "tamanho_mb": 69.83,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 27,
+          "titulo": "Fairy Tail Vol. 27",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2027.pdf",
+          "tamanho_mb": 65.62,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 28,
+          "titulo": "Fairy Tail Vol. 28",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2028.pdf",
+          "tamanho_mb": 71.99,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 29,
+          "titulo": "Fairy Tail Vol. 29",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2029.pdf",
+          "tamanho_mb": 64.27,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 30,
+          "titulo": "Fairy Tail Vol. 30",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2030.pdf",
+          "tamanho_mb": 58.0,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 31,
+          "titulo": "Fairy Tail Vol. 31",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2031.pdf",
+          "tamanho_mb": 60.53,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 32,
+          "titulo": "Fairy Tail Vol. 32",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2032.pdf",
+          "tamanho_mb": 56.16,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 33,
+          "titulo": "Fairy Tail Vol. 33",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2033.pdf",
+          "tamanho_mb": 60.97,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 34,
+          "titulo": "Fairy Tail Vol. 34",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2034.pdf",
+          "tamanho_mb": 60.07,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 35,
+          "titulo": "Fairy Tail Vol. 35",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2035.pdf",
+          "tamanho_mb": 58.79,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 36,
+          "titulo": "Fairy Tail Vol. 36",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2036.pdf",
+          "tamanho_mb": 58.61,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 37,
+          "titulo": "Fairy Tail Vol. 37",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2037.pdf",
+          "tamanho_mb": 62.9,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 38,
+          "titulo": "Fairy Tail Vol. 38",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2038.pdf",
+          "tamanho_mb": 58.53,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 39,
+          "titulo": "Fairy Tail Vol. 39",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2039.pdf",
+          "tamanho_mb": 82.36,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 40,
+          "titulo": "Fairy Tail Vol. 40",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2040.pdf",
+          "tamanho_mb": 62.37,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 41,
+          "titulo": "Fairy Tail Vol. 41",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2041.pdf",
+          "tamanho_mb": 55.11,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 42,
+          "titulo": "Fairy Tail Vol. 42",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2042.pdf",
+          "tamanho_mb": 59.04,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 43,
+          "titulo": "Fairy Tail Vol. 43",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2043.pdf",
+          "tamanho_mb": 59.23,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 44,
+          "titulo": "Fairy Tail Vol. 44",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2044.pdf",
+          "tamanho_mb": 60.29,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 45,
+          "titulo": "Fairy Tail Vol. 45",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2045.pdf",
+          "tamanho_mb": 61.36,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 46,
+          "titulo": "Fairy Tail Vol. 46",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2046.pdf",
+          "tamanho_mb": 56.21,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 47,
+          "titulo": "Fairy Tail Vol. 47",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2047.pdf",
+          "tamanho_mb": 59.89,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 48,
+          "titulo": "Fairy Tail Vol. 48",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2048.pdf",
+          "tamanho_mb": 61.34,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 49,
+          "titulo": "Fairy Tail Vol. 49",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2049.pdf",
+          "tamanho_mb": 57.53,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 50,
+          "titulo": "Fairy Tail Vol. 50",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2050.pdf",
+          "tamanho_mb": 56.84,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 51,
+          "titulo": "Fairy Tail Vol. 51",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2051.pdf",
+          "tamanho_mb": 58.03,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 52,
+          "titulo": "Fairy Tail Vol. 52",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2052.pdf",
+          "tamanho_mb": 55.08,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 53,
+          "titulo": "Fairy Tail Vol. 53",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2053.pdf",
+          "tamanho_mb": 55.0,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 54,
+          "titulo": "Fairy Tail Vol. 54",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2054.pdf",
+          "tamanho_mb": 58.24,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 55,
+          "titulo": "Fairy Tail Vol. 55",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2055.pdf",
+          "tamanho_mb": 56.36,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 56,
+          "titulo": "Fairy Tail Vol. 56",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2056.pdf",
+          "tamanho_mb": 55.22,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 57,
+          "titulo": "Fairy Tail Vol. 57",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2057.pdf",
+          "tamanho_mb": 60.73,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 58,
+          "titulo": "Fairy Tail Vol. 58",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2058.pdf",
+          "tamanho_mb": 58.83,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 59,
+          "titulo": "Fairy Tail Vol. 59",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2059.pdf",
+          "tamanho_mb": 55.22,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 60,
+          "titulo": "Fairy Tail Vol. 60",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2060.pdf",
+          "tamanho_mb": 57.44,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 61,
+          "titulo": "Fairy Tail Vol. 61",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2061.pdf",
+          "tamanho_mb": 58.89,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 62,
+          "titulo": "Fairy Tail Vol. 62",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2062.pdf",
+          "tamanho_mb": 59.6,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 63,
+          "titulo": "Fairy Tail Vol. 63",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fairy%20Tail/Fairy%20Tail%20Vol.%2063.pdf",
+          "tamanho_mb": 69.26,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        }
+      ]
+    },
+    {
+      "id": "mng-006",
+      "nome": "Fullmetal Alchemist",
+      "autor": "Hiromu Arakawa",
+      "ano": 2001,
+      "tema": "mangas",
+      "categoria": "Shounen",
+      "descricao": "Os irmãos Edward e Alphonse Elric buscam a Pedra Filosofal para recuperar seus corpos após uma transmutação fracassada.",
+      "capa_url": "",
+      "volumes": [
+        {
+          "numero": 1,
+          "titulo": "Fullmetal Alchemist - Volume 01",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fullmetal%20Alchemist/Fullmetal%20Alchemist%20-%20Volume%2001.pdf",
+          "tamanho_mb": 84.86,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 2,
+          "titulo": "Fullmetal Alchemist - Volume 02",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fullmetal%20Alchemist/Fullmetal%20Alchemist%20-%20Volume%2002.pdf",
+          "tamanho_mb": 77.51,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 3,
+          "titulo": "Fullmetal Alchemist - Volume 03",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fullmetal%20Alchemist/Fullmetal%20Alchemist%20-%20Volume%2003.pdf",
+          "tamanho_mb": 78.95,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 4,
+          "titulo": "Fullmetal Alchemist - Volume 04",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fullmetal%20Alchemist/Fullmetal%20Alchemist%20-%20Volume%2004.pdf",
+          "tamanho_mb": 75.1,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 5,
+          "titulo": "Fullmetal Alchemist - Volume 05",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fullmetal%20Alchemist/Fullmetal%20Alchemist%20-%20Volume%2005.pdf",
+          "tamanho_mb": 90.03,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 6,
+          "titulo": "Fullmetal Alchemist - Volume 06",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fullmetal%20Alchemist/Fullmetal%20Alchemist%20-%20Volume%2006.pdf",
+          "tamanho_mb": 86.66,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 7,
+          "titulo": "Fullmetal Alchemist - Volume 07",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fullmetal%20Alchemist/Fullmetal%20Alchemist%20-%20Volume%2007.pdf",
+          "tamanho_mb": 85.85,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 8,
+          "titulo": "Fullmetal Alchemist - Volume 08",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fullmetal%20Alchemist/Fullmetal%20Alchemist%20-%20Volume%2008.pdf",
+          "tamanho_mb": 85.82,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 9,
+          "titulo": "Fullmetal Alchemist - Volume 09",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fullmetal%20Alchemist/Fullmetal%20Alchemist%20-%20Volume%2009.pdf",
+          "tamanho_mb": 100.57,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 10,
+          "titulo": "Fullmetal Alchemist - Volume 10",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fullmetal%20Alchemist/Fullmetal%20Alchemist%20-%20Volume%2010.pdf",
+          "tamanho_mb": 108.57,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 11,
+          "titulo": "Fullmetal Alchemist - Volume 11",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fullmetal%20Alchemist/Fullmetal%20Alchemist%20-%20Volume%2011.pdf",
+          "tamanho_mb": 116.47,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 12,
+          "titulo": "Fullmetal Alchemist - Volume 12",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fullmetal%20Alchemist/Fullmetal%20Alchemist%20-%20Volume%2012.pdf",
+          "tamanho_mb": 117.73,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 13,
+          "titulo": "Fullmetal Alchemist - Volume 13",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fullmetal%20Alchemist/Fullmetal%20Alchemist%20-%20Volume%2013.pdf",
+          "tamanho_mb": 94.32,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 14,
+          "titulo": "Fullmetal Alchemist - Volume 14",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fullmetal%20Alchemist/Fullmetal%20Alchemist%20-%20Volume%2014.pdf",
+          "tamanho_mb": 130.4,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 15,
+          "titulo": "Fullmetal Alchemist - Volume 15",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fullmetal%20Alchemist/Fullmetal%20Alchemist%20-%20Volume%2015.pdf",
+          "tamanho_mb": 107.67,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 16,
+          "titulo": "Fullmetal Alchemist - Volume 16",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fullmetal%20Alchemist/Fullmetal%20Alchemist%20-%20Volume%2016.pdf",
+          "tamanho_mb": 129.01,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 17,
+          "titulo": "Fullmetal Alchemist - Volume 17",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fullmetal%20Alchemist/Fullmetal%20Alchemist%20-%20Volume%2017.pdf",
+          "tamanho_mb": 118.48,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 18,
+          "titulo": "Fullmetal Alchemist - Volume 18",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fullmetal%20Alchemist/Fullmetal%20Alchemist%20-%20Volume%2018.pdf",
+          "tamanho_mb": 100.92,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 19,
+          "titulo": "Fullmetal Alchemist - Volume 19",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fullmetal%20Alchemist/Fullmetal%20Alchemist%20-%20Volume%2019.pdf",
+          "tamanho_mb": 111.78,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 20,
+          "titulo": "Fullmetal Alchemist - Volume 20",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fullmetal%20Alchemist/Fullmetal%20Alchemist%20-%20Volume%2020.pdf",
+          "tamanho_mb": 93.6,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 21,
+          "titulo": "Fullmetal Alchemist - Volume 21",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fullmetal%20Alchemist/Fullmetal%20Alchemist%20-%20Volume%2021.pdf",
+          "tamanho_mb": 77.11,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 22,
+          "titulo": "Fullmetal Alchemist - Volume 22",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fullmetal%20Alchemist/Fullmetal%20Alchemist%20-%20Volume%2022.pdf",
+          "tamanho_mb": 85.95,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 23,
+          "titulo": "Fullmetal Alchemist - Volume 23",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fullmetal%20Alchemist/Fullmetal%20Alchemist%20-%20Volume%2023.pdf",
+          "tamanho_mb": 99.31,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 24,
+          "titulo": "Fullmetal Alchemist - Volume 24",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fullmetal%20Alchemist/Fullmetal%20Alchemist%20-%20Volume%2024.pdf",
+          "tamanho_mb": 97.74,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 25,
+          "titulo": "Fullmetal Alchemist - Volume 25",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fullmetal%20Alchemist/Fullmetal%20Alchemist%20-%20Volume%2025.pdf",
+          "tamanho_mb": 90.23,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 26,
+          "titulo": "Fullmetal Alchemist - Volume 26",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fullmetal%20Alchemist/Fullmetal%20Alchemist%20-%20Volume%2026.pdf",
+          "tamanho_mb": 110.19,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 27,
+          "titulo": "Fullmetal Alchemist - Volume 27",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Fullmetal%20Alchemist/Fullmetal%20Alchemist%20-%20Volume%2027.pdf",
+          "tamanho_mb": 117.07,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        }
+      ]
+    },
+    {
+      "id": "mng-007",
+      "nome": "Hunter x Hunter",
+      "autor": "Yoshihiro Togashi",
+      "ano": 1998,
+      "tema": "mangas",
+      "categoria": "Shounen",
+      "descricao": "Gon Freecss se torna Hunter para encontrar seu pai e se envolve em desafios e descobertas perigosas.",
+      "capa_url": "",
+      "volumes": [
+        {
+          "numero": 1,
+          "titulo": "Hunter x Hunter - Volume 01",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Hunter%20x%20Hunter/Hunter%20x%20Hunter%20-%20Volume%2001.pdf",
+          "tamanho_mb": 103.9,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 2,
+          "titulo": "Hunter x Hunter - Volume 02",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Hunter%20x%20Hunter/Hunter%20x%20Hunter%20-%20Volume%2002.pdf",
+          "tamanho_mb": 93.74,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 3,
+          "titulo": "Hunter x Hunter - Volume 03",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Hunter%20x%20Hunter/Hunter%20x%20Hunter%20-%20Volume%2003.pdf",
+          "tamanho_mb": 85.9,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 4,
+          "titulo": "Hunter x Hunter - Volume 04",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Hunter%20x%20Hunter/Hunter%20x%20Hunter%20-%20Volume%2004.pdf",
+          "tamanho_mb": 87.23,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 5,
+          "titulo": "Hunter x Hunter - Volume 05",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Hunter%20x%20Hunter/Hunter%20x%20Hunter%20-%20Volume%2005.pdf",
+          "tamanho_mb": 82.49,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 6,
+          "titulo": "Hunter x Hunter - Volume 06",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Hunter%20x%20Hunter/Hunter%20x%20Hunter%20-%20Volume%2006.pdf",
+          "tamanho_mb": 93.06,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 7,
+          "titulo": "Hunter x Hunter - Volume 07",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Hunter%20x%20Hunter/Hunter%20x%20Hunter%20-%20Volume%2007.pdf",
+          "tamanho_mb": 92.69,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 8,
+          "titulo": "Hunter x Hunter - Volume 08",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Hunter%20x%20Hunter/Hunter%20x%20Hunter%20-%20Volume%2008.pdf",
+          "tamanho_mb": 91.87,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 9,
+          "titulo": "Hunter x Hunter - Volume 09",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Hunter%20x%20Hunter/Hunter%20x%20Hunter%20-%20Volume%2009.pdf",
+          "tamanho_mb": 99.34,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 10,
+          "titulo": "Hunter x Hunter - Volume 10",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Hunter%20x%20Hunter/Hunter%20x%20Hunter%20-%20Volume%2010.pdf",
+          "tamanho_mb": 96.52,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 11,
+          "titulo": "Hunter x Hunter - Volume 11",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Hunter%20x%20Hunter/Hunter%20x%20Hunter%20-%20Volume%2011.pdf",
+          "tamanho_mb": 99.0,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 12,
+          "titulo": "Hunter x Hunter - Volume 12",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Hunter%20x%20Hunter/Hunter%20x%20Hunter%20-%20Volume%2012.pdf",
+          "tamanho_mb": 92.3,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 13,
+          "titulo": "Hunter x Hunter - Volume 13",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Hunter%20x%20Hunter/Hunter%20x%20Hunter%20-%20Volume%2013.pdf",
+          "tamanho_mb": 94.35,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 14,
+          "titulo": "Hunter x Hunter - Volume 14",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Hunter%20x%20Hunter/Hunter%20x%20Hunter%20-%20Volume%2014.pdf",
+          "tamanho_mb": 98.15,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 15,
+          "titulo": "Hunter x Hunter - Volume 15",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Hunter%20x%20Hunter/Hunter%20x%20Hunter%20-%20Volume%2015.pdf",
+          "tamanho_mb": 97.96,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 16,
+          "titulo": "Hunter x Hunter - Volume 16",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Hunter%20x%20Hunter/Hunter%20x%20Hunter%20-%20Volume%2016.pdf",
+          "tamanho_mb": 95.59,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 17,
+          "titulo": "Hunter x Hunter - Volume 17",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Hunter%20x%20Hunter/Hunter%20x%20Hunter%20-%20Volume%2017.pdf",
+          "tamanho_mb": 105.02,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 18,
+          "titulo": "Hunter x Hunter - Volume 18",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Hunter%20x%20Hunter/Hunter%20x%20Hunter%20-%20Volume%2018.pdf",
+          "tamanho_mb": 102.31,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 19,
+          "titulo": "Hunter x Hunter - Volume 19",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Hunter%20x%20Hunter/Hunter%20x%20Hunter%20-%20Volume%2019.pdf",
+          "tamanho_mb": 98.41,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 20,
+          "titulo": "Hunter x Hunter - Volume 20",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Hunter%20x%20Hunter/Hunter%20x%20Hunter%20-%20Volume%2020.pdf",
+          "tamanho_mb": 100.8,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 21,
+          "titulo": "Hunter x Hunter - Volume 21",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Hunter%20x%20Hunter/Hunter%20x%20Hunter%20-%20Volume%2021.pdf",
+          "tamanho_mb": 104.7,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 22,
+          "titulo": "Hunter x Hunter - Volume 22",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Hunter%20x%20Hunter/Hunter%20x%20Hunter%20-%20Volume%2022.pdf",
+          "tamanho_mb": 109.32,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 23,
+          "titulo": "Hunter x Hunter - Volume 23",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Hunter%20x%20Hunter/Hunter%20x%20Hunter%20-%20Volume%2023.pdf",
+          "tamanho_mb": 105.83,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 24,
+          "titulo": "Hunter x Hunter - Volume 24",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Hunter%20x%20Hunter/Hunter%20x%20Hunter%20-%20Volume%2024.pdf",
+          "tamanho_mb": 109.04,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 25,
+          "titulo": "Hunter x Hunter - Volume 25",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Hunter%20x%20Hunter/Hunter%20x%20Hunter%20-%20Volume%2025.pdf",
+          "tamanho_mb": 109.96,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 26,
+          "titulo": "Hunter x Hunter - Volume 26",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Hunter%20x%20Hunter/Hunter%20x%20Hunter%20-%20Volume%2026.pdf",
+          "tamanho_mb": 117.97,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 27,
+          "titulo": "Hunter x Hunter - Volume 27",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Hunter%20x%20Hunter/Hunter%20x%20Hunter%20-%20Volume%2027.pdf",
+          "tamanho_mb": 122.97,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 28,
+          "titulo": "Hunter x Hunter - Volume 28",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Hunter%20x%20Hunter/Hunter%20x%20Hunter%20-%20Volume%2028.pdf",
+          "tamanho_mb": 134.19,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 29,
+          "titulo": "Hunter x Hunter - Volume 29",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Hunter%20x%20Hunter/Hunter%20x%20Hunter%20-%20Volume%2029.pdf",
+          "tamanho_mb": 125.43,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 30,
+          "titulo": "Hunter x Hunter - Volume 30",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Hunter%20x%20Hunter/Hunter%20x%20Hunter%20-%20Volume%2030.pdf",
+          "tamanho_mb": 118.48,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 31,
+          "titulo": "Hunter x Hunter - Volume 31",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Hunter%20x%20Hunter/Hunter%20x%20Hunter%20-%20Volume%2031.pdf",
+          "tamanho_mb": 121.55,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 32,
+          "titulo": "Hunter x Hunter - Volume 32",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Hunter%20x%20Hunter/Hunter%20x%20Hunter%20-%20Volume%2032.pdf",
+          "tamanho_mb": 114.68,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 33,
+          "titulo": "Hunter x Hunter - Volume 33",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Hunter%20x%20Hunter/Hunter%20x%20Hunter%20-%20Volume%2033.pdf",
+          "tamanho_mb": 140.24,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 34,
+          "titulo": "Hunter x Hunter - Volume 34",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Hunter%20x%20Hunter/Hunter%20x%20Hunter%20-%20Volume%2034.pdf",
+          "tamanho_mb": 140.72,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 35,
+          "titulo": "Hunter x Hunter - Volume 35",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Hunter%20x%20Hunter/Hunter%20x%20Hunter%20-%20Volume%2035.pdf",
+          "tamanho_mb": 122.69,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 36,
+          "titulo": "Hunter x Hunter - Volume 36",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Hunter%20x%20Hunter/Hunter%20x%20Hunter%20-%20Volume%2036.pdf",
+          "tamanho_mb": 120.57,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 37,
+          "titulo": "Hunter x Hunter - Volume 37",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Hunter%20x%20Hunter/Hunter%20x%20Hunter%20-%20Volume%2037.pdf",
+          "tamanho_mb": 121.1,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 38,
+          "titulo": "Hunter x Hunter - Volume 38",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Hunter%20x%20Hunter/Hunter%20x%20Hunter%20-%20Volume%2038.pdf",
+          "tamanho_mb": 124.42,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 39,
+          "titulo": "Hunter x Hunter - Volume 39",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Hunter%20x%20Hunter/Hunter%20x%20Hunter%20-%20Volume%2039.pdf",
+          "tamanho_mb": 133.97,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        }
+      ]
+    },
+    {
+      "id": "mng-008",
+      "nome": "Naruto",
+      "autor": "Masashi Kishimoto",
+      "ano": 1999,
+      "tema": "mangas",
+      "categoria": "Shounen",
+      "descricao": "Naruto Uzumaki, um jovem ninja com o espírito de uma raposa de nove caudas selada, busca reconhecimento e sonha em se tornar Hokage.",
+      "capa_url": "",
+      "volumes": [
+        {
+          "numero": 1,
+          "titulo": "Naruto - Volume 01",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2001.pdf",
+          "tamanho_mb": 61.68,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 2,
+          "titulo": "Naruto - Volume 02",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2002.pdf",
+          "tamanho_mb": 65.45,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 3,
+          "titulo": "Naruto - Volume 03",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2003.pdf",
+          "tamanho_mb": 58.8,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 4,
+          "titulo": "Naruto - Volume 04",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2004.pdf",
+          "tamanho_mb": 58.8,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 5,
+          "titulo": "Naruto - Volume 05",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2005.pdf",
+          "tamanho_mb": 92.57,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 6,
+          "titulo": "Naruto - Volume 06",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2006.pdf",
+          "tamanho_mb": 108.43,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 7,
+          "titulo": "Naruto - Volume 07",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2007.pdf",
+          "tamanho_mb": 92.48,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 8,
+          "titulo": "Naruto - Volume 08",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2008.pdf",
+          "tamanho_mb": 94.25,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 9,
+          "titulo": "Naruto - Volume 09",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2009.pdf",
+          "tamanho_mb": 96.41,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 10,
+          "titulo": "Naruto - Volume 10",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2010.pdf",
+          "tamanho_mb": 70.65,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 11,
+          "titulo": "Naruto - Volume 11",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2011.pdf",
+          "tamanho_mb": 82.25,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 12,
+          "titulo": "Naruto - Volume 12",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2012.pdf",
+          "tamanho_mb": 83.03,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 13,
+          "titulo": "Naruto - Volume 13",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2013.pdf",
+          "tamanho_mb": 88.24,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 14,
+          "titulo": "Naruto - Volume 14",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2014.pdf",
+          "tamanho_mb": 90.26,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 15,
+          "titulo": "Naruto - Volume 15",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2015.pdf",
+          "tamanho_mb": 37.52,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 16,
+          "titulo": "Naruto - Volume 16",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2016.pdf",
+          "tamanho_mb": 37.0,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 17,
+          "titulo": "Naruto - Volume 17",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2017.pdf",
+          "tamanho_mb": 35.15,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 18,
+          "titulo": "Naruto - Volume 18",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2018.pdf",
+          "tamanho_mb": 35.53,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 19,
+          "titulo": "Naruto - Volume 19",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2019.pdf",
+          "tamanho_mb": 33.02,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 20,
+          "titulo": "Naruto - Volume 20",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2020.pdf",
+          "tamanho_mb": 31.11,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 21,
+          "titulo": "Naruto - Volume 21",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2021.pdf",
+          "tamanho_mb": 47.4,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 22,
+          "titulo": "Naruto - Volume 22",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2022.pdf",
+          "tamanho_mb": 46.4,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 23,
+          "titulo": "Naruto - Volume 23",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2023.pdf",
+          "tamanho_mb": 46.7,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 24,
+          "titulo": "Naruto - Volume 24",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2024.pdf",
+          "tamanho_mb": 45.22,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 25,
+          "titulo": "Naruto - Volume 25",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2025.pdf",
+          "tamanho_mb": 29.18,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 26,
+          "titulo": "Naruto - Volume 26",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2026.pdf",
+          "tamanho_mb": 36.6,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 27,
+          "titulo": "Naruto - Volume 27",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2027.pdf",
+          "tamanho_mb": 31.52,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 28,
+          "titulo": "Naruto - Volume 28",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2028.pdf",
+          "tamanho_mb": 38.62,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 29,
+          "titulo": "Naruto - Volume 29",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2029.pdf",
+          "tamanho_mb": 37.24,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 30,
+          "titulo": "Naruto - Volume 30",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2030.pdf",
+          "tamanho_mb": 44.33,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 31,
+          "titulo": "Naruto - Volume 31",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2031.pdf",
+          "tamanho_mb": 39.86,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 32,
+          "titulo": "Naruto - Volume 32",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2032.pdf",
+          "tamanho_mb": 37.91,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 33,
+          "titulo": "Naruto - Volume 33",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2033.pdf",
+          "tamanho_mb": 38.71,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 34,
+          "titulo": "Naruto - Volume 34",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2034.pdf",
+          "tamanho_mb": 34.29,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 35,
+          "titulo": "Naruto - Volume 35",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2035.pdf",
+          "tamanho_mb": 35.74,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 36,
+          "titulo": "Naruto - Volume 36",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2036.pdf",
+          "tamanho_mb": 35.94,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 37,
+          "titulo": "Naruto - Volume 37",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2037.pdf",
+          "tamanho_mb": 39.06,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 38,
+          "titulo": "Naruto - Volume 38",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2038.pdf",
+          "tamanho_mb": 38.51,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 39,
+          "titulo": "Naruto - Volume 39",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2039.pdf",
+          "tamanho_mb": 38.66,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 40,
+          "titulo": "Naruto - Volume 40",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2040.pdf",
+          "tamanho_mb": 43.8,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 41,
+          "titulo": "Naruto - Volume 41",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2041.pdf",
+          "tamanho_mb": 45.32,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 42,
+          "titulo": "Naruto - Volume 42",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2042.pdf",
+          "tamanho_mb": 40.93,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 43,
+          "titulo": "Naruto - Volume 43",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2043.pdf",
+          "tamanho_mb": 53.88,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 44,
+          "titulo": "Naruto - Volume 44",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2044.pdf",
+          "tamanho_mb": 42.81,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 45,
+          "titulo": "Naruto - Volume 45",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2045.pdf",
+          "tamanho_mb": 46.71,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 46,
+          "titulo": "Naruto - Volume 46",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2046.pdf",
+          "tamanho_mb": 44.93,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 47,
+          "titulo": "Naruto - Volume 47",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2047.pdf",
+          "tamanho_mb": 44.14,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 48,
+          "titulo": "Naruto - Volume 48",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2048.pdf",
+          "tamanho_mb": 47.3,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 49,
+          "titulo": "Naruto - Volume 49",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2049.pdf",
+          "tamanho_mb": 46.07,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 50,
+          "titulo": "Naruto - Volume 50",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2050.pdf",
+          "tamanho_mb": 49.0,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 51,
+          "titulo": "Naruto - Volume 51",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2051.pdf",
+          "tamanho_mb": 47.96,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 52,
+          "titulo": "Naruto - Volume 52",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2052.pdf",
+          "tamanho_mb": 50.06,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 53,
+          "titulo": "Naruto - Volume 53",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2053.pdf",
+          "tamanho_mb": 59.09,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 54,
+          "titulo": "Naruto - Volume 54",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2054.pdf",
+          "tamanho_mb": 61.27,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 55,
+          "titulo": "Naruto - Volume 55",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2055.pdf",
+          "tamanho_mb": 66.08,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 56,
+          "titulo": "Naruto - Volume 56",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2056.pdf",
+          "tamanho_mb": 65.91,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 57,
+          "titulo": "Naruto - Volume 57",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2057.pdf",
+          "tamanho_mb": 62.86,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 58,
+          "titulo": "Naruto - Volume 58",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2058.pdf",
+          "tamanho_mb": 70.78,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 59,
+          "titulo": "Naruto - Volume 59",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2059.pdf",
+          "tamanho_mb": 67.41,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 60,
+          "titulo": "Naruto - Volume 60",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2060.pdf",
+          "tamanho_mb": 66.55,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 61,
+          "titulo": "Naruto - Volume 61",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2061.pdf",
+          "tamanho_mb": 68.02,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 62,
+          "titulo": "Naruto - Volume 62",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2062.pdf",
+          "tamanho_mb": 66.3,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 63,
+          "titulo": "Naruto - Volume 63",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2063.pdf",
+          "tamanho_mb": 62.81,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 64,
+          "titulo": "Naruto - Volume 64",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2064.pdf",
+          "tamanho_mb": 66.78,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 65,
+          "titulo": "Naruto - Volume 65",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2065.pdf",
+          "tamanho_mb": 60.29,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 66,
+          "titulo": "Naruto - Volume 66",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2066.pdf",
+          "tamanho_mb": 68.11,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 67,
+          "titulo": "Naruto - Volume 67",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2067.pdf",
+          "tamanho_mb": 66.21,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 68,
+          "titulo": "Naruto - Volume 68",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2068.pdf",
+          "tamanho_mb": 65.54,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 69,
+          "titulo": "Naruto - Volume 69",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2069.pdf",
+          "tamanho_mb": 72.24,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 70,
+          "titulo": "Naruto - Volume 70",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2070.pdf",
+          "tamanho_mb": 76.21,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 71,
+          "titulo": "Naruto - Volume 71",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2071.pdf",
+          "tamanho_mb": 65.92,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 72,
+          "titulo": "Naruto - Volume 72",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Naruto/Naruto%20-%20Volume%2072.pdf",
+          "tamanho_mb": 52.32,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        }
+      ]
+    },
+    {
+      "id": "mng-009",
+      "nome": "Neon Genesis Evangelion",
+      "autor": "Yoshiyuki Sadamoto",
+      "ano": 1994,
+      "tema": "mangas",
+      "categoria": "Seinen",
+      "descricao": "Shinji Ikari é recrutado para pilotar um mecha Evangelion e defender a humanidade de criaturas chamadas Anjos.",
+      "capa_url": "",
+      "volumes": [
+        {
+          "numero": 1,
+          "titulo": "Neon Genesis Evangelion - Collectors Edition - Vol. 01",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Neon%20Genesis%20Evangelion/Neon%20Genesis%20Evangelion%20-%20Collectors%20Edition%20-%20Vol.%2001.pdf",
+          "tamanho_mb": 285.58,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 2,
+          "titulo": "Neon Genesis Evangelion - Collectors Edition - Vol. 02",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Neon%20Genesis%20Evangelion/Neon%20Genesis%20Evangelion%20-%20Collectors%20Edition%20-%20Vol.%2002.pdf",
+          "tamanho_mb": 156.13,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 3,
+          "titulo": "Neon Genesis Evangelion - Collectors Edition - Vol. 03",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Neon%20Genesis%20Evangelion/Neon%20Genesis%20Evangelion%20-%20Collectors%20Edition%20-%20Vol.%2003.pdf",
+          "tamanho_mb": 173.59,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 4,
+          "titulo": "Neon Genesis Evangelion - Collectors Edition - Vol. 04",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Neon%20Genesis%20Evangelion/Neon%20Genesis%20Evangelion%20-%20Collectors%20Edition%20-%20Vol.%2004.pdf",
+          "tamanho_mb": 211.75,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 5,
+          "titulo": "Neon Genesis Evangelion - Collectors Edition - Vol. 05",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Neon%20Genesis%20Evangelion/Neon%20Genesis%20Evangelion%20-%20Collectors%20Edition%20-%20Vol.%2005.pdf",
+          "tamanho_mb": 201.08,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 6,
+          "titulo": "Neon Genesis Evangelion - Collectors Edition - Vol. 06",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Neon%20Genesis%20Evangelion/Neon%20Genesis%20Evangelion%20-%20Collectors%20Edition%20-%20Vol.%2006.pdf",
+          "tamanho_mb": 174.59,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 7,
+          "titulo": "Neon Genesis Evangelion - Collectors Edition - Vol. 07",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Neon%20Genesis%20Evangelion/Neon%20Genesis%20Evangelion%20-%20Collectors%20Edition%20-%20Vol.%2007.pdf",
+          "tamanho_mb": 168.71,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        }
+      ]
+    },
+    {
+      "id": "mng-010",
+      "nome": "Vagabond",
+      "autor": "Takehiko Inoue",
+      "ano": 1998,
+      "tema": "mangas",
+      "categoria": "Seinen",
+      "descricao": "A jornada de Miyamoto Musashi, o lendário espadachim japonês, em busca da iluminação através do caminho da espada.",
+      "capa_url": "",
+      "volumes": [
+        {
+          "numero": 1,
+          "titulo": "Vagabond - Volume 01",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Vagabond/Vagabond%20-%20Volume%2001.pdf",
+          "tamanho_mb": 126.11,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 2,
+          "titulo": "Vagabond - Volume 02",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Vagabond/Vagabond%20-%20Volume%2002.pdf",
+          "tamanho_mb": 120.36,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 3,
+          "titulo": "Vagabond - Volume 03",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Vagabond/Vagabond%20-%20Volume%2003.pdf",
+          "tamanho_mb": 115.05,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 4,
+          "titulo": "Vagabond - Volume 04",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Vagabond/Vagabond%20-%20Volume%2004.pdf",
+          "tamanho_mb": 96.77,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 5,
+          "titulo": "Vagabond - Volume 05",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Vagabond/Vagabond%20-%20Volume%2005.pdf",
+          "tamanho_mb": 91.79,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 6,
+          "titulo": "Vagabond - Volume 06",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Vagabond/Vagabond%20-%20Volume%2006.pdf",
+          "tamanho_mb": 114.7,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 7,
+          "titulo": "Vagabond - Volume 07",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Vagabond/Vagabond%20-%20Volume%2007.pdf",
+          "tamanho_mb": 97.99,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 8,
+          "titulo": "Vagabond - Volume 08",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Vagabond/Vagabond%20-%20Volume%2008.pdf",
+          "tamanho_mb": 100.41,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 9,
+          "titulo": "Vagabond - Volume 09",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Vagabond/Vagabond%20-%20Volume%2009.pdf",
+          "tamanho_mb": 98.3,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 10,
+          "titulo": "Vagabond - Volume 10",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Vagabond/Vagabond%20-%20Volume%2010.pdf",
+          "tamanho_mb": 133.32,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 11,
+          "titulo": "Vagabond - Volume 11",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Vagabond/Vagabond%20-%20Volume%2011.pdf",
+          "tamanho_mb": 125.57,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 12,
+          "titulo": "Vagabond - Volume 12",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Vagabond/Vagabond%20-%20Volume%2012.pdf",
+          "tamanho_mb": 124.91,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 13,
+          "titulo": "Vagabond - Volume 13",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Vagabond/Vagabond%20-%20Volume%2013.pdf",
+          "tamanho_mb": 122.8,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 14,
+          "titulo": "Vagabond - Volume 14",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Vagabond/Vagabond%20-%20Volume%2014.pdf",
+          "tamanho_mb": 105.69,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 15,
+          "titulo": "Vagabond - Volume 15",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Vagabond/Vagabond%20-%20Volume%2015.pdf",
+          "tamanho_mb": 107.41,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 16,
+          "titulo": "Vagabond - Volume 16",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Vagabond/Vagabond%20-%20Volume%2016.pdf",
+          "tamanho_mb": 105.7,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 17,
+          "titulo": "Vagabond - Volume 17",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Vagabond/Vagabond%20-%20Volume%2017.pdf",
+          "tamanho_mb": 106.5,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 18,
+          "titulo": "Vagabond - Volume 18",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Vagabond/Vagabond%20-%20Volume%2018.pdf",
+          "tamanho_mb": 104.59,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 19,
+          "titulo": "Vagabond - Volume 19",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Vagabond/Vagabond%20-%20Volume%2019.pdf",
+          "tamanho_mb": 83.41,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 20,
+          "titulo": "Vagabond - Volume 20",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Vagabond/Vagabond%20-%20Volume%2020.pdf",
+          "tamanho_mb": 92.07,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 21,
+          "titulo": "Vagabond - Volume 21",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Vagabond/Vagabond%20-%20Volume%2021.pdf",
+          "tamanho_mb": 95.34,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 22,
+          "titulo": "Vagabond - Volume 22",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Vagabond/Vagabond%20-%20Volume%2022.pdf",
+          "tamanho_mb": 83.41,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 23,
+          "titulo": "Vagabond - Volume 23",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Vagabond/Vagabond%20-%20Volume%2023.pdf",
+          "tamanho_mb": 87.53,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 24,
+          "titulo": "Vagabond - Volume 24",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Vagabond/Vagabond%20-%20Volume%2024.pdf",
+          "tamanho_mb": 79.56,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 25,
+          "titulo": "Vagabond - Volume 25",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Vagabond/Vagabond%20-%20Volume%2025.pdf",
+          "tamanho_mb": 80.54,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 26,
+          "titulo": "Vagabond - Volume 26",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Vagabond/Vagabond%20-%20Volume%2026.pdf",
+          "tamanho_mb": 86.41,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 27,
+          "titulo": "Vagabond - Volume 27",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Vagabond/Vagabond%20-%20Volume%2027.pdf",
+          "tamanho_mb": 88.71,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 28,
+          "titulo": "Vagabond - Volume 28",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Vagabond/Vagabond%20-%20Volume%2028.pdf",
+          "tamanho_mb": 86.29,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 29,
+          "titulo": "Vagabond - Volume 29",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Vagabond/Vagabond%20-%20Volume%2029.pdf",
+          "tamanho_mb": 85.31,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 30,
+          "titulo": "Vagabond - Volume 30",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Vagabond/Vagabond%20-%20Volume%2030.pdf",
+          "tamanho_mb": 92.44,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 31,
+          "titulo": "Vagabond - Volume 31",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Vagabond/Vagabond%20-%20Volume%2031.pdf",
+          "tamanho_mb": 90.77,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 32,
+          "titulo": "Vagabond - Volume 32",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Vagabond/Vagabond%20-%20Volume%2032.pdf",
+          "tamanho_mb": 84.57,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 33,
+          "titulo": "Vagabond - Volume 33",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Vagabond/Vagabond%20-%20Volume%2033.pdf",
+          "tamanho_mb": 83.4,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 323,
+          "titulo": "├Ültimos cap├¡tulos lan├ºados/Cap├¡tulo - 323",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Vagabond/%E2%94%9C%C3%9Cltimos%20cap%E2%94%9C%C2%A1tulos%20lan%E2%94%9C%C2%BAados/Cap%E2%94%9C%C2%A1tulo%20-%20323.pdf",
+          "tamanho_mb": 17.08,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 324,
+          "titulo": "├Ültimos cap├¡tulos lan├ºados/Cap├¡tulo - 324",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Vagabond/%E2%94%9C%C3%9Cltimos%20cap%E2%94%9C%C2%A1tulos%20lan%E2%94%9C%C2%BAados/Cap%E2%94%9C%C2%A1tulo%20-%20324.pdf",
+          "tamanho_mb": 17.18,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 325,
+          "titulo": "├Ültimos cap├¡tulos lan├ºados/Cap├¡tulo - 325",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Vagabond/%E2%94%9C%C3%9Cltimos%20cap%E2%94%9C%C2%A1tulos%20lan%E2%94%9C%C2%BAados/Cap%E2%94%9C%C2%A1tulo%20-%20325.pdf",
+          "tamanho_mb": 18.78,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 326,
+          "titulo": "├Ültimos cap├¡tulos lan├ºados/Cap├¡tulo - 326",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Vagabond/%E2%94%9C%C3%9Cltimos%20cap%E2%94%9C%C2%A1tulos%20lan%E2%94%9C%C2%BAados/Cap%E2%94%9C%C2%A1tulo%20-%20326.pdf",
+          "tamanho_mb": 15.53,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        },
+        {
+          "numero": 327,
+          "titulo": "├Ültimos cap├¡tulos lan├ºados/Cap├¡tulo - 327",
+          "url": "https://pub-76e89d327c504ed1affa4e389a63a702.r2.dev/Vagabond/%E2%94%9C%C3%9Cltimos%20cap%E2%94%9C%C2%A1tulos%20lan%E2%94%9C%C2%BAados/Cap%E2%94%9C%C2%A1tulo%20-%20327.pdf",
+          "tamanho_mb": 11.47,
+          "fonte": "r2",
+          "licenca": "Verificar"
+        }
+      ]
+    }
+  ],
+  "codigo_acesso_mangas": "MANGA2026"
+}

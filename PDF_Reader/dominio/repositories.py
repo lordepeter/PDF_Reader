@@ -1,154 +1,130 @@
-"""Camada de persistência — Repository Pattern.
+"""Camada de persistência — Repository Pattern com Postgres (SQLAlchemy).
 
-A UI fala apenas com esses objetos. Hoje eles gravam em JSON local.
-Amanhã, ao plugar uma API REST, basta criar as versões *API* dessas classes
-com os mesmos métodos (ver Protocols abaixo) e injetar no composition root.
-Nenhuma tela precisa mudar.
+A interface pública é IDÊNTICA à versão JSON anterior. As rotas
+(`rotas/*.py`) não precisam mudar. O que muda é a implementação interna:
+em vez de ler/escrever arquivos JSON, cada método abre uma sessão do
+Postgres e executa queries SQLAlchemy.
 """
 from __future__ import annotations
 
 import datetime
 import json
 import os
-from typing import Dict, List, Optional, Protocol, runtime_checkable
+import uuid
+from typing import Dict, List, Optional
+
+from sqlalchemy import select, delete, func
+from sqlalchemy.orm import Session
 
 from .models import (
     Review, Mensagem, ProgressoLeitura, Perfil, CatalogoItem,
     Usuario, Sessao, Amizade, Comentario, MensagemChat,
 )
+from .database import SessionLocal
+from .tabelas import (
+    UsuarioDB, SessaoDB, PerfilDB, ReviewDB,
+    AmizadeDB, ComentarioDB, MensagemChatDB,
+)
+
 
 # ============================================================
-# ERROS CONTROLADOS
+# ERRO CONTROLADO (mantido pra compatibilidade)
 # ============================================================
 class ErroPersistencia(Exception):
     """Erro controlado para a UI avisar o usuário sem quebrar o app."""
 
 
 # ============================================================
-# CONTRATOS (Protocol)
+# HELPERS — conversão entre linha DB e dataclass de domínio
 # ============================================================
-@runtime_checkable
-class ProgressoRepositoryProtocol(Protocol):
-    def obter(self, chave: str) -> ProgressoLeitura: ...
-    def definir(self, chave: str, progresso: ProgressoLeitura) -> None: ...
-    def registrar_pagina(self, chave: str, pagina: int, total: int) -> None: ...
-    def alternar_concluido(self, chave: str) -> ProgressoLeitura: ...
+def _favs_to_json(favs: list) -> str:
+    return json.dumps(list(favs), ensure_ascii=False)
 
 
-@runtime_checkable
-class PerfisRepositoryProtocol(Protocol):
-    perfis: List[Perfil]
-    perfil_ativo: str
-
-    def nomes(self) -> List[str]: ...
-    def obter(self, nome: str) -> Optional[Perfil]: ...
-    def criar(self, nome: str) -> bool: ...
-    def atualizar(self, perfil: Perfil) -> None: ...
-    def definir_ativo(self, nome: str) -> None: ...
-    def ativo(self) -> Optional[Perfil]: ...
-    def eh_favorito(self, perfil_id: str, obra_id: str) -> bool: ...
-    def alternar_favorito(self, perfil_id: str, obra_id: str) -> tuple[bool, str]: ...
-    def definir_favoritos(self, perfil_id: str, obra_ids: List[str]) -> None: ...
-
-
-@runtime_checkable
-class ReviewsRepositoryProtocol(Protocol):
-    def listar_por_perfil(self, perfil: str) -> List[Review]: ...
-    def listar_por_obra(self, obra: str, obra_id: Optional[str] = None) -> List[Review]: ...
-    def media_da_obra(self, obra: str, obra_id: Optional[str] = None) -> tuple[float, int]: ...
-    def obter(self, review_id: str) -> Optional[Review]: ...
-    def adicionar(self, review: Review) -> None: ...
-    def atualizar(self, review: Review) -> None: ...
-    def remover(self, review_id: str) -> None: ...
-
-
-@runtime_checkable
-class ChatRepositoryProtocol(Protocol):
-    amigos: List[str]
-
-    def obter_conversa(self, amigo: str) -> List[Mensagem]: ...
-    def adicionar_mensagem(self, amigo: str, mensagem: Mensagem) -> None: ...
-    def adicionar_amigo(self, nome: str) -> bool: ...
-
-@runtime_checkable
-class CatalogoRepositoryProtocol(Protocol):
-    def listar(self) -> List[CatalogoItem]: ...
-    def obter(self, item_id: str) -> Optional[CatalogoItem]: ...
-    def obter_por_nome(self, nome: str) -> Optional[CatalogoItem]: ...
-
-# ============================================================
-# UTILITÁRIOS
-# ============================================================
-def _salvar_json_atomico(caminho: str, payload) -> None:
-    """Escreve em arquivo temporário e renomeia — evita corrupção em crash."""
-    tmp = caminho + ".tmp"
+def _favs_from_json(raw: str | None) -> list:
+    if not raw:
+        return []
     try:
-        with open(tmp, "w", encoding="utf-8") as f:
-            json.dump(payload, f, ensure_ascii=False, indent=4)
-        os.replace(tmp, caminho)
-    except OSError as e:
-        try:
-            os.remove(tmp)
-        except OSError:
-            pass
-        raise ErroPersistencia(
-            f"Falha ao salvar {os.path.basename(caminho)}: {e}"
-        ) from e
+        dados = json.loads(raw)
+        return [str(x) for x in dados] if isinstance(dados, list) else []
+    except (ValueError, TypeError):
+        return []
 
 
-def _ler_json(caminho: str):
-    """Leitura defensiva: retorna None em qualquer falha em vez de estourar."""
-    if not os.path.exists(caminho):
-        return None
-    try:
-        with open(caminho, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except (OSError, json.JSONDecodeError, ValueError):
-        return None
+def _row_perfil(row: PerfilDB) -> Perfil:
+    return Perfil(
+        id=row.id,
+        nome=row.nome,
+        bio=row.bio or "",
+        foto_path=row.foto_path or "",
+        favoritos=_favs_from_json(row.favoritos_json),
+        criado_em=row.criado_em or "",
+    )
 
 
-# ============================================================
-# PROGRESSO DE LEITURA
-# ============================================================
-class RepositorioProgresso:
-    def __init__(self, caminho_arquivo: str):
-        self.caminho = caminho_arquivo
-        self.dados: Dict[str, ProgressoLeitura] = {}
-        self.carregar()
+def _row_review(row: ReviewDB) -> Review:
+    return Review(
+        id=row.id,
+        perfil=row.perfil,
+        obra=row.obra,
+        nota=row.nota,
+        texto=row.texto or "",
+        data=row.data,
+        editada_em=row.editada_em,
+        obra_id=row.obra_id,
+    )
 
-    def carregar(self) -> None:
-        self.dados = {}
-        bruto = _ler_json(self.caminho)
-        if isinstance(bruto, dict):
-            self.dados = {k: ProgressoLeitura.from_dict(v) for k, v in bruto.items()}
 
-    def salvar(self) -> None:
-        _salvar_json_atomico(
-            self.caminho,
-            {k: v.to_dict() for k, v in self.dados.items()},
-        )
+def _row_usuario(row: UsuarioDB) -> Usuario:
+    return Usuario(
+        id=row.id,
+        nome=row.nome,
+        senha_hash=row.senha_hash,
+        criado_em=row.criado_em,
+    )
 
-    def obter(self, chave: str) -> ProgressoLeitura:
-        return self.dados.get(chave, ProgressoLeitura())
 
-    def definir(self, chave: str, progresso: ProgressoLeitura) -> None:
-        self.dados[chave] = progresso
-        self.salvar()
+def _row_sessao(row: SessaoDB) -> Sessao:
+    return Sessao(
+        token=row.token,
+        usuario_id=row.usuario_id,
+        criado_em=row.criado_em,
+    )
 
-    def registrar_pagina(self, chave: str, pagina: int, total: int) -> None:
-        atual = self.obter(chave)
-        atual.ultima_pagina = pagina
-        # NOTA DE DESIGN: uma vez lido, permanece lido — mesmo se o usuário
-        # voltar páginas depois. Para desmarcar, use `alternar_concluido`.
-        if pagina >= total - 1:
-            atual.concluido = True
-        self.definir(chave, atual)
 
-    def alternar_concluido(self, chave: str) -> ProgressoLeitura:
-        atual = self.obter(chave)
-        atual.concluido = not atual.concluido
-        self.definir(chave, atual)
-        return atual
+def _row_amizade(row: AmizadeDB) -> Amizade:
+    return Amizade(
+        id=row.id,
+        solicitante_id=row.solicitante_id,
+        destinatario_id=row.destinatario_id,
+        status=row.status,
+        criado_em=row.criado_em,
+        respondido_em=row.respondido_em,
+    )
+
+
+def _row_comentario(row: ComentarioDB) -> Comentario:
+    return Comentario(
+        id=row.id,
+        autor_id=row.autor_id,
+        autor_nome=row.autor_nome,
+        alvo_id=row.alvo_id,
+        texto=row.texto,
+        criado_em=row.criado_em,
+    )
+
+
+def _row_msg_chat(row: MensagemChatDB) -> MensagemChat:
+    return MensagemChat(
+        id=row.id,
+        remetente_id=row.remetente_id,
+        remetente_nome=row.remetente_nome,
+        destinatario_id=row.destinatario_id,
+        destinatario_nome=row.destinatario_nome,
+        texto=row.texto,
+        enviado_em=row.enviado_em,
+        lida=bool(row.lida),
+    )
 
 
 # ============================================================
@@ -156,76 +132,83 @@ class RepositorioProgresso:
 # ============================================================
 class RepositorioPerfis:
     PERFIL_PADRAO = "Leitor"
-    LIMITE_FAVORITOS = 5 
+    LIMITE_FAVORITOS = 5
 
-    def __init__(self, caminho_arquivo: str):
-        self.caminho = caminho_arquivo
-        self.perfis: List[Perfil] = []
-        self.perfil_ativo: str = self.PERFIL_PADRAO
-        self.carregar()
-        if not self.perfis:
-            self._criar_perfil_inicial()
+    def __init__(self):
+        """Garante que exista pelo menos o perfil padrão."""
+        self._criar_perfil_inicial_se_vazio()
 
-    def _criar_perfil_inicial(self) -> None:
-        padrao = Perfil.novo(self.PERFIL_PADRAO)
-        self.perfis.append(padrao)
-        self.perfil_ativo = padrao.nome
-        self.salvar()
+    def _criar_perfil_inicial_se_vazio(self) -> None:
+        try:
+            with SessionLocal() as session:
+                total = session.scalar(select(func.count()).select_from(PerfilDB))
+                if total and total > 0:
+                    return
+                padrao = Perfil.novo(self.PERFIL_PADRAO)
+                session.add(PerfilDB(
+                    id=padrao.id,
+                    nome=padrao.nome,
+                    bio=padrao.bio,
+                    foto_path=padrao.foto_path,
+                    favoritos_json=_favs_to_json(padrao.favoritos),
+                    criado_em=padrao.criado_em,
+                ))
+                session.commit()
+        except Exception as e:
+            raise ErroPersistencia(f"Erro ao criar perfil padrão: {e}") from e
 
-    def carregar(self) -> None:
-        d = _ler_json(self.caminho)
-        if not isinstance(d, dict):
-            return
-        brutos = d.get("perfis", [])
-        if isinstance(brutos, list):
-            self.perfis = [
-                Perfil.from_dict(p) for p in brutos if isinstance(p, dict)
-            ]
-        ativo = d.get("perfil_ativo")
-        if isinstance(ativo, str) and ativo:
-            self.perfil_ativo = ativo
-
-    def salvar(self) -> None:
-        _salvar_json_atomico(self.caminho, {
-            "perfis": [p.to_dict() for p in self.perfis],
-            "perfil_ativo": self.perfil_ativo,
-        })
+    @property
+    def perfis(self) -> List[Perfil]:
+        """Compatibilidade: alguns lugares acessam `.perfis` diretamente."""
+        with SessionLocal() as session:
+            rows = session.scalars(select(PerfilDB)).all()
+            return [_row_perfil(r) for r in rows]
 
     def nomes(self) -> List[str]:
-        return [p.nome for p in self.perfis]
+        with SessionLocal() as session:
+            return list(session.scalars(select(PerfilDB.nome)).all())
 
     def obter(self, nome: str) -> Optional[Perfil]:
-        return next((p for p in self.perfis if p.nome == nome), None)
+        with SessionLocal() as session:
+            row = session.scalar(select(PerfilDB).where(PerfilDB.nome == nome))
+            return _row_perfil(row) if row else None
 
     def criar(self, nome: str) -> bool:
         nome = nome.strip()
         if not nome:
             return False
-        if self.obter(nome) is not None:
-            return False
-        novo = Perfil.novo(nome)
-        self.perfis.append(novo)
-        self.perfil_ativo = novo.nome
-        self.salvar()
-        return True
+        with SessionLocal() as session:
+            existe = session.scalar(select(PerfilDB).where(PerfilDB.nome == nome))
+            if existe:
+                return False
+            novo = Perfil.novo(nome)
+            session.add(PerfilDB(
+                id=novo.id,
+                nome=novo.nome,
+                bio=novo.bio,
+                foto_path=novo.foto_path,
+                favoritos_json=_favs_to_json(novo.favoritos),
+                criado_em=novo.criado_em,
+            ))
+            session.commit()
+            return True
 
     def atualizar(self, perfil: Perfil) -> None:
-        for i, p in enumerate(self.perfis):
-            if p.id == perfil.id:
-                self.perfis[i] = perfil
-                break
-        self.salvar()
+        with SessionLocal() as session:
+            row = session.get(PerfilDB, perfil.id)
+            if row is None:
+                return
+            row.nome = perfil.nome
+            row.bio = perfil.bio
+            row.foto_path = perfil.foto_path
+            row.favoritos_json = _favs_to_json(perfil.favoritos)
+            row.criado_em = perfil.criado_em
+            session.commit()
 
-    def definir_ativo(self, nome: str) -> None:
-        if self.obter(nome) is not None:
-            self.perfil_ativo = nome
-            self.salvar()
-
-    def ativo(self) -> Optional[Perfil]:
-        return self.obter(self.perfil_ativo)
-    
     def _obter_por_id(self, perfil_id: str) -> Optional[Perfil]:
-        return next((p for p in self.perfis if p.id == perfil_id), None)
+        with SessionLocal() as session:
+            row = session.get(PerfilDB, perfil_id)
+            return _row_perfil(row) if row else None
 
     def eh_favorito(self, perfil_id: str, obra_id: str) -> bool:
         perfil = self._obter_por_id(perfil_id)
@@ -234,18 +217,15 @@ class RepositorioPerfis:
         return obra_id in perfil.favoritos
 
     def alternar_favorito(self, perfil_id: str, obra_id: str) -> tuple[bool, str]:
-        """Adiciona/remove dos favoritos. Retorna (sucesso, mensagem)."""
         perfil = self._obter_por_id(perfil_id)
         if perfil is None:
             return (False, "Perfil não encontrado.")
 
-        # Já é favorito → remove
         if obra_id in perfil.favoritos:
             perfil.favoritos.remove(obra_id)
             self.atualizar(perfil)
             return (True, "Removido dos favoritos.")
 
-        # Vai adicionar → checa o limite
         if len(perfil.favoritos) >= self.LIMITE_FAVORITOS:
             return (
                 False,
@@ -258,12 +238,9 @@ class RepositorioPerfis:
         return (True, "Adicionado aos favoritos.")
 
     def definir_favoritos(self, perfil_id: str, obra_ids: List[str]) -> None:
-        """Substitui a lista inteira de favoritos (usado pelo seletor)."""
         perfil = self._obter_por_id(perfil_id)
         if perfil is None:
             return
-
-        # Remove duplicatas mantendo ordem, e trunca no limite
         vistos = set()
         limpos: List[str] = []
         for oid in obra_ids:
@@ -273,98 +250,92 @@ class RepositorioPerfis:
             limpos.append(oid)
             if len(limpos) >= self.LIMITE_FAVORITOS:
                 break
-
         perfil.favoritos = limpos
         self.atualizar(perfil)
 
-
     def remover(self, nome: str) -> bool:
-        """Remove um perfil pelo nome.
-
-        Retorna False se:
-        - O perfil não existe
-        - É o último perfil (não deixa a lista vazia)
-
-        Se o perfil removido era o ativo, muda o ativo para o primeiro restante.
-        """
-        perfil = self.obter(nome)
-        if perfil is None:
-            return False
-
-        if len(self.perfis) <= 1:
-            return False
-
-        self.perfis = [p for p in self.perfis if p.nome != nome]
-
-        if self.perfil_ativo == nome:
-            self.perfil_ativo = self.perfis[0].nome
-
-        self.salvar()
-        return True
+        with SessionLocal() as session:
+            total = session.scalar(select(func.count()).select_from(PerfilDB))
+            if not total or total <= 1:
+                return False
+            row = session.scalar(select(PerfilDB).where(PerfilDB.nome == nome))
+            if row is None:
+                return False
+            session.delete(row)
+            session.commit()
+            return True
 
 
 # ============================================================
-# REVIEWS (agora só reviews — perfil vive em RepositorioPerfis)
+# REVIEWS
 # ============================================================
 class RepositorioReviews:
-    def __init__(self, caminho_arquivo: str):
-        self.caminho = caminho_arquivo
-        self.reviews: List[Review] = []
-        self.carregar()
+    def __init__(self):
+        pass
 
-    def carregar(self) -> None:
-        d = _ler_json(self.caminho)
-        if not isinstance(d, dict):
-            return
-        # Ignora "perfis"/"perfil_ativo" de arquivos antigos — migração suave.
-        self.reviews = [
-            Review.from_dict(r) for r in d.get("reviews", []) if isinstance(r, dict)
-        ]
-
-    def salvar(self) -> None:
-        _salvar_json_atomico(self.caminho, {
-            "reviews": [r.to_dict() for r in self.reviews],
-        })
+    @property
+    def reviews(self) -> List[Review]:
+        with SessionLocal() as session:
+            rows = session.scalars(select(ReviewDB)).all()
+            return [_row_review(r) for r in rows]
 
     def listar_por_perfil(self, perfil: str) -> List[Review]:
-        return [r for r in self.reviews if r.perfil == perfil]
+        with SessionLocal() as session:
+            rows = session.scalars(
+                select(ReviewDB).where(ReviewDB.perfil == perfil)
+            ).all()
+            return [_row_review(r) for r in rows]
 
     def obter(self, review_id: str) -> Optional[Review]:
-        return next((r for r in self.reviews if r.id == review_id), None)
+        with SessionLocal() as session:
+            row = session.get(ReviewDB, review_id)
+            return _row_review(row) if row else None
 
     def adicionar(self, review: Review) -> None:
-        self.reviews.append(review)
-        self.salvar()
+        with SessionLocal() as session:
+            session.add(ReviewDB(
+                id=review.id,
+                perfil=review.perfil,
+                obra=review.obra,
+                obra_id=review.obra_id,
+                nota=review.nota,
+                texto=review.texto,
+                data=review.data,
+                editada_em=review.editada_em,
+            ))
+            session.commit()
 
     def atualizar(self, review: Review) -> None:
-        for i, r in enumerate(self.reviews):
-            if r.id == review.id:
-                self.reviews[i] = review
-                break
-        self.salvar()
+        with SessionLocal() as session:
+            row = session.get(ReviewDB, review.id)
+            if row is None:
+                return
+            row.perfil = review.perfil
+            row.obra = review.obra
+            row.obra_id = review.obra_id
+            row.nota = review.nota
+            row.texto = review.texto
+            row.data = review.data
+            row.editada_em = review.editada_em
+            session.commit()
 
     def remover(self, review_id: str) -> None:
-        self.reviews = [r for r in self.reviews if r.id != review_id]
-        self.salvar()
-
-        # ---------- agregação por obra ----------
-
+        with SessionLocal() as session:
+            row = session.get(ReviewDB, review_id)
+            if row:
+                session.delete(row)
+                session.commit()
 
     def remover_por_perfil(self, perfil: str) -> int:
-        """Remove todas as reviews de um perfil. Retorna quantas removeu."""
-        antes = len(self.reviews)
-        self.reviews = [r for r in self.reviews if r.perfil != perfil]
-        removidas = antes - len(self.reviews)
-        if removidas > 0:
-            self.salvar()
-        return removidas
+        with SessionLocal() as session:
+            result = session.execute(
+                delete(ReviewDB).where(ReviewDB.perfil == perfil)
+            )
+            session.commit()
+            return result.rowcount or 0
 
     def _review_pertence_a_obra(self, review: Review, obra: str,
                                  obra_id: Optional[str]) -> bool:
-        """Regra de match:
-        - Se obra_id foi passado e a review tem obra_id → compara por id
-        - Se a review NÃO tem obra_id → compara por nome (retrocompatibilidade)
-        """
         if obra_id and review.obra_id:
             return review.obra_id == obra_id
         if not review.obra_id:
@@ -373,15 +344,14 @@ class RepositorioReviews:
 
     def listar_por_obra(self, obra: str,
                         obra_id: Optional[str] = None) -> List[Review]:
+        todas = self.reviews
         return [
-            r for r in self.reviews
+            r for r in todas
             if self._review_pertence_a_obra(r, obra, obra_id)
         ]
 
     def media_da_obra(self, obra: str,
                       obra_id: Optional[str] = None) -> tuple[float, int]:
-        """Retorna (média arredondada a 2 casas, quantidade).
-        Se não há reviews, retorna (0.0, 0)."""
         notas = [
             r.nota for r in self.reviews
             if self._review_pertence_a_obra(r, obra, obra_id)
@@ -392,73 +362,414 @@ class RepositorioReviews:
 
 
 # ============================================================
-# CHATOCHAT
+# USUÁRIOS
 # ============================================================
-class RepositorioChat:
-    AMIGOS_DEMO = [f"Amigo {i}" for i in range(1, 16)]
+class RepositorioUsuarios:
+    def __init__(self):
+        pass
 
-    def __init__(self, caminho_arquivo: str, modo_demo: bool = False):
-        """modo_demo=True pré-popula 15 contatos fictícios quando não há arquivo.
-        Use apenas para demonstração/portfólio."""
-        self.caminho = caminho_arquivo
-        self.modo_demo = modo_demo
-        self.amigos: List[str] = []
-        self.conversas: Dict[str, List[Mensagem]] = {}
-        if modo_demo:
-            self.amigos = list(self.AMIGOS_DEMO)
-        self.carregar()
+    @property
+    def usuarios(self) -> List[Usuario]:
+        with SessionLocal() as session:
+            rows = session.scalars(select(UsuarioDB)).all()
+            return [_row_usuario(r) for r in rows]
 
-    def carregar(self) -> None:
-        d = _ler_json(self.caminho)
-        if not isinstance(d, dict):
-            return
-        amigos = d.get("amigos")
-        if isinstance(amigos, list) and amigos:
-            self.amigos = [str(a) for a in amigos]
-        conversas = d.get("conversas", {})
-        if isinstance(conversas, dict):
-            self.conversas = {
-                str(amigo): [Mensagem.from_dict(m) for m in msgs if isinstance(m, dict)]
-                for amigo, msgs in conversas.items()
-            }
+    def obter_por_nome(self, nome: str) -> Optional[Usuario]:
+        alvo = nome.strip().casefold()
+        with SessionLocal() as session:
+            rows = session.scalars(select(UsuarioDB)).all()
+            for row in rows:
+                if row.nome.casefold() == alvo:
+                    return _row_usuario(row)
+            return None
 
-    def salvar(self) -> None:
-        _salvar_json_atomico(self.caminho, {
-            "amigos": self.amigos,
-            "conversas": {
-                amigo: [m.to_dict() for m in msgs]
-                for amigo, msgs in self.conversas.items()
-            },
-        })
+    def obter_por_id(self, usuario_id: str) -> Optional[Usuario]:
+        with SessionLocal() as session:
+            row = session.get(UsuarioDB, usuario_id)
+            return _row_usuario(row) if row else None
 
-    def obter_conversa(self, amigo: str) -> List[Mensagem]:
-        return self.conversas.get(amigo, [])
-
-    def adicionar_mensagem(self, amigo: str, mensagem: Mensagem) -> None:
-        self.conversas.setdefault(amigo, []).append(mensagem)
-        self.salvar()
-
-    def adicionar_amigo(self, nome: str) -> bool:
+    def criar(self, nome: str, senha: str) -> Optional[Usuario]:
         nome = nome.strip()
         if not nome:
-            return False
-        if any(a.casefold() == nome.casefold() for a in self.amigos):
-            return False
-        self.amigos.append(nome)
-        self.conversas.setdefault(nome, [])
-        self.salvar()
-        return True
+            return None
+        if self.obter_por_nome(nome) is not None:
+            return None
+        usuario = Usuario.novo(nome, senha)
+        with SessionLocal() as session:
+            session.add(UsuarioDB(
+                id=usuario.id,
+                nome=usuario.nome,
+                senha_hash=usuario.senha_hash,
+                criado_em=usuario.criado_em,
+            ))
+            session.commit()
+        return usuario
+
 
 # ============================================================
-# CATÁLOGO (obras disponíveis para download)
+# SESSÕES
 # ============================================================
+class RepositorioSessoes:
+    def __init__(self):
+        pass
+
+    @property
+    def sessoes(self) -> List[Sessao]:
+        with SessionLocal() as session:
+            rows = session.scalars(select(SessaoDB)).all()
+            return [_row_sessao(r) for r in rows]
+
+    def criar(self, usuario_id: str) -> Sessao:
+        sessao = Sessao.nova(usuario_id)
+        with SessionLocal() as db:
+            db.add(SessaoDB(
+                token=sessao.token,
+                usuario_id=sessao.usuario_id,
+                criado_em=sessao.criado_em,
+            ))
+            db.commit()
+        return sessao
+
+    def obter(self, token: str) -> Optional[Sessao]:
+        with SessionLocal() as session:
+            row = session.get(SessaoDB, token)
+            return _row_sessao(row) if row else None
+
+    def remover(self, token: str) -> bool:
+        with SessionLocal() as session:
+            row = session.get(SessaoDB, token)
+            if row is None:
+                return False
+            session.delete(row)
+            session.commit()
+            return True
+
+    def remover_por_usuario(self, usuario_id: str) -> int:
+        with SessionLocal() as session:
+            result = session.execute(
+                delete(SessaoDB).where(SessaoDB.usuario_id == usuario_id)
+            )
+            session.commit()
+            return result.rowcount or 0
+
+
+# ============================================================
+# AMIZADES
+# ============================================================
+class RepositorioAmizades:
+    def __init__(self):
+        pass
+
+    @property
+    def amizades(self) -> List[Amizade]:
+        with SessionLocal() as session:
+            rows = session.scalars(select(AmizadeDB)).all()
+            return [_row_amizade(r) for r in rows]
+
+    def obter(self, amizade_id: str) -> Optional[Amizade]:
+        with SessionLocal() as session:
+            row = session.get(AmizadeDB, amizade_id)
+            return _row_amizade(row) if row else None
+
+    def _existe_entre(self, u1: str, u2: str) -> Optional[Amizade]:
+        with SessionLocal() as session:
+            rows = session.scalars(select(AmizadeDB)).all()
+            for row in rows:
+                par = {row.solicitante_id, row.destinatario_id}
+                if par == {u1, u2}:
+                    return _row_amizade(row)
+            return None
+
+    def enviar_pedido(self, solicitante_id: str,
+                      destinatario_id: str) -> Optional[Amizade]:
+        if solicitante_id == destinatario_id:
+            return None
+        if self._existe_entre(solicitante_id, destinatario_id) is not None:
+            return None
+        nova = Amizade.nova(solicitante_id, destinatario_id)
+        with SessionLocal() as session:
+            session.add(AmizadeDB(
+                id=nova.id,
+                solicitante_id=nova.solicitante_id,
+                destinatario_id=nova.destinatario_id,
+                status=nova.status,
+                criado_em=nova.criado_em,
+                respondido_em=nova.respondido_em,
+            ))
+            session.commit()
+        return nova
+
+    def aceitar(self, amizade_id: str, usuario_id: str) -> Optional[Amizade]:
+        with SessionLocal() as session:
+            row = session.get(AmizadeDB, amizade_id)
+            if row is None or row.status != "pendente":
+                return None
+            if row.destinatario_id != usuario_id:
+                return None
+            row.status = "aceita"
+            row.respondido_em = datetime.datetime.now().strftime("%d/%m/%Y %H:%M")
+            session.commit()
+            return _row_amizade(row)
+
+    def recusar(self, amizade_id: str, usuario_id: str) -> bool:
+        with SessionLocal() as session:
+            row = session.get(AmizadeDB, amizade_id)
+            if row is None or row.status != "pendente":
+                return False
+            if row.destinatario_id != usuario_id:
+                return False
+            session.delete(row)
+            session.commit()
+            return True
+
+    def desfazer(self, amizade_id: str, usuario_id: str) -> bool:
+        with SessionLocal() as session:
+            row = session.get(AmizadeDB, amizade_id)
+            if row is None:
+                return False
+            if usuario_id not in (row.solicitante_id, row.destinatario_id):
+                return False
+            session.delete(row)
+            session.commit()
+            return True
+
+    def listar_amigos(self, usuario_id: str) -> List[Amizade]:
+        with SessionLocal() as session:
+            rows = session.scalars(
+                select(AmizadeDB).where(
+                    AmizadeDB.status == "aceita",
+                    (AmizadeDB.solicitante_id == usuario_id)
+                    | (AmizadeDB.destinatario_id == usuario_id),
+                )
+            ).all()
+            return [_row_amizade(r) for r in rows]
+
+    def listar_pendentes_recebidos(self, usuario_id: str) -> List[Amizade]:
+        with SessionLocal() as session:
+            rows = session.scalars(
+                select(AmizadeDB).where(
+                    AmizadeDB.status == "pendente",
+                    AmizadeDB.destinatario_id == usuario_id,
+                )
+            ).all()
+            return [_row_amizade(r) for r in rows]
+
+    def listar_pendentes_enviados(self, usuario_id: str) -> List[Amizade]:
+        with SessionLocal() as session:
+            rows = session.scalars(
+                select(AmizadeDB).where(
+                    AmizadeDB.status == "pendente",
+                    AmizadeDB.solicitante_id == usuario_id,
+                )
+            ).all()
+            return [_row_amizade(r) for r in rows]
+
+    def sao_amigos(self, u1: str, u2: str) -> bool:
+        a = self._existe_entre(u1, u2)
+        return a is not None and a.status == "aceita"
+
+    def remover_por_usuario(self, usuario_id: str) -> int:
+        with SessionLocal() as session:
+            result = session.execute(
+                delete(AmizadeDB).where(
+                    (AmizadeDB.solicitante_id == usuario_id)
+                    | (AmizadeDB.destinatario_id == usuario_id)
+                )
+            )
+            session.commit()
+            return result.rowcount or 0
+
+
+# ============================================================
+# COMENTÁRIOS
+# ============================================================
+class RepositorioComentarios:
+    def __init__(self):
+        pass
+
+    @property
+    def comentarios(self) -> List[Comentario]:
+        with SessionLocal() as session:
+            rows = session.scalars(select(ComentarioDB)).all()
+            return [_row_comentario(r) for r in rows]
+
+    def obter(self, comentario_id: str) -> Optional[Comentario]:
+        with SessionLocal() as session:
+            row = session.get(ComentarioDB, comentario_id)
+            return _row_comentario(row) if row else None
+
+    def criar(self, autor_id: str, autor_nome: str,
+              alvo_id: str, texto: str) -> Comentario:
+        c = Comentario.novo(autor_id, autor_nome, alvo_id, texto)
+        with SessionLocal() as session:
+            session.add(ComentarioDB(
+                id=c.id,
+                autor_id=c.autor_id,
+                autor_nome=c.autor_nome,
+                alvo_id=c.alvo_id,
+                texto=c.texto,
+                criado_em=c.criado_em,
+            ))
+            session.commit()
+        return c
+
+    def listar_do_mural(self, alvo_id: str) -> List[Comentario]:
+        with SessionLocal() as session:
+            rows = session.scalars(
+                select(ComentarioDB).where(ComentarioDB.alvo_id == alvo_id)
+            ).all()
+            lista = [_row_comentario(r) for r in rows]
+            lista.sort(key=lambda c: c.criado_em, reverse=True)
+            return lista
+
+    def remover(self, comentario_id: str, solicitante_id: str) -> bool:
+        with SessionLocal() as session:
+            row = session.get(ComentarioDB, comentario_id)
+            if row is None:
+                return False
+            if solicitante_id not in (row.autor_id, row.alvo_id):
+                return False
+            session.delete(row)
+            session.commit()
+            return True
+
+    def remover_por_usuario(self, usuario_id: str) -> int:
+        with SessionLocal() as session:
+            result = session.execute(
+                delete(ComentarioDB).where(
+                    (ComentarioDB.autor_id == usuario_id)
+                    | (ComentarioDB.alvo_id == usuario_id)
+                )
+            )
+            session.commit()
+            return result.rowcount or 0
+
+
+# ============================================================
+# MENSAGENS DE CHAT
+# ============================================================
+class RepositorioMensagensChat:
+    def __init__(self):
+        pass
+
+    @property
+    def mensagens(self) -> List[MensagemChat]:
+        with SessionLocal() as session:
+            rows = session.scalars(select(MensagemChatDB)).all()
+            return [_row_msg_chat(r) for r in rows]
+
+    def enviar(self, remetente_id: str, remetente_nome: str,
+               destinatario_id: str, destinatario_nome: str,
+               texto: str) -> MensagemChat:
+        msg = MensagemChat.nova(remetente_id, remetente_nome,
+                                 destinatario_id, destinatario_nome, texto)
+        with SessionLocal() as session:
+            session.add(MensagemChatDB(
+                id=msg.id,
+                remetente_id=msg.remetente_id,
+                remetente_nome=msg.remetente_nome,
+                destinatario_id=msg.destinatario_id,
+                destinatario_nome=msg.destinatario_nome,
+                texto=msg.texto,
+                enviado_em=msg.enviado_em,
+                lida=msg.lida,
+            ))
+            session.commit()
+        return msg
+
+    def conversa_entre(self, u1: str, u2: str) -> List[MensagemChat]:
+        with SessionLocal() as session:
+            rows = session.scalars(
+                select(MensagemChatDB).where(
+                    ((MensagemChatDB.remetente_id == u1)
+                     & (MensagemChatDB.destinatario_id == u2))
+                    | ((MensagemChatDB.remetente_id == u2)
+                       & (MensagemChatDB.destinatario_id == u1))
+                )
+            ).all()
+            lista = [_row_msg_chat(r) for r in rows]
+            lista.sort(key=lambda m: m.enviado_em)
+            return lista
+
+    def novas_desde(self, u1: str, u2: str, desde: str) -> List[MensagemChat]:
+        return [m for m in self.conversa_entre(u1, u2) if m.enviado_em > desde]
+
+    def marcar_lidas(self, destinatario_id: str, remetente_id: str) -> int:
+        with SessionLocal() as session:
+            rows = session.scalars(
+                select(MensagemChatDB).where(
+                    MensagemChatDB.destinatario_id == destinatario_id,
+                    MensagemChatDB.remetente_id == remetente_id,
+                    MensagemChatDB.lida == False,  # noqa: E712
+                )
+            ).all()
+            for row in rows:
+                row.lida = True
+            if rows:
+                session.commit()
+            return len(rows)
+
+    def nao_lidas_de(self, destinatario_id: str, remetente_id: str) -> int:
+        with SessionLocal() as session:
+            total = session.scalar(
+                select(func.count()).select_from(MensagemChatDB).where(
+                    MensagemChatDB.destinatario_id == destinatario_id,
+                    MensagemChatDB.remetente_id == remetente_id,
+                    MensagemChatDB.lida == False,  # noqa: E712
+                )
+            )
+            return total or 0
+
+    def total_nao_lidas(self, usuario_id: str) -> int:
+        with SessionLocal() as session:
+            total = session.scalar(
+                select(func.count()).select_from(MensagemChatDB).where(
+                    MensagemChatDB.destinatario_id == usuario_id,
+                    MensagemChatDB.lida == False,  # noqa: E712
+                )
+            )
+            return total or 0
+
+    def ultima_mensagem(self, u1: str, u2: str) -> Optional[MensagemChat]:
+        conv = self.conversa_entre(u1, u2)
+        return conv[-1] if conv else None
+
+    def remover_por_usuario(self, usuario_id: str) -> int:
+        with SessionLocal() as session:
+            result = session.execute(
+                delete(MensagemChatDB).where(
+                    (MensagemChatDB.remetente_id == usuario_id)
+                    | (MensagemChatDB.destinatario_id == usuario_id)
+                )
+            )
+            session.commit()
+            return result.rowcount or 0
+
+# ============================================================
+# CATÁLOGO — continua baseado em JSON (read-only, não muda)
+# ============================================================
+import os
+import uuid
+from .models import CatalogoItem
+
+
+def _ler_json(caminho: str):
+    if not os.path.exists(caminho):
+        return None
+    try:
+        with open(caminho, "r", encoding="utf-8") as f:
+            import json as _json
+            return _json.load(f)
+    except (OSError, ValueError):
+        return None
+
+
 class RepositorioCatalogo:
     """Lê o catálogo de um arquivo JSON local.
 
-    Quando o backend existir, criamos `RepositorioCatalogoAPI` com os mesmos
-    métodos (listar/obter) e trocamos no composition root. A UI não muda.
+    Não migra pro Postgres porque é dado estático, read-only,
+    versionado junto com o código.
     """
-
     def __init__(self, caminho_arquivo: str):
         self.caminho = caminho_arquivo
         self.itens: List[CatalogoItem] = []
@@ -475,11 +786,6 @@ class RepositorioCatalogo:
                 CatalogoItem.from_dict(i) for i in brutos if isinstance(i, dict)
             ]
 
-    def salvar(self) -> None:
-        _salvar_json_atomico(self.caminho, {
-            "obras": [i.to_dict() for i in self.itens],
-        })
-
     def listar(self) -> List[CatalogoItem]:
         return list(self.itens)
 
@@ -493,391 +799,39 @@ class RepositorioCatalogo:
             None,
         )
 
+
 # ============================================================
-# USUÁRIOS (autenticação)
+# PROGRESSO — continua em JSON local (só usado no desktop)
 # ============================================================
-class RepositorioUsuarios:
+class RepositorioProgresso:
+    """Não migra pro Postgres — o progresso de leitura é por máquina,
+    não precisa sincronizar entre dispositivos.
+    """
     def __init__(self, caminho_arquivo: str):
         self.caminho = caminho_arquivo
-        self.usuarios: List[Usuario] = []
+        self.dados: Dict[str, ProgressoLeitura] = {}
         self.carregar()
 
     def carregar(self) -> None:
-        d = _ler_json(self.caminho)
-        if not isinstance(d, dict):
-            return
-        brutos = d.get("usuarios", [])
-        if isinstance(brutos, list):
-            self.usuarios = [
-                Usuario.from_dict(u) for u in brutos if isinstance(u, dict)
-            ]
+        self.dados = {}
+        bruto = _ler_json(self.caminho)
+        if isinstance(bruto, dict):
+            self.dados = {
+                k: ProgressoLeitura.from_dict(v) for k, v in bruto.items()
+            }
 
-    def salvar(self) -> None:
-        _salvar_json_atomico(self.caminho, {
-            "usuarios": [u.to_dict() for u in self.usuarios],
-        })
+    def obter(self, chave: str) -> ProgressoLeitura:
+        return self.dados.get(chave, ProgressoLeitura())
 
-    def obter_por_nome(self, nome: str) -> Optional[Usuario]:
-        """Busca case-insensitive (João = joão)."""
-        alvo = nome.strip().casefold()
-        return next(
-            (u for u in self.usuarios if u.nome.casefold() == alvo),
-            None,
-        )
+    def registrar_pagina(self, chave: str, pagina: int, total: int) -> None:
+        atual = self.obter(chave)
+        atual.ultima_pagina = pagina
+        if pagina >= total - 1:
+            atual.concluido = True
+        self.dados[chave] = atual
 
-    def obter_por_id(self, usuario_id: str) -> Optional[Usuario]:
-        return next((u for u in self.usuarios if u.id == usuario_id), None)
-
-    def criar(self, nome: str, senha: str) -> Optional[Usuario]:
-        """Cria um usuário. Retorna None se o nome já existe."""
-        nome = nome.strip()
-        if not nome:
-            return None
-        if self.obter_por_nome(nome) is not None:
-            return None
-
-        usuario = Usuario.novo(nome, senha)
-        self.usuarios.append(usuario)
-        self.salvar()
-        return usuario
-
-# ============================================================
-# SESSÕES (autenticação via token)
-# ============================================================
-class RepositorioSessoes:
-    def __init__(self, caminho_arquivo: str):
-        self.caminho = caminho_arquivo
-        self.sessoes: List[Sessao] = []
-        self.carregar()
-
-    def carregar(self) -> None:
-        d = _ler_json(self.caminho)
-        if not isinstance(d, dict):
-            return
-        brutos = d.get("sessoes", [])
-        if isinstance(brutos, list):
-            self.sessoes = [
-                Sessao.from_dict(s) for s in brutos if isinstance(s, dict)
-            ]
-
-    def salvar(self) -> None:
-        _salvar_json_atomico(self.caminho, {
-            "sessoes": [s.to_dict() for s in self.sessoes],
-        })
-
-    def criar(self, usuario_id: str) -> Sessao:
-        sessao = Sessao.nova(usuario_id)
-        self.sessoes.append(sessao)
-        self.salvar()
-        return sessao
-
-    def obter(self, token: str) -> Optional[Sessao]:
-        return next((s for s in self.sessoes if s.token == token), None)
-
-    def remover(self, token: str) -> bool:
-        antes = len(self.sessoes)
-        self.sessoes = [s for s in self.sessoes if s.token != token]
-        if len(self.sessoes) < antes:
-            self.salvar()
-            return True
-        return False
-
-    def remover_por_usuario(self, usuario_id: str) -> int:
-        """Remove todas as sessões de um usuário (útil no cascade delete)."""
-        antes = len(self.sessoes)
-        self.sessoes = [s for s in self.sessoes if s.usuario_id != usuario_id]
-        removidas = antes - len(self.sessoes)
-        if removidas > 0:
-            self.salvar()
-        return removidas
-
-# ============================================================
-# AMIZADES
-# ============================================================
-class RepositorioAmizades:
-    def __init__(self, caminho_arquivo: str):
-        self.caminho = caminho_arquivo
-        self.amizades: List[Amizade] = []
-        self.carregar()
-
-    def carregar(self) -> None:
-        d = _ler_json(self.caminho)
-        if not isinstance(d, dict):
-            return
-        brutos = d.get("amizades", [])
-        if isinstance(brutos, list):
-            self.amizades = [
-                Amizade.from_dict(a) for a in brutos if isinstance(a, dict)
-            ]
-
-    def salvar(self) -> None:
-        _salvar_json_atomico(self.caminho, {
-            "amizades": [a.to_dict() for a in self.amizades],
-        })
-
-    def obter(self, amizade_id: str) -> Optional[Amizade]:
-        return next((a for a in self.amizades if a.id == amizade_id), None)
-
-    def _existe_entre(self, u1: str, u2: str) -> Optional[Amizade]:
-        """Retorna a amizade existente entre dois usuários, se houver."""
-        for a in self.amizades:
-            par = {a.solicitante_id, a.destinatario_id}
-            if par == {u1, u2}:
-                return a
-        return None
-
-    def enviar_pedido(self, solicitante_id: str,
-                      destinatario_id: str) -> Optional[Amizade]:
-        """Cria um pedido pendente. Retorna None se:
-        - solicitante == destinatário (não dá pra ser amigo de si mesmo)
-        - já existe amizade ou pedido entre os dois
-        """
-        if solicitante_id == destinatario_id:
-            return None
-        if self._existe_entre(solicitante_id, destinatario_id) is not None:
-            return None
-
-        nova = Amizade.nova(solicitante_id, destinatario_id)
-        self.amizades.append(nova)
-        self.salvar()
-        return nova
-
-    def aceitar(self, amizade_id: str, usuario_id: str) -> Optional[Amizade]:
-        """Aceita um pedido. Só o destinatário pode aceitar."""
-        a = self.obter(amizade_id)
-        if a is None or a.status != "pendente":
-            return None
-        if a.destinatario_id != usuario_id:
-            return None
-
-        a.status = "aceita"
-        a.respondido_em = datetime.datetime.now().strftime("%d/%m/%Y %H:%M")
-        self.salvar()
-        return a
-
-    def recusar(self, amizade_id: str, usuario_id: str) -> bool:
-        """Recusa e apaga. Só o destinatário pode recusar."""
-        a = self.obter(amizade_id)
-        if a is None or a.status != "pendente":
-            return False
-        if a.destinatario_id != usuario_id:
-            return False
-        self.amizades = [x for x in self.amizades if x.id != amizade_id]
-        self.salvar()
-        return True
-
-    def desfazer(self, amizade_id: str, usuario_id: str) -> bool:
-        """Desfaz amizade. Qualquer um dos dois pode."""
-        a = self.obter(amizade_id)
-        if a is None:
-            return False
-        if usuario_id not in (a.solicitante_id, a.destinatario_id):
-            return False
-        self.amizades = [x for x in self.amizades if x.id != amizade_id]
-        self.salvar()
-        return True
-
-    def listar_amigos(self, usuario_id: str) -> List[Amizade]:
-        """Todas as amizades aceitas onde o usuário participa."""
-        return [
-            a for a in self.amizades
-            if a.status == "aceita"
-            and usuario_id in (a.solicitante_id, a.destinatario_id)
-        ]
-
-    def listar_pendentes_recebidos(self, usuario_id: str) -> List[Amizade]:
-        """Pedidos pendentes que EU recebi (para aceitar/recusar)."""
-        return [
-            a for a in self.amizades
-            if a.status == "pendente" and a.destinatario_id == usuario_id
-        ]
-
-    def listar_pendentes_enviados(self, usuario_id: str) -> List[Amizade]:
-        """Pedidos que EU enviei e ainda não foram respondidos."""
-        return [
-            a for a in self.amizades
-            if a.status == "pendente" and a.solicitante_id == usuario_id
-        ]
-
-    def sao_amigos(self, u1: str, u2: str) -> bool:
-        a = self._existe_entre(u1, u2)
-        return a is not None and a.status == "aceita"
-
-    def remover_por_usuario(self, usuario_id: str) -> int:
-        """Remove todas as amizades de um usuário (cascade delete)."""
-        antes = len(self.amizades)
-        self.amizades = [
-            a for a in self.amizades
-            if usuario_id not in (a.solicitante_id, a.destinatario_id)
-        ]
-        removidas = antes - len(self.amizades)
-        if removidas > 0:
-            self.salvar()
-        return removidas
-
-# ============================================================
-# COMENTÁRIOS (mural de recados)
-# ============================================================
-class RepositorioComentarios:
-    def __init__(self, caminho_arquivo: str):
-        self.caminho = caminho_arquivo
-        self.comentarios: List[Comentario] = []
-        self.carregar()
-
-    def carregar(self) -> None:
-        d = _ler_json(self.caminho)
-        if not isinstance(d, dict):
-            return
-        brutos = d.get("comentarios", [])
-        if isinstance(brutos, list):
-            self.comentarios = [
-                Comentario.from_dict(c) for c in brutos if isinstance(c, dict)
-            ]
-
-    def salvar(self) -> None:
-        _salvar_json_atomico(self.caminho, {
-            "comentarios": [c.to_dict() for c in self.comentarios],
-        })
-
-    def obter(self, comentario_id: str) -> Optional[Comentario]:
-        return next((c for c in self.comentarios if c.id == comentario_id), None)
-
-    def criar(self, autor_id: str, autor_nome: str,
-              alvo_id: str, texto: str) -> Comentario:
-        comentario = Comentario.novo(autor_id, autor_nome, alvo_id, texto)
-        self.comentarios.append(comentario)
-        self.salvar()
-        return comentario
-
-    def listar_do_mural(self, alvo_id: str) -> List[Comentario]:
-        """Todos os comentários em um perfil, mais recentes primeiro."""
-        filtrados = [c for c in self.comentarios if c.alvo_id == alvo_id]
-        filtrados.sort(key=lambda c: c.criado_em, reverse=True)
-        return filtrados
-
-    def remover(self, comentario_id: str, solicitante_id: str) -> bool:
-        """Remove se o solicitante for o autor OU o dono do mural.
-
-        Retorna False se não encontrou ou se não tem permissão.
-        """
-        c = self.obter(comentario_id)
-        if c is None:
-            return False
-
-        # Permissão: autor ou dono do mural
-        if solicitante_id not in (c.autor_id, c.alvo_id):
-            return False
-
-        self.comentarios = [x for x in self.comentarios if x.id != comentario_id]
-        self.salvar()
-        return True
-
-    def remover_por_usuario(self, usuario_id: str) -> int:
-        """Remove todos os comentários onde o usuário é autor OU alvo.
-        Usado no cascade delete.
-        """
-        antes = len(self.comentarios)
-        self.comentarios = [
-            c for c in self.comentarios
-            if usuario_id not in (c.autor_id, c.alvo_id)
-        ]
-        removidos = antes - len(self.comentarios)
-        if removidos > 0:
-            self.salvar()
-        return removidos
-
-# ============================================================
-# CHAT PRIVADO (mensagens entre dois usuários)
-# ============================================================
-class RepositorioMensagensChat:
-    def __init__(self, caminho_arquivo: str):
-        self.caminho = caminho_arquivo
-        self.mensagens: List[MensagemChat] = []
-        self.carregar()
-
-    def carregar(self) -> None:
-        d = _ler_json(self.caminho)
-        if not isinstance(d, dict):
-            return
-        brutos = d.get("mensagens", [])
-        if isinstance(brutos, list):
-            self.mensagens = [
-                MensagemChat.from_dict(m) for m in brutos if isinstance(m, dict)
-            ]
-
-    def salvar(self) -> None:
-        _salvar_json_atomico(self.caminho, {
-            "mensagens": [m.to_dict() for m in self.mensagens],
-        })
-
-    def enviar(self, remetente_id: str, remetente_nome: str,
-               destinatario_id: str, destinatario_nome: str,
-               texto: str) -> MensagemChat:
-        msg = MensagemChat.nova(remetente_id, remetente_nome,
-                                 destinatario_id, destinatario_nome, texto)
-        self.mensagens.append(msg)
-        self.salvar()
-        return msg
-
-    def conversa_entre(self, u1: str, u2: str) -> List[MensagemChat]:
-        """Todas as mensagens trocadas entre dois usuários, cronológico."""
-        resultado = [
-            m for m in self.mensagens
-            if {m.remetente_id, m.destinatario_id} == {u1, u2}
-        ]
-        resultado.sort(key=lambda m: m.enviado_em)
-        return resultado
-
-    def novas_desde(self, u1: str, u2: str, desde: str) -> List[MensagemChat]:
-        """Mensagens da conversa enviadas depois de `desde` (para polling)."""
-        resultado = [
-            m for m in self.conversa_entre(u1, u2)
-            if m.enviado_em > desde
-        ]
-        return resultado
-
-    def marcar_lidas(self, destinatario_id: str, remetente_id: str) -> int:
-        """Marca como lidas todas as mensagens que o destinatário recebeu
-        do remetente. Retorna quantas foram atualizadas."""
-        alteradas = 0
-        for m in self.mensagens:
-            if (m.destinatario_id == destinatario_id
-                    and m.remetente_id == remetente_id
-                    and not m.lida):
-                m.lida = True
-                alteradas += 1
-        if alteradas > 0:
-            self.salvar()
-        return alteradas
-
-    def nao_lidas_de(self, destinatario_id: str, remetente_id: str) -> int:
-        """Quantas mensagens não lidas do remetente para o destinatário."""
-        return sum(
-            1 for m in self.mensagens
-            if m.destinatario_id == destinatario_id
-            and m.remetente_id == remetente_id
-            and not m.lida
-        )
-
-    def total_nao_lidas(self, usuario_id: str) -> int:
-        """Total de mensagens não lidas para o usuário (badge geral)."""
-        return sum(
-            1 for m in self.mensagens
-            if m.destinatario_id == usuario_id and not m.lida
-        )
-
-    def ultima_mensagem(self, u1: str, u2: str) -> Optional[MensagemChat]:
-        conversa = self.conversa_entre(u1, u2)
-        return conversa[-1] if conversa else None
-
-    def remover_por_usuario(self, usuario_id: str) -> int:
-        """Remove todas as mensagens onde o usuário é remetente OU destinatário."""
-        antes = len(self.mensagens)
-        self.mensagens = [
-            m for m in self.mensagens
-            if usuario_id not in (m.remetente_id, m.destinatario_id)
-        ]
-        removidas = antes - len(self.mensagens)
-        if removidas > 0:
-            self.salvar()
-        return removidas
+    def alternar_concluido(self, chave: str) -> ProgressoLeitura:
+        atual = self.obter(chave)
+        atual.concluido = not atual.concluido
+        self.dados[chave] = atual
+        return atual

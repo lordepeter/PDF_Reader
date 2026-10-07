@@ -1,5 +1,4 @@
 {
-  "codigo_acesso_mangas": "MANGA2026",
   "obras": [
     {
       "id": "liv-001",
@@ -202,6 +201,26 @@
       ]
     },
     {
+      "id": "liv-023",
+      "nome": "O Médico e o Monstro",
+      "autor": "Robert Louis Stevenson",
+      "ano": 1886,
+      "tema": "livros",
+      "categoria": "Terror",
+      "descricao": "O médico Henry Jekyll cria uma fórmula que libera uma personalidade violenta e moralmente oposta à sua.",
+      "capa_url": "https://archive.org/services/img/jekyll-hyde-o-medico-e-o-monstro-2010-programa",
+      "volumes": [
+        {
+          "numero": 1,
+          "titulo": "O Médico e o Monstro",
+          "url": "https://archive.org/download/jekyll-hyde-o-medico-e-o-monstro-2010-programa/jekyll-hyde-o-medico-e-o-monstro-2010-programa.pdf",
+          "tamanho_mb": 0.0,
+          "fonte": "Internet Archive",
+          "licenca": "Domínio Público"
+        }
+      ]
+    },
+    {
       "id": "liv-024",
       "nome": "O Retrato de Dorian Gray",
       "autor": "Oscar Wilde",
@@ -395,6 +414,26 @@
           "numero": 1,
           "titulo": "Da Terra à Lua",
           "url": "https://archive.org/download/daterraalua/daterraalua.pdf",
+          "tamanho_mb": 0.0,
+          "fonte": "Internet Archive",
+          "licenca": "Domínio Público"
+        }
+      ]
+    },
+    {
+      "id": "liv-063",
+      "nome": "O Conde de Monte Cristo",
+      "autor": "Alexandre Dumas",
+      "ano": 1844,
+      "tema": "livros",
+      "categoria": "Aventura",
+      "descricao": "Edmond Dantès é preso injustamente, escapa após anos e retorna com uma nova identidade para executar sua vingança.",
+      "capa_url": "https://archive.org/services/img/o-conde-de-monte-cristo-pdfdrive",
+      "volumes": [
+        {
+          "numero": 1,
+          "titulo": "O Conde de Monte Cristo",
+          "url": "https://archive.org/download/o-conde-de-monte-cristo-pdfdrive/o-conde-de-monte-cristo-pdfdrive.pdf",
           "tamanho_mb": 0.0,
           "fonte": "Internet Archive",
           "licenca": "Domínio Público"
@@ -649,12 +688,12 @@
       "tema": "livros",
       "categoria": "Literatura Brasileira",
       "descricao": "A história de amor entre Iracema e Martim mistura identidade, natureza e conflitos culturais na formação do Brasil.",
-      "capa_url": "https://archive.org/services/img/iracema-jose-de-alencar-original-lusolivros",
+      "capa_url": "https://archive.org/services/img/iracema-jose-de-alencar-hqs",
       "volumes": [
         {
           "numero": 1,
           "titulo": "Iracema",
-          "url": "https://archive.org/download/iracema-jose-de-alencar-original-lusolivros/Iracema-Jose-de-Alencar.pdf",
+          "url": "https://archive.org/download/iracema-jose-de-alencar-hqs/iracema-jose-de-alencar-hqs.pdf",
           "tamanho_mb": 0.0,
           "fonte": "Internet Archive",
           "licenca": "Domínio Público"

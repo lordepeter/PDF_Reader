@@ -423,23 +423,28 @@ class RepositorioCatalogo:
     def __init__(self, caminho_arquivo: str):
         self.caminho = caminho_arquivo
         self.itens: List[CatalogoItem] = []
+        self.codigo_mangas: Optional[str] = None
         self.carregar()
 
     def carregar(self) -> None:
         d = _ler_json(self.caminho)
         if not isinstance(d, dict):
             self.itens = []
+            self.codigo_mangas = None
             return
         brutos = d.get("obras", [])
         if isinstance(brutos, list):
             self.itens = [
                 CatalogoItem.from_dict(i) for i in brutos if isinstance(i, dict)
             ]
+        codigo = d.get("codigo_acesso_mangas")
+        self.codigo_mangas = str(codigo) if codigo else None
 
     def salvar(self) -> None:
-        _salvar_json_atomico(self.caminho, {
-            "obras": [i.to_dict() for i in self.itens],
-        })
+        payload = {"obras": [i.to_dict() for i in self.itens]}
+        if self.codigo_mangas:
+            payload["codigo_acesso_mangas"] = self.codigo_mangas
+        _salvar_json_atomico(self.caminho, payload)
 
     def listar(self) -> List[CatalogoItem]:
         return list(self.itens)
@@ -453,3 +458,6 @@ class RepositorioCatalogo:
             (i for i in self.itens if i.nome.strip().casefold() == alvo),
             None,
         )
+
+    def codigo_acesso_mangas(self) -> Optional[str]:
+        return self.codigo_mangas
