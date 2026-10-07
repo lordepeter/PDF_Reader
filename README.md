@@ -760,22 +760,3 @@ Projeto desenvolvido como trabalho de Engenharia de Software e portfólio pessoa
   <br>— Dalai Lama
 </p>
 ```
-
----
-
-## 🚀 Próximos passos
-
-1. **Salva o README** com esse conteúdo
-2. **Commita:**
-   ```powershell
-   git add README.md
-   git commit -m "docs: atualiza README para Sophia com infraestrutura em nuvem"
-   git push origin main
-   ```
-3. **Gera o `.zip` do executável:**
-   ```powershell
-   Compress-Archive -Path "dist\Sophia\*" -DestinationPath "Sophia-v1.0.0-win64.zip" -CompressionLevel Optimal
-   ```
-4. **Cria a release** (link: https://github.com/lordepeter/PDF_Reader/releases/new), tag `v1.0.0`, anexa o `.zip`
-
-**Me manda o output do `git push`.** Se tudo ok, o README já tá público e só falta a release. 🚀
