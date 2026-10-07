@@ -48,7 +48,7 @@ class TelaLogin:
 
         ttk.Label(
             cabecalho,
-            text="📖 MangaReader 2000",
+            text="📖 Sophia - Leitor e Rede Social",
             font=("Segoe UI", 20, "bold"),
             foreground="#003366",
         ).pack()

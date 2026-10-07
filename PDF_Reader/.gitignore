@@ -38,16 +38,26 @@ Thumbs.db
 .env
 *.env
 
-# PDFs baixados pelo usuário (não sobem)
+# PDFs baixados pelo usuï¿½rio (nï¿½o sobem)
 pdf_padrao/
 
 # Cache de capas (gerado em runtime)
 assets/cache_capas/
 
-# Listas temporárias
+# Listas temporï¿½rias
 lista_r2.txt
 
 # Backups locais
 main.py.bak
 main.py.funcional_*
 verificar_catalogos.py
+
+
+# PyInstaller (build e distribuiÃ§Ã£o)
+build/
+dist/
+*.spec.bak
+
+# Backups do build
+Sophia.zip
+Sophia-*.zip

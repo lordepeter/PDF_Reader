@@ -40,6 +40,20 @@ from repositories import (
     ReviewsRepositoryProtocol,
 )
 
+def _pasta_dados() -> str:
+    """Onde ficam arquivos que mudam: session, progresso, perfis, pdfs."""
+    if getattr(sys, "frozen", False):
+        # Executável: usa a pasta onde o .exe está
+        return os.path.dirname(sys.executable)
+    # Rodando via 'python main.py': usa a pasta do arquivo
+    return os.path.dirname(os.path.abspath(__file__))
+
+
+def _pasta_recursos() -> str:
+    """Onde ficam assets empacotados: ícones, áudio, catálogo."""
+    if getattr(sys, "frozen", False):
+        return sys._MEIPASS
+    return os.path.dirname(os.path.abspath(__file__))
 
 class SophiaApp:
     def __init__(
@@ -85,7 +99,8 @@ class SophiaApp:
 
         self._fav_frames: dict[str, ttk.Frame] = {}
         self.icones_toolbar = {}
-        self.capas_memoria = []
+        from collections import deque
+        self.capas_memoria = deque(maxlen=100)
 
         self._detalhes_item_atual: CatalogoItem | None = None
         self._detalhes_origem: str = "catalogo"
@@ -105,7 +120,7 @@ class SophiaApp:
         self._volumes_ui: dict[str, dict] = {}
         self._fila_download_manga: list = []
 
-        pasta_sons = os.path.join(os.path.dirname(__file__), "assets", "audio")
+        pasta_sons = os.path.join(_pasta_recursos(), "assets", "audio")
         self.sons = GerenciadorSons(pasta_sons, ativo=True)
 
         self.notificacoes = GerenciadorNotificacoes(self.root)
@@ -131,10 +146,12 @@ class SophiaApp:
         self.repo_perfis = repo_perfis
         self.repo_catalogo = repo_catalogo
 
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        self.pasta_pdf = os.path.join(base_dir, "pdf_padrao")
+        pasta_dados = _pasta_dados()
+        pasta_recursos = _pasta_recursos()
+        self.pasta_pdf = os.path.join(pasta_dados, "pdf_padrao")
         self.gerenciador = GerenciadorDownloads(self.root, self.pasta_pdf)
-        self.capas = GerenciadorCapas(os.path.join(base_dir, "assets", "cache_capas"))
+        self.capas = GerenciadorCapas(
+            os.path.join(pasta_dados, "assets", "cache_capas"))
         self._cards_catalogo: dict[str, dict] = {}
 
         self.doc = None
@@ -145,7 +162,10 @@ class SophiaApp:
         self.amigo_chat_ativo: str | None = None
         self._resize_after_id: str | None = None
         self._chat_ultimo_id: str | None = None
-
+        # ---------- Zoom do leitor ----------
+        self.zoom_atual = 1.0
+        self.zoom_min = 0.25
+        self.zoom_max = 4.0
         # ---------- SCROLL ROUTER ----------
         self.root.bind_all("<MouseWheel>", self._rotear_scroll_canvas)
         self.root.bind_all("<Button-4>", self._scroll_linux_cima)
@@ -285,7 +305,7 @@ class SophiaApp:
 
     def _loop_verificar_conexao(self):
         self._verificar_conexao()
-        self.root.after(10_000, self._loop_verificar_conexao)
+        self.root.after(30_000, self._loop_verificar_conexao)
 
     def _loop_polling_chat(self):
         try:
@@ -297,7 +317,7 @@ class SophiaApp:
                 self._verificar_notificacoes_globais()
         except Exception as e:
             print(f"[chat] erro no polling: {e}")
-        self.root.after(3_000, self._loop_polling_chat)
+        self.root.after(5_000, self._loop_polling_chat)
 
     def _atualizar_chat_se_aberto(self):
         if self.chat_api is None:
@@ -544,7 +564,25 @@ class SophiaApp:
         return None
 
     def _rotear_scroll_canvas(self, event):
-        canvas = self._canvas_sob_mouse(event)
+        # Otimização: evita winfo_containing pra widgets que não são Canvas
+        try:
+            widget = event.widget
+        except AttributeError:
+            widget = None
+
+        # Se o widget sob o mouse for um Canvas, usa direto (evita lookup caro)
+        canvas = None
+        if isinstance(widget, tk.Canvas):
+            canvas = widget
+        else:
+            # Fallback: sobe a árvore até achar um Canvas
+            w = widget
+            while w is not None:
+                if isinstance(w, tk.Canvas):
+                    canvas = w
+                    break
+                w = getattr(w, "master", None)
+
         if canvas is None:
             return
 
@@ -564,7 +602,7 @@ class SophiaApp:
             return "break"
         except tk.TclError:
             return
-
+        
     def _scroll_linux_cima(self, event):
         canvas = self._canvas_sob_mouse(event)
         if canvas is not None:
@@ -581,7 +619,7 @@ class SophiaApp:
     # TOOLBAR / IMAGENS
     # ==========================================================
     def carregar_icone(self, nome_arquivo: str, tamanho=(20, 20)):
-        caminho = os.path.join(os.path.dirname(__file__), "assets", "icones", nome_arquivo)
+        caminho = os.path.join(_pasta_recursos(), "assets", "icones", nome_arquivo)
         return self.carregar_imagem(caminho, tamanho, chave_cache=nome_arquivo)
 
     def carregar_imagem(self, caminho: str, tamanho: tuple, chave_cache: str | None = None):
@@ -2016,7 +2054,29 @@ class SophiaApp:
 
         def salvar():
             ids_escolhidos = [iid for iid, v in selecionados.items() if v.get()]
+
+            # 1) Salva local
             self.repo_perfis.definir_favoritos(perfil.id, ids_escolhidos)
+
+            # 2) Envia pra API (usa o endpoint que já existe no perfis_api.py)
+            if self.modo == "api" and self.sessao is not None:
+                try:
+                    from perfis_api import RepositorioPerfisAPI
+                    api = RepositorioPerfisAPI(
+                        os.environ.get("SOPHIA_API_URL",
+                                        "https://sophia-api-lzwc.onrender.com"),
+                        token=self.sessao.token,
+                    )
+                    resultado = api.definir_favoritos(perfil.nome, ids_escolhidos)
+                    print(f"[favoritos-sync] enviados {len(ids_escolhidos)}, "
+                          f"servidor confirmou {len(resultado)}")
+                except Exception as e:
+                    print(f"[favoritos-sync] ERRO: {e}")
+                    messagebox.showwarning(
+                        "Aviso",
+                        f"Favoritos salvos local, mas falhou enviar ao servidor:\n{e}"
+                    )
+
             janela.destroy()
             if self.frame_catalogo.winfo_ismapped():
                 for iid in self._fav_frames:
@@ -2272,7 +2332,7 @@ class SophiaApp:
 
         self.capas_memoria.clear()
 
-        pasta_raiz = os.path.join(os.path.dirname(__file__), "pdf_padrao")
+        pasta_raiz = os.path.join(_pasta_dados(), "pdf_padrao")
         if not os.path.isdir(pasta_raiz):
             ttk.Label(conteudo, text="A pasta 'pdf_padrao' não foi encontrada.").pack(
                 padx=20, pady=20)
@@ -2356,7 +2416,7 @@ class SophiaApp:
         canvas.pack(side="left", expand=True, fill="both")
         scrollbar.pack(side="right", fill="y")
 
-        caminho_obra = os.path.join(os.path.dirname(__file__), "pdf_padrao", nome_obra)
+        caminho_obra = os.path.join(_pasta_dados(), "pdf_padrao", nome_obra)
         try:
             volumes = [f for f in os.listdir(caminho_obra)
                        if f.lower().endswith(".pdf")]
@@ -2429,14 +2489,56 @@ class SophiaApp:
         ttk.Button(controles, text="Próxima ►",
                    command=self.proxima_pagina).pack(side="left", padx=5)
 
+        # ---------- Controles de zoom ----------
+        ttk.Separator(controles, orient="vertical").pack(side="left", fill="y", padx=8)
+
+        ttk.Label(controles, text="Zoom:",
+                  font=("Segoe UI", 9)).pack(side="left", padx=(0, 4))
+
+        tk.Button(controles, text=" − ", command=self.zoom_out,
+                  font=("Segoe UI", 11, "bold"), width=3,
+                  bg="#F0F4F8", activebackground="#D0E3F7",
+                  relief="raised", bd=1).pack(side="left", padx=1)
+
+        self.lbl_zoom = ttk.Label(controles, text="100%",
+                                   font=("Segoe UI", 9, "bold"),
+                                   foreground="#003366", width=5,
+                                   anchor="center")
+        self.lbl_zoom.pack(side="left", padx=4)
+
+        tk.Button(controles, text=" + ", command=self.zoom_in,
+                  font=("Segoe UI", 11, "bold"), width=3,
+                  bg="#F0F4F8", activebackground="#D0E3F7",
+                  relief="raised", bd=1).pack(side="left", padx=1)
+
+        tk.Button(controles, text="Ajustar", command=self.zoom_reset,
+                  font=("Segoe UI", 8),
+                  bg="#F0F4F8", activebackground="#D0E3F7",
+                  relief="raised", bd=1, padx=6).pack(side="left", padx=6)
+
+        # ---------- Canvas com scroll ----------
         frame_canvas = ttk.Frame(self.frame_leitor, relief="sunken")
         frame_canvas.pack(expand=True, fill="both", padx=8, pady=8)
 
         self.canvas = tk.Canvas(frame_canvas, bg="#50555A", highlightthickness=0)
-        self.canvas.pack(expand=True, fill="both")
+        self.canvas.pack(side="left", expand=True, fill="both")
+
+        scrollbar_v = ttk.Scrollbar(frame_canvas, orient="vertical",
+                                      command=self.canvas.yview)
+        scrollbar_v.pack(side="right", fill="y")
+
+        scrollbar_h = ttk.Scrollbar(self.frame_leitor, orient="horizontal",
+                                      command=self.canvas.xview)
+        scrollbar_h.pack(side="bottom", fill="x", padx=8)
+
+        self.canvas.configure(yscrollcommand=scrollbar_v.set,
+                                xscrollcommand=scrollbar_h.set)
 
         self._resize_after_id = None
         self.canvas.bind("<Configure>", self._agendar_rerender)
+        self.canvas.bind("<MouseWheel>", self._on_reader_scroll)
+        self.canvas.bind("<Button-4>", self._on_reader_scroll_linux_up)
+        self.canvas.bind("<Button-5>", self._on_reader_scroll_linux_down)
 
     def _agendar_rerender(self, _event=None):
         if not self.doc:
@@ -2447,6 +2549,53 @@ class SophiaApp:
             except tk.TclError:
                 pass
         self._resize_after_id = self.root.after(150, self.exibir_pagina)
+
+    def zoom_in(self):
+        novo = self.zoom_atual * 1.25
+        if novo > self.zoom_max:
+            novo = self.zoom_max
+        if abs(novo - self.zoom_atual) < 0.01:
+            return
+        self.zoom_atual = novo
+        self.exibir_pagina()
+
+    def zoom_out(self):
+        novo = self.zoom_atual / 1.25
+        if novo < self.zoom_min:
+            novo = self.zoom_min
+        if abs(novo - self.zoom_atual) < 0.01:
+            return
+        self.zoom_atual = novo
+        self.exibir_pagina()
+
+    def zoom_reset(self):
+        self.zoom_atual = 1.0
+        self.exibir_pagina()
+
+    def _on_reader_scroll(self, event):
+        """Scroll normal no canvas. Ctrl+scroll = zoom."""
+        if event.state & 0x0004:
+            if event.delta > 0:
+                self.zoom_in()
+            else:
+                self.zoom_out()
+        else:
+            self.canvas.yview_scroll(int(-event.delta / 120), "units")
+        return "break"
+
+    def _on_reader_scroll_linux_up(self, event):
+        if event.state & 0x0004:
+            self.zoom_in()
+        else:
+            self.canvas.yview_scroll(-1, "units")
+        return "break"
+
+    def _on_reader_scroll_linux_down(self, event):
+        if event.state & 0x0004:
+            self.zoom_out()
+        else:
+            self.canvas.yview_scroll(1, "units")
+        return "break"
 
     def voltar_para_volumes(self):
         if self.obra_selecionada:
@@ -2577,18 +2726,21 @@ class SophiaApp:
             self.frame_leitor.pack(expand=True, fill="both")
 
     def pagina_anterior(self):
+        self._ultima_render_key = None
         if self.doc and self.pagina_atual > 0:
             self.pagina_atual -= 1
             self.registrar_pagina_atual()
             self.exibir_pagina()
 
     def proxima_pagina(self):
+        self._ultima_render_key = None
         if self.doc and self.pagina_atual < self.total_paginas - 1:
             self.pagina_atual += 1
             self.registrar_pagina_atual()
             self.exibir_pagina()
 
     def carregar_documento(self, caminho: str):
+        self.zoom_atual = 1.0 
         try:
             if self.doc:
                 self.doc.close()
@@ -2601,7 +2753,6 @@ class SophiaApp:
             if self.pagina_atual >= self.total_paginas:
                 self.pagina_atual = 0
 
-            gc.collect()
             self.exibir_pagina()
         except Exception as e:
             messagebox.showerror("Erro", f"Não foi possível abrir o arquivo:\n{e}")
@@ -2620,24 +2771,48 @@ class SophiaApp:
             return
 
         self.root.update_idletasks()
-        page = self.doc.load_page(self.pagina_atual)
-
         largura = self.canvas.winfo_width()
         altura = self.canvas.winfo_height()
 
+        # Evita re-render se as dimensões não mudaram de verdade
+        cache_key = (self.pagina_atual, largura, altura,
+                     round(self.zoom_atual, 3))
+        if getattr(self, "_ultima_render_key", None) == cache_key:
+            return
+        self._ultima_render_key = cache_key
+
+        page = self.doc.load_page(self.pagina_atual)
+
         if largura > 10 and altura > 10:
-            zoom = (altura - 20) / page.rect.height
-            pix = page.get_pixmap(matrix=fitz.Matrix(zoom, zoom))
+            zoom_base = (altura - 20) / page.rect.height
+            zoom = zoom_base * self.zoom_atual
         else:
-            pix = page.get_pixmap(dpi=100)
+            zoom = self.zoom_atual
+
+        pix = page.get_pixmap(matrix=fitz.Matrix(zoom, zoom))
 
         img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
         self.tk_img = ImageTk.PhotoImage(img, master=self.root)
 
+        img_w = pix.width
+        img_h = pix.height
+
+        scroll_w = max(img_w, largura)
+        scroll_h = max(img_h, altura)
+
+        x = (scroll_w - img_w) // 2
+        y = (scroll_h - img_h) // 2
+
         self.canvas.delete("all")
-        self.canvas.create_image(largura // 2, 10, anchor="n", image=self.tk_img)
+        self.canvas.create_image(x, y, anchor="nw", image=self.tk_img)
+        self.canvas.configure(scrollregion=(0, 0, scroll_w, scroll_h))
+
         self.lbl_status_pagina.config(
             text=f"Página: {self.pagina_atual + 1} / {self.total_paginas}")
+
+        if hasattr(self, "lbl_zoom"):
+            pct = int(round(self.zoom_atual * 100))
+            self.lbl_zoom.config(text=f"{pct}%")
 
     # ==========================================================
     # PERFIL
@@ -2669,17 +2844,17 @@ class SophiaApp:
         cabecalho = ttk.Frame(conteudo, relief="solid", padding=15)
         cabecalho.pack(fill="x", padx=15, pady=10)
 
-        # ---------- Carrega foto e bio do perfil ----------
+        # ---------- Carrega foto, bio e favoritos do perfil ----------
         foto_path_exibir = ""
         bio_exibir = ""
+        favoritos_exibir: list[str] = []
 
         if eh_perfil_proprio:
-            # Próprio perfil: pega do repo local
             if perfil_local:
                 foto_path_exibir = perfil_local.foto_path
                 bio_exibir = perfil_local.bio.strip()
+                favoritos_exibir = list(perfil_local.favoritos[:5])
         else:
-            # Perfil de outra pessoa: busca da API
             try:
                 from perfis_api import RepositorioPerfisAPI
                 api = RepositorioPerfisAPI(
@@ -2691,6 +2866,8 @@ class SophiaApp:
                 if p_remoto:
                     foto_path_exibir = p_remoto.foto_path
                     bio_exibir = p_remoto.bio.strip()
+                    favoritos_exibir = list(p_remoto.favoritos[:5])
+                    print(f"[perfil] {alvo_nome} tem {len(favoritos_exibir)} favoritos")
             except Exception as e:
                 print(f"[perfil] erro ao buscar {alvo_nome}: {e}")
 
@@ -2746,79 +2923,91 @@ class SophiaApp:
                            command=lambda: self._enviar_pedido_para(alvo_nome)
                            ).pack(side="right", anchor="n")
 
+        corpo = ttk.Frame(conteudo)
+        corpo.pack(fill="x", padx=15, pady=5)
+
         if eh_perfil_proprio:
-            corpo = ttk.Frame(conteudo)
-            corpo.pack(fill="x", padx=15, pady=5)
+            titulo_fav = " 🌟 Meus 5 Favoritos "
+        else:
+            titulo_fav = f" 🌟 Favoritos de {nome_exibicao} "
 
-            favoritos = ttk.LabelFrame(corpo, text=" 🌟 Meus 5 Favoritos ", padding=10)
-            favoritos.pack(side="left", expand=True, fill="both", padx=(0, 10))
+        favoritos = ttk.LabelFrame(corpo, text=titulo_fav, padding=10)
+        favoritos.pack(side="left", expand=True, fill="both", padx=(0, 10))
 
-            ids_favoritos = list(perfil_local.favoritos[:5]) if perfil_local else []
-            while len(ids_favoritos) < 5:
-                ids_favoritos.append(None)
+        ids_favoritos = list(favoritos_exibir[:5])
+        while len(ids_favoritos) < 5:
+            ids_favoritos.append(None)
 
-            for i, obra_id in enumerate(ids_favoritos, start=1):
-                col = ttk.Frame(favoritos)
-                col.pack(side="left", expand=True, padx=5)
+        for i, obra_id in enumerate(ids_favoritos, start=1):
+            col = ttk.Frame(favoritos)
+            col.pack(side="left", expand=True, padx=5)
 
-                if obra_id is None:
+            if obra_id is None:
+                if eh_perfil_proprio:
                     tk.Button(col, text="➕\nAdicionar",
                               bg="#E9EEF4", fg="#666666",
                               relief="flat", width=12, height=7,
                               font=("Segoe UI", 9), cursor="hand2",
                               command=self.abrir_dialogo_favoritos).pack()
-                    ttk.Label(col, text=f"#{i}", font=("Segoe UI", 8, "bold"),
-                              foreground="#AAAAAA").pack(pady=4)
-                    continue
-
-                item = self.repo_catalogo.obter(obra_id)
-                if item is None:
-                    tk.Button(col, text="⚠\nIndisponível",
-                              bg="#F5F5F5", fg="#999999",
-                              relief="flat", width=12, height=7,
-                              font=("Segoe UI", 9), state="disabled").pack()
-                    ttk.Label(col, text=f"#{i}", font=("Segoe UI", 8, "bold"),
-                              foreground="#AAAAAA").pack(pady=4)
-                    continue
-
-                tk_capa = None
-                if self._obra_tem_pdfs_local(item.nome):
-                    caminho_local = os.path.join(self.pasta_pdf, item.nome)
-                    try:
-                        arquivos = [f for f in os.listdir(caminho_local)
-                                    if f.lower().endswith(".pdf")]
-                        if arquivos:
-                            tk_capa = self.gerar_capa_miniatura(
-                                os.path.join(caminho_local, sorted(arquivos)[0]))
-                    except OSError:
-                        pass
-
-                if tk_capa:
-                    tk.Button(col, image=tk_capa, relief="flat", bd=1, bg="#FFFFFF",
-                              cursor="hand2",
-                              command=lambda n=item.nome: self.mostrar_tela_volumes(n)
-                              ).pack()
                 else:
-                    capa_frame = tk.Frame(col, bg="#D0E3F7", width=120, height=170)
-                    capa_frame.pack()
-                    capa_frame.pack_propagate(False)
-                    btn = tk.Button(capa_frame, text="📖", bg="#D0E3F7", fg="#003366",
-                                     font=("Segoe UI", 32), relief="flat",
-                                     cursor="hand2",
-                                     command=lambda n=item.nome: self.mostrar_tela_volumes(n))
-                    btn.pack(expand=True, fill="both")
+                    tk.Label(col, text="", bg="#E9EEF4",
+                             width=12, height=7, relief="flat").pack()
+                ttk.Label(col, text=f"#{i}", font=("Segoe UI", 8, "bold"),
+                          foreground="#AAAAAA").pack(pady=4)
+                continue
 
-                    if item.capa_url:
-                        caminho_cache = self.capas.obter_cache(item.id)
-                        if caminho_cache:
-                            img = self._carregar_capa_ajustada(
-                                caminho_cache, 120, 170, f"capa_{item.id}")
-                            if img:
-                                btn.config(image=img, text="")
-                                btn.image = img
+            item = self.repo_catalogo.obter(obra_id)
+            if item is None:
+                tk.Button(col, text="⚠\nIndisponível",
+                          bg="#F5F5F5", fg="#999999",
+                          relief="flat", width=12, height=7,
+                          font=("Segoe UI", 9), state="disabled").pack()
+                ttk.Label(col, text=f"#{i}", font=("Segoe UI", 8, "bold"),
+                          foreground="#AAAAAA").pack(pady=4)
+                continue
 
-                ttk.Label(col, text=f"#{i}", font=("Segoe UI", 8, "bold")).pack(pady=4)
+            # Comando de clique: próprio perfil abre volumes, outro abre detalhes
+            if eh_perfil_proprio:
+                cmd_capa = lambda n=item.nome: self.mostrar_tela_volumes(n)
+            else:
+                cmd_capa = lambda it=item: self._abrir_detalhes(it)
 
+            tk_capa = None
+            if self._obra_tem_pdfs_local(item.nome):
+                caminho_local = os.path.join(self.pasta_pdf, item.nome)
+                try:
+                    arquivos = [f for f in os.listdir(caminho_local)
+                                if f.lower().endswith(".pdf")]
+                    if arquivos:
+                        tk_capa = self.gerar_capa_miniatura(
+                            os.path.join(caminho_local, sorted(arquivos)[0]))
+                except OSError:
+                    pass
+
+            if tk_capa:
+                tk.Button(col, image=tk_capa, relief="flat", bd=1, bg="#FFFFFF",
+                          cursor="hand2", command=cmd_capa).pack()
+            else:
+                capa_frame = tk.Frame(col, bg="#D0E3F7", width=120, height=170)
+                capa_frame.pack()
+                capa_frame.pack_propagate(False)
+                btn = tk.Button(capa_frame, text="📖", bg="#D0E3F7", fg="#003366",
+                                 font=("Segoe UI", 32), relief="flat",
+                                 cursor="hand2", command=cmd_capa)
+                btn.pack(expand=True, fill="both")
+
+                if item.capa_url:
+                    caminho_cache = self.capas.obter_cache(item.id)
+                    if caminho_cache:
+                        img = self._carregar_capa_ajustada(
+                            caminho_cache, 120, 170, f"capa_{item.id}")
+                        if img:
+                            btn.config(image=img, text="")
+                            btn.image = img
+
+            ttk.Label(col, text=f"#{i}", font=("Segoe UI", 8, "bold")).pack(pady=4)
+
+        if eh_perfil_proprio:
             ttk.Button(favoritos, text="Editar",
                        command=self.abrir_dialogo_favoritos
                        ).pack(side="right", padx=5, anchor="n")
@@ -3313,7 +3502,7 @@ class SophiaApp:
                    command=salvar).pack(anchor="e", pady=(8, 0))
 
     def listar_obras_para_review(self) -> list[str]:
-        pasta = os.path.join(os.path.dirname(__file__), "pdf_padrao")
+        pasta = os.path.join(_pasta_dados(), "pdf_padrao")
         if not os.path.isdir(pasta):
             return []
         resultado = []
@@ -3841,14 +4030,15 @@ if __name__ == "__main__":
     from repositories_api import RepositorioReviewsAPI
     from tela_splash import SplashScreen
 
-    base_dir = os.path.dirname(os.path.abspath(__file__))
+    # ---------- Pastas (funciona em dev e em .exe) ----------
+    base_dir = _pasta_dados()
     MODO = "api"
     API_URL = os.environ.get(
         "SOPHIA_API_URL",
         "https://sophia-api-lzwc.onrender.com",
     )
 
-    # ---------- Repositorios ----------
+    # ---------- Repositórios ----------
     repo_progresso = RepositorioProgresso(
         os.path.join(base_dir, "progresso.json"))
     repo_chat = RepositorioChat(
@@ -3856,7 +4046,7 @@ if __name__ == "__main__":
     repo_perfis = RepositorioPerfis(
         os.path.join(base_dir, "perfis.json"))
     repo_catalogo = RepositorioCatalogo(
-        os.path.join(base_dir, "catalogo", "catalogo.json"))
+        os.path.join(_pasta_recursos(), "catalogo", "catalogo.json"))
 
     if MODO == "api":
         repo_reviews = RepositorioReviewsAPI(API_URL)
@@ -3864,20 +4054,10 @@ if __name__ == "__main__":
         repo_reviews = RepositorioReviews(
             os.path.join(base_dir, "reviews.json"))
 
-    from tela_splash import SplashScreen
-    
-    # ... (imports e repositórios que já existem)
-    
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    MODO = "api"
-    
-    # ⚠️ Troca pela URL pública real quando subir pro Render
-    API_URL = os.environ.get("SOPHIA_API_URL", "https://sophia-api-lzwc.onrender.com")
-
     root = tk.Tk()
     root.title("Sophia")
     root.geometry("1024x768")
-    root.withdraw()  # ← esconde até o splash terminar
+    root.withdraw()  # esconde até o splash terminar
 
     def iniciar_app(sessao=None, modo_offline=False):
         modo_final = "local" if modo_offline else MODO
@@ -3903,10 +4083,10 @@ if __name__ == "__main__":
         root.deiconify()
         iniciar_app(sessao=None, modo_offline=True)
 
-    else:  # "online"
-        # Daqui pra baixo é o fluxo normal (login / sessão)
+    else:  # "online" — fluxo normal de login / sessão
         auth_api = RepositorioAuthAPI(API_URL)
-        sessao_mgr = GerenciadorSessao(os.path.join(base_dir, "session.json"))
+        sessao_mgr = GerenciadorSessao(
+            os.path.join(base_dir, "session.json"))
 
         sessao_salva = sessao_mgr.carregar()
         if sessao_salva is not None:
@@ -3950,11 +4130,13 @@ if __name__ == "__main__":
 
         if sessao_salva is None:
             root.deiconify()
+
             def apos_login(sessao):
                 # Sincronizar perfil com o servidor
                 try:
                     from perfis_api import RepositorioPerfisAPI
-                    api_perfis = RepositorioPerfisAPI(API_URL, token=sessao.token)
+                    api_perfis = RepositorioPerfisAPI(
+                        API_URL, token=sessao.token)
 
                     p_remoto = api_perfis.obter(sessao.nome)
                     if p_remoto is None:
@@ -3981,6 +4163,7 @@ if __name__ == "__main__":
                 except Exception as e:
                     print(f"[apos_login] tela.destruir() falhou (ignorando): {e}")
                 iniciar_app(sessao=sessao)
+
             tela = TelaLogin(root, auth_api, sessao_mgr, apos_login)
 
     root.mainloop()
